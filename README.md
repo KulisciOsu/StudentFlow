@@ -7,7 +7,7 @@
 ### Název týmu
 
 - Kulíšci ♥
-- 
+  
 ### Členové týmu
 - Adam Gebauer
 - Vladimír Pospíšil
@@ -15,7 +15,7 @@
 - Honza Sebroň
 - Kryštov Kristuf
 
-## 📚 DokumentacE
+## 📚 Dokumentacr
 - [Vize projektu](VIZE.PROJEKTU.md)
 
 
