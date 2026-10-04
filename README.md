@@ -13,7 +13,7 @@
 - Vladimír Pospíšil
 - Marek Szczepanik
 - Honza Sebroň
-- Kryštov Kristuf
+- Kryštof Kristuf
 
 ## 📚 Dokumentace
 - [Vize projektu](VIZE.PROJEKTU.md)
