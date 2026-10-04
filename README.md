@@ -15,7 +15,7 @@
 - Honza Sebroň
 - Kryštov Kristuf
 
-## 📚 Dokumentacr
+## 📚 Dokumentace
 - [Vize projektu](VIZE.PROJEKTU.md)
 
 
