@@ -16,6 +16,6 @@
 - Kryštof Kristuf
 
 ## 📚 Dokumentace
-- [Vize projektu](VIZE.PROJEKTU.md)
+- [Vize projektu](VIZE_PROJEKTU.md)
 
 
