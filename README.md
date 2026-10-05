@@ -1,10 +1,10 @@
-# StudentFlow 🌊
+# 🌊 StudentFlow
 
 - Systém pro správu studentských týmových projektů.
 
-## Tým
+## 👥 Tým
 
-### 👥 Název týmu
+### Název týmu
 
 - Kulíšci ♥
   
