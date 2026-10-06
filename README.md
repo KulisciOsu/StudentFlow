@@ -17,5 +17,3 @@
 
 ## 📚 Dokumentace
 - [Vize projektu](documents/VIZE_PROJEKTU.md)
-
-
