@@ -21,7 +21,6 @@
 - [Popis problému](documents/PROBLEM_DESCRIPTION.md)
 - [Stakeholděři](documents/STAKEHOLDERS.md)
 - [Risk-list – seznam rizik](documents/RISK_LIST.md)
-- [Risk-list – seznam rizik](documents/RISK_LIST.md)
 - [Rozsah projektu – Scope](documents/SCOPE_OF_PROJECT.md)
 - [Cíle projektu](documents/PROJECT_OBJECTIVES.md)
 - [Use Case – případy užití](documents/USE_CASE.md)
