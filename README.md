@@ -16,6 +16,7 @@
 - Kryštof Kristuf         |
 
 ## 📚 Dokumentace
+### Fáze 1 - INCEPTION
 - [Vize projektu](documents/VIZE_PROJEKTU.md)
 - [Popis problému](documents/PROBLEM_DESCRIPTION.md)
 - [Stakeholděři](documents/STAKEHOLDERS.md)
