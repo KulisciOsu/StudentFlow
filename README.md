@@ -22,7 +22,6 @@
 > Všichni členové týmu si navzájem poskytují podporu. Vedoucí pozice slouží především k rozdělení odpovědností, koordinaci příslušných oblastí a jejich smysl. Neznamenají výhradní odpovědnost za danou oblast ani omezení zapojení ostatních členů týmu.
 
 ## 📚 Dokumentace
-### Fáze 1 - INCEPTION
 
 | FÁZE I - INCEPTION | FÁZE II - ELABORATION |
 | :--- | :--- |
