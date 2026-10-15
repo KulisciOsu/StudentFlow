@@ -14,9 +14,9 @@
 | :--- | :--- |
 | Adam Gebauer | Vedoucí týmu, support všem |
 | Vladimír Pospíšil | Vedoucí kvality kódu |
-| Marek Szczepanik | Vedoucí backend, Vedoucí testování |
+| Marek Szczepanik | Vedoucí backend, Vedoucí frontend |
 | Honza Sebroň | Vedoucí databází |
-| Kryštof Kristuf | Vedoucí frontendu |
+| Kryštof Kristuf | Vedoucí testování |
 
 > [!CAUTION]
 > Všichni členové týmu si navzájem poskytují podporu. Vedoucí pozice slouží především k rozdělení odpovědností, koordinaci příslušných oblastí a jejich smysl. Neznamenají výhradní odpovědnost za danou oblast ani omezení zapojení ostatních členů týmu.
