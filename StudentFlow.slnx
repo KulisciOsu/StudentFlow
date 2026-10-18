@@ -3,9 +3,12 @@
     <File Path=".gitignore" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/StudentFlow.Api/StudentFlow.Api.csproj" Id="08aa4c4b-d522-467e-a74e-b940faa1b0b0" />
     <Project Path="src/StudentFlow.Client/studentflow.client.esproj">
       <Build />
       <Deploy />
     </Project>
+    <Project Path="src/StudentFlow.Core/StudentFlow.Core.csproj" Id="869d410a-003a-4e5f-9d96-b2676a21caac" />
+    <Project Path="src/StudentFlow.Data/StudentFlow.Data.csproj" Id="38da250e-4a94-4090-9ff3-7e783364a4f3" />
   </Folder>
 </Solution>
