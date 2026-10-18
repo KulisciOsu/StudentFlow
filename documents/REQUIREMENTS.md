@@ -18,7 +18,7 @@
 
 **FP08 – Kanban nástěnka:** Systém umožní zobrazovat úkoly podle jejich stavu a přesouvat je mezi jednotlivými stavy.
 
-**FP09 – Komentáře:** Členové týmu budou moci přidávat komentáře k úkolům.
+**FP09 – Komentáře:** Členové týmu a vyučující budou moci přidávat komentáře k úkolům.
 
 **FP10 – Přílohy:** Systém umožní přikládat soubory k jednotlivým úkolům.
 
@@ -26,7 +26,7 @@
 
 **FP12 – Statistiky:** Systém poskytne přehled o aktivitě a plnění úkolů jednotlivých členů týmu.
 
-**FP13 – Přístup vyučujícího:** Vyučující bude moci sledovat průběh studentských projektů a zobrazovat přehled zapojení jednotlivých členů.
+**FP13 – Přístup vyučujícího:** Vyučující bude moci sledovat průběh studentských projektů.
 
 ## Nefunkční požadavky
 
