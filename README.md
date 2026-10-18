@@ -33,5 +33,5 @@
 | [Cíle projektu](documents/PROJECT_OBJECTIVES.md) |  |
 | [Use Case – případy užití](documents/USE_CASE.md) |  |
 | [Požadavky systému](documents/REQUIREMENTS.md) |  |
-| [Kandidát architektury](documents/KANDIDAT_ARCHITEKTURY.png) |  |
+| [Kandidát architektury](documents/Kandidat-architektury.png) |  |
 
