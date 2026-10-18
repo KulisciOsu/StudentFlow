@@ -12,7 +12,7 @@
 
 | Členové týmu| Responsibilita v týmu |
 | :--- | :--- |
-| Adam Gebauer | Vedoucí týmu, support všem |
+| Adam Gebauer | Vedoucí týmu, Vedoucí designu |
 | Vladimír Pospíšil | Vedoucí kvality kódu |
 | Marek Szczepanik | Vedoucí backend, Vedoucí frontend |
 | Honza Sebroň | Vedoucí databází |
@@ -25,13 +25,13 @@
 
 | FÁZE I - INCEPTION | FÁZE II - ELABORATION |
 | :--- | :--- |
-| [Vize projektu](documents/VIZE_PROJEKTU.md) |  |
-| [Popis problému](documents/PROBLEM_DESCRIPTION.md) |  |
-| [Stakeholděři](documents/STAKEHOLDERS.md) |  |
-| [Risk-list – seznam rizik](documents/RISK_LIST.md) |  |
-| [Rozsah projektu – Scope](documents/SCOPE_OF_PROJECT.md) |  |
-| [Cíle projektu](documents/PROJECT_OBJECTIVES.md) |  |
-| [Use Case – případy užití](documents/USE_CASE.md) |  |
-| [Požadavky systému](documents/REQUIREMENTS.md) |  |
-| [Kandidát architektury](documents/Kandidat-architektury.png) |  |
+| [Vize projektu](documents/INCEPTION/VIZE_PROJEKTU.md) |  |
+| [Popis problému](documents/INCEPTION/PROBLEM_DESCRIPTION.md) |  |
+| [Stakeholděři](documents/INCEPTION/STAKEHOLDERS.md) |  |
+| [Risk-list – seznam rizik](documents/INCEPTION/RISK_LIST.md) |  |
+| [Rozsah projektu – Scope](documents/INCEPTION/SCOPE_OF_PROJECT.md) |  |
+| [Cíle projektu](documents/INCEPTION/PROJECT_OBJECTIVES.md) |  |
+| [Use Case – případy užití](documents/INCEPTION/USE_CASE.md) |  |
+| [Požadavky systému](documents/INCEPTION/REQUIREMENTS.md) |  |
+| [Kandidát architektury](documents/INCEPTION/Kandidat-architektury.png) |  |
 
