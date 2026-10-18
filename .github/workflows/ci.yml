@@ -1,0 +1,60 @@
+
+name: StudentFlow CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend Build & Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build API
+        run: dotnet build src/StudentFlow.Api/StudentFlow.Api.csproj -c Release
+
+      - name: Run tests
+        run: |
+          dotnet test tests/StudentFlow.Core.Tests/StudentFlow.Core.Tests.csproj -c Release
+          dotnet test tests/StudentFlow.Api.Tests/StudentFlow.Api.Tests.csproj -c Release
+          dotnet test tests/StudentFlow.Data.Tests/StudentFlow.Data.Tests.csproj -c Release
+
+  frontend:
+    name: Frontend Build & Lint
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: src/studentflow.client
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
