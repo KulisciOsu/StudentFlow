@@ -1,6 +1,6 @@
-@StudentFlow.Api_HostAddress = http://localhost:5081
+@StudentFlow.Api_HostAddress = https://localhost:7082
 
-GET {{StudentFlow.Api_HostAddress}}/weatherforecast/
+GET {{StudentFlow.Api_HostAddress}}/api/health
 Accept: application/json
 
 ###
