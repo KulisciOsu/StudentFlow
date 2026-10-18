@@ -11,4 +11,9 @@
     <Project Path="src/StudentFlow.Core/StudentFlow.Core.csproj" Id="869d410a-003a-4e5f-9d96-b2676a21caac" />
     <Project Path="src/StudentFlow.Data/StudentFlow.Data.csproj" Id="38da250e-4a94-4090-9ff3-7e783364a4f3" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/StudentFlow.Api.Tests/StudentFlow.Api.Tests.csproj" Id="eb96f643-a734-4417-aa06-a3a5c3b61ace" />
+    <Project Path="tests/StudentFlow.Core.Tests/StudentFlow.Core.Tests.csproj" Id="92db9e6c-4dff-4bfc-8571-c0dfc0c818b3" />
+    <Project Path="tests/StudentFlow.Data.Tests/StudentFlow.Data.Tests.csproj" Id="5ffb244a-2ef5-4a35-8d3b-7c2ab285e7a4" />
+  </Folder>
 </Solution>
