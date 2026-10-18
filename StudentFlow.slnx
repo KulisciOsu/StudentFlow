@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/StudentFlow.Client/studentflow.client.esproj">
+      <Build />
+      <Deploy />
+    </Project>
+  </Folder>
+</Solution>
