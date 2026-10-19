@@ -2,7 +2,7 @@ import type { KanbanColumnProps } from './KanbanColumnTypes'
 import './KanbanColumn.scss'
 
 /// <summary>
-/// Zobrazuje záhlaví a prázdnou plochu jednoho sloupce nástěnky.
+/// Zobrazuje sloupec nástěnky.
 /// </summary>
 export function KanbanColumn({ column }: KanbanColumnProps) {
   return (

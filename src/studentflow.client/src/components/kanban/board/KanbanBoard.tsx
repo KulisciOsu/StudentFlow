@@ -3,7 +3,7 @@ import { KanbanColumn } from '../column/KanbanColumn'
 import './KanbanBoard.scss'
 
 /// <summary>
-/// Výchozí sloupce nástěnky v pořadí jejich zobrazení.
+/// Výchozí sloupce nástěnky.
 /// </summary>
 const columns: Column[] = [
   { id: 'todo', title: 'To Do' },
@@ -12,7 +12,7 @@ const columns: Column[] = [
 ]
 
 /// <summary>
-/// Zobrazuje Kanban nástěnku s výchozími prázdnými sloupci.
+/// Zobrazuje Kanban nástěnku.
 /// </summary>
 export function KanbanBoard() {
   return (

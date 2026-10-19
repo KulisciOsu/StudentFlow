@@ -1,14 +1,14 @@
 /// <summary>
-/// Definice sloupce Kanban nástěnky se stabilním identifikátorem a názvem.
+/// Sloupec nástěnky.
 /// </summary>
 export interface Column {
   /// <summary>
-  /// Stabilní identifikátor sloupce nezávislý na jeho zobrazovaném názvu.
+  /// Identifikátor sloupce.
   /// </summary>
   id: string
 
   /// <summary>
-  /// Název zobrazovaný v záhlaví sloupce.
+  /// Název sloupce.
   /// </summary>
   title: string
 }

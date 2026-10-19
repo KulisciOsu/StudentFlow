@@ -1,11 +1,11 @@
 import type { Column } from '../../../models/ColumnTypes'
 
 /// <summary>
-/// Definice sloupce předaná komponentě pro vykreslení.
+/// Vstupní parametry sloupce.
 /// </summary>
 export interface KanbanColumnProps {
   /// <summary>
-  /// Definice sloupce, jehož záhlaví a plochu komponenta vykreslí.
+  /// Data sloupce.
   /// </summary>
   column: Column
 }
