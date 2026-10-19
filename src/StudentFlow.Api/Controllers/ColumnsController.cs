@@ -15,7 +15,7 @@ public class ColumnsController : ControllerBase
     /// </summary>
     /// <returns>Seznam sloupců.</returns>
     [HttpGet]
-    public IReadOnlyList<KanbanBoardColumnDto> Get()
+    public List<KanbanBoardColumnDto> Get()
     {
         return
         [
