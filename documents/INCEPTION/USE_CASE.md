@@ -1,3 +1,20 @@
+# Seznam hlavních případů užití
+
+| ID | Případ užití | Člen | Vedoucí | Vyučující |
+| :--- | :--- | :---: | :---: | :---: |
+| UC01 | Aktualizovat stav úkolu | Ano | Ano | - |
+| UC02 | Přidat komentář nebo zpětnou vazbu | Ano | Ano | Ano |
+| UC03 | Přiložit soubor nebo výstup práce | Ano | Ano | - |
+| UC04 | Založit týmový projekt | - | Ano | - |
+| UC05 | Spravovat a přiřazovat úkoly | Ano | Ano | - |
+| UC06 | Zobrazit projekt a jeho průběh | Ano | Ano | Ano |
+| UC07 | Přehledová statistika | Ano | Ano | Ano |
+| UC08 | Stáhnout přílohu | Ano | Ano | Ano |
+| UC09 | Zpřístupnit projekt vyučujícímu | - | Ano | - |
+| UC10 | Plánovat deadline | - | Ano | - |
+| UC11 | Zobrazit a číst oznámení | Ano | Ano | Ano |
+
+
 # User Stories
 
 ## UC01 Aktualizovat stav úkolu
