@@ -1,0 +1,19 @@
+.kanban-column {
+  flex: 1 0 16rem;
+  min-height: 22rem;
+  border: 1px solid #e6e9ef;
+  border-radius: 0.5rem;
+  background: #f4f5f7;
+}
+
+.kanban-column-header {
+  padding: 1rem;
+}
+
+.kanban-column-header h3 {
+  margin: 0;
+  color: #44546f;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
