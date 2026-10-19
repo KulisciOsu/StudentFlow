@@ -11,19 +11,43 @@
 ### Členové týmu a jejich responsibilita
 
 ```mermaid
-flowchart TD
-    A["Adam Gebauer<br/>Vedoucí týmu<br/>Vedoucí designu"]
+flowchart LR
+    subgraph TEAM["Členové týmu"]
+        direction TB
+        A["Adam Gebauer"]
+        V["Vladimír Pospíšil"]
+        M["Marek Szczepanik"]
+        H["Honza Sebroň"]
+        K["Kryštof Kristuf"]
+    end
 
-    A --> V["Vladimír Pospíšil<br/>Vedoucí kvality kódu"]
-    A --> M["Marek Szczepanik<br/>Vedoucí backendu<br/>Vedoucí frontendu"]
-    A --> H["Honza Sebroň<br/>Vedoucí databází"]
-    A --> K["Kryštof Kristuf<br/>Vedoucí testování"]
+    subgraph RESPONSIBILITIES["Odpovědnosti"]
+        direction TB
+        LEAD["Vedení týmu"]
+        DESIGN["Design"]
+        QUALITY["Kvalita kódu"]
+        BACKEND["Backend"]
+        FRONTEND["Frontend"]
+        DATABASE["Databáze"]
+        TESTING["Testování"]
+    end
 
-    classDef lead fill:#dbeafe,stroke:#2563eb,color:#1e3a8a,stroke-width:2px
-    classDef member fill:#f3f4f6,stroke:#6b7280,color:#111827
+    A --> LEAD
+    A --> DESIGN
+    V --> QUALITY
+    M --> BACKEND
+    M --> FRONTEND
+    H --> DATABASE
+    K --> TESTING
 
-    class A lead
-    class V,M,H,K member
+    classDef person fill:#1d4ed8,stroke:#1e3a8a,color:#ffffff,stroke-width:2px
+    classDef responsibility fill:#334155,stroke:#64748b,color:#ffffff,stroke-width:1px
+
+    class A,V,M,H,K person
+    class LEAD,DESIGN,QUALITY,BACKEND,FRONTEND,DATABASE,TESTING responsibility
+
+    style TEAM fill:transparent,stroke:#64748b,color:#64748b
+    style RESPONSIBILITIES fill:transparent,stroke:#64748b,color:#64748b
 ```
 
 > [!CAUTION]
