@@ -17,3 +17,12 @@
   font-weight: 600;
   line-height: 1.5;
 }
+
+.kanban-column-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0 0.5rem 0.5rem;
+  list-style: none;
+}
