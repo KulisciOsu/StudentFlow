@@ -19,9 +19,9 @@ public class ColumnsController : ControllerBase
     {
         return
         [
-            new KanbanBoardColumnDto { Id = "todo", Title = "To Do" },
-            new KanbanBoardColumnDto { Id = "in-progress", Title = "In Progress" },
-            new KanbanBoardColumnDto { Id = "done", Title = "Done" }
+            new KanbanBoardColumnDto { Id = 1, Title = "To Do" },
+            new KanbanBoardColumnDto { Id = 2, Title = "In Progress" },
+            new KanbanBoardColumnDto { Id = 3, Title = "Done" }
         ];
     }
 }

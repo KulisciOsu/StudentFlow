@@ -5,7 +5,7 @@ export interface Column {
   /// <summary>
   /// Identifikátor sloupce.
   /// </summary>
-  id: string
+  id: number
 
   /// <summary>
   /// Název sloupce.

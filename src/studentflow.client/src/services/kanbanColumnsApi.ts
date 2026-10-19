@@ -7,7 +7,8 @@ function isColumn(value: unknown): value is Column {
   return typeof value === 'object'
     && value !== null
     && 'id' in value
-    && typeof value.id === 'string'
+    && typeof value.id === 'number'
+    && Number.isInteger(value.id)
     && 'title' in value
     && typeof value.title === 'string'
 }

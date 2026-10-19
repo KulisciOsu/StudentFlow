@@ -8,7 +8,7 @@ public class KanbanBoardColumnDto
     /// <summary>
     /// Identifikátor sloupce.
     /// </summary>
-    public required string Id { get; init; }
+    public required int Id { get; init; }
 
     /// <summary>
     /// Název sloupce.
