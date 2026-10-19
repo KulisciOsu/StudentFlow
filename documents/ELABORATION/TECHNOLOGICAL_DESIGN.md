@@ -36,7 +36,7 @@ flowchart TD
 
     FE["Frontend<br/>React + TypeScript + Vite"]
 
-    API["REST API<br/>Backend: ASP.NET Core<br/>Technologie zatím není definitivně vybrána"]
+    API["REST API<br/>Backend: ASP.NET Core<br/>"]
 
     DB[("PostgreSQL<br/>Relační databáze")]
 
