@@ -2,65 +2,62 @@
 
 ## 1. Účel dokumentu
 
-Tento dokument popisuje navržené technologické řešení systému StudentFlow. Uvádí technologie využívané v jednotlivých částech aplikace, jejich zamýšlené využití a důvody jejich výběru.
+Tento dokument popisuje technologické řešení systému StudentFlow. Uvádí zvolené technologie, jejich využití v jednotlivých částech aplikace a zdůvodnění jejich výběru.
 
-Cílem je zvolit vhodné technologie pro vývoj webové aplikace určené ke správě studentských týmových projektů. Návrh zohledňuje současnou strukturu repozitáře, požadavky systému, možnosti automatizovaného testování a potřebu zabezpečení dat jednotlivých týmů.
+Cílem je vytvořit webovou aplikaci pro správu studentských týmových projektů, která bude přehledná, udržovatelná, bezpečná a rozšiřitelná. Technologický návrh vychází z aktuální struktury repozitáře, požadavků systému a potřeb vývojového týmu.
 
-Dokument zároveň rozlišuje mezi již zvolenými technologiemi a možnostmi, o kterých tým dosud nerozhodl.
+Dokument rozlišuje mezi technologiemi, které jsou pro projekt zvolené, a kandidátními řešeními, o jejichž zavedení musí tým ještě rozhodnout.
 
 ## 2. Přehled technologií
 
-| Oblast | Technologie | Stav rozhodnutí |
+| Oblast | Technologie | Stav |
 | :--- | :--- | :--- |
 | Frontend | React | Zvoleno |
 | Programovací jazyk frontendu | TypeScript | Zvoleno |
 | Vývoj a sestavení frontendu | Vite | Zvoleno |
-| Komunikace mezi frontendem a backendem | REST API, HTTPS, JSON | Zvoleno jako směr řešení |
-| Backend | ASP.NET Core | Zatím nerozhodnuto |
+| Backend | C# a ASP.NET Core Web API | Zvoleno |
+| Komunikace | REST API, HTTP/HTTPS, JSON | Zvoleno |
 | Databáze | PostgreSQL | Zvoleno |
+| Přístup k databázi | Entity Framework Core | Navrženo |
 | Úložiště souborů | MinIO nebo jiné S3 kompatibilní úložiště | Kandidátní řešení |
 | Cache a sessions | Redis | Kandidát |
-| E2E testování | Playwright | Navrženo |
-| Jednotkové a integrační testování | Vitest nebo xUnit podle použité technologie | Výběr závisí na backendu a testované části |
+| E2E testování | Playwright | Zvoleno pro automatizované testování uživatelských scénářů |
+| Testování frontendu | Vitest | Navrženo |
+| Testování backendu | xUnit | Zvoleno |
 | Databázové integrační testy | Testcontainers | Navrženo |
-| Průběžná integrace | GitHub Actions | Využije se pro automatizaci kontrol a testů |
-| Vývojové prostředí | Docker a případně Docker Compose | Podle potřeb týmu |
-
-Konečné rozhodnutí o dosud otevřených technologiích bude provedeno před jejich rozsáhlejším nasazením do implementace.
+| Správa zdrojového kódu | Git a GitHub | Používáno |
+| Průběžná integrace | GitHub Actions | Použije se pro automatizaci sestavení a testů |
+| Kontejnerové prostředí | Docker a případně Docker Compose | Možnost pro vývoj a testování |
 
 ## 3. Diagram technologického řešení
 
 ```mermaid
 flowchart TD
     U["Uživatel"]
-
     FE["Frontend<br/>React + TypeScript + Vite"]
-
-    API["REST API<br/>Backend: ASP.NET Core<br/>"]
-
+    API["Backend<br/>C# + ASP.NET Core Web API"]
     DB[("PostgreSQL<br/>Relační databáze")]
-
-    FS[("MinIO nebo S3 kompatibilní úložiště<br/>Kandidátní řešení")]
-
+    EF["Entity Framework Core"]
+    FS[("MinIO / S3 kompatibilní úložiště<br/>Kandidátní řešení")]
     REDIS[("Redis<br/>Cache a sessions – kandidát")]
 
     U --> FE
-    FE -->|"HTTPS / JSON"| API
-    API --> DB
+    FE -->|"REST API<br/>HTTP/HTTPS, JSON"| API
+    API --> EF
+    EF --> DB
     API -.-> FS
     API -.-> REDIS
 
-    subgraph TESTS["Testování"]
+    subgraph TESTS["Automatizované testování"]
         PW["Playwright<br/>E2E testy"]
-        VITEST["Vitest<br/>Frontend a případně Node.js"]
-        XUNIT["xUnit<br/>Backend v .NET"]
+        VITEST["Vitest<br/>Frontendové testy"]
+        XUNIT["xUnit<br/>Backendové testy"]
         TC["Testcontainers<br/>Integrační testy s PostgreSQL"]
     end
 
     FE -.-> PW
     API -.-> PW
     FE -.-> VITEST
-    API -.-> VITEST
     API -.-> XUNIT
     TC -.-> DB
 
@@ -70,275 +67,276 @@ flowchart TD
     CI -.-> XUNIT
     CI -.-> TC
 
-    SEC["Bezpečnost<br/>HTTPS, autorizace podle rolí,<br/>validace vstupů a izolace dat týmů"]
+    SEC["Bezpečnost<br/>Autentizace a autorizace<br/>Validace vstupů<br/>Izolace dat týmů"]
     API --- SEC
 ```
 
-Diagram zobrazuje hlavní technologie a jejich vztahy. Plné šipky představují hlavní provozní komunikaci aplikace. Přerušované šipky znázorňují volitelné komponenty nebo vazby související s testováním.
+Diagram znázorňuje hlavní technologické komponenty systému StudentFlow a jejich vzájemné vztahy. Plné šipky představují hlavní provozní tok aplikace, zatímco přerušované šipky znázorňují vazby související s testováním nebo kandidátními komponentami.
 
-PostgreSQL je zvolenou databází. MinIO nebo jiné S3 kompatibilní úložiště a Redis zůstávají kandidátními řešeními. Volba backendové technologie zatím není definitivní; podle konečného rozhodnutí se upraví také odpovídající testovací nástroje.
+PostgreSQL a backend ASP.NET Core jsou součástí zvoleného řešení. MinIO nebo jiné S3 kompatibilní úložiště a Redis zůstávají kandidátními možnostmi, jejichž zavedení bude záviset na potřebách aplikace.
 
 ## 4. Frontend
 
 ### 4.1 React
 
-React bude využit pro tvorbu uživatelského rozhraní aplikace StudentFlow. Umožňuje rozdělit rozhraní na samostatné a opakovaně použitelné komponenty, což usnadňuje implementaci i údržbu.
+React bude použit pro tvorbu uživatelského rozhraní aplikace. Umožňuje rozdělit rozhraní do samostatných a opakovaně použitelných komponent, což usnadňuje vývoj, údržbu a rozšiřování aplikace.
 
-V systému bude zajišťovat zobrazování projektů, týmů, úkolů, komentářů a dalších informací. Umožní také vytvářet formuláře, přehledy a interaktivní prvky.
+Ve StudentFlow bude zajišťovat zobrazování projektů, týmů, úkolů a dalších informací. Umožní také vytvářet formuláře a interaktivní prvky, prostřednictvím kterých budou uživatelé se systémem pracovat.
 
-React byl zvolen také proto, že frontendová aplikace je již v této technologii založena. Její zachování omezuje zbytečné náklady spojené s přechodem na jiný framework.
+React byl zvolen také proto, že frontendová aplikace je již v této technologii vytvořena. Zachování stávajícího řešení umožňuje navázat na dosavadní práci a soustředit se na implementaci požadovaných funkcí.
 
 ### 4.2 TypeScript
 
-TypeScript bude hlavním programovacím jazykem frontendu. Rozšiřuje JavaScript o statickou typovou kontrolu, která pomáhá odhalovat některé chyby již během vývoje.
+TypeScript bude použit jako hlavní programovací jazyk frontendové aplikace. Rozšiřuje JavaScript o statickou typovou kontrolu, která pomáhá odhalovat některé chyby již během vývoje.
 
-V projektu bude využit pro implementaci komponent, definování datových struktur a práci s odpověďmi REST API. Typy pomohou sjednotit očekávanou podobu dat a usnadní spolupráci členů týmu.
-
-TypeScript bude využit také při případné volbě backendu Node.js, protože umožňuje používat stejný jazyk na klientské i serverové straně.
+V projektu bude využit pro implementaci komponent, definování datových struktur a zpracování odpovědí REST API. Typování pomůže sjednotit očekávanou podobu dat a usnadní spolupráci více členů týmu.
 
 ### 4.3 Vite
 
-Vite bude sloužit jako nástroj pro vývoj a sestavení frontendové aplikace. Poskytuje vývojový server s rychlou aktualizací změněného kódu a připravuje optimalizované sestavení pro nasazení.
+Vite bude sloužit jako nástroj pro vývoj a sestavení frontendové aplikace. Poskytuje vývojový server a připravuje aplikaci pro nasazení.
 
-Byl zvolen jako součást již vytvořeného frontendového projektu. Umožňuje rychlý vývoj a nevyžaduje zavádění dalšího nástroje pro sestavení aplikace.
+Byl zvolen jako součást současného frontendového projektu. Umožňuje rychle ověřovat změny během vývoje a odděluje proces sestavení aplikace od její vlastní implementace.
 
-## 5. Backend a REST API
+### 4.4 HTML a CSS
 
-### 5.1 REST API
+HTML a CSS budou využity pro strukturu a vzhled uživatelského rozhraní. HTML zajistí strukturu jednotlivých částí aplikace a CSS jejich vizuální podobu, rozvržení a přizpůsobení různým velikostem obrazovek.
 
-REST API bude tvořit rozhraní mezi frontendovou a serverovou částí aplikace. Frontend prostřednictvím něj odešle požadavek na vytvoření, načtení, změnu nebo odstranění dat a backend vrátí odpovídající odpověď.
+## 5. Backend
 
-Komunikace bude využívat standardní HTTP metody, například:
+### 5.1 C# a ASP.NET Core Web API
 
-- `GET` – načtení dat,
-- `POST` – vytvoření záznamu,
-- `PUT` nebo `PATCH` – změna existujících dat,
+Backend bude implementován v jazyce C# s využitím ASP.NET Core Web API. Tato technologie umožňuje vytvářet webová API, zpracovávat HTTP požadavky a poskytovat serverové funkce dalším částem aplikace.
+
+Backend bude odpovědný za zpracování operací s projekty, týmy, úkoly a dalšími objekty systému. Bude také provádět validaci vstupních dat, kontrolu oprávnění uživatelů a přípravu odpovědí pro frontend.
+
+ASP.NET Core bylo zvoleno také proto, že repozitář již obsahuje základ backendu a samostatné projekty pro API, doménovou logiku a datovou vrstvu. Pokračování v této technologii umožní využít existující strukturu a omezí náklady na případný přechod na jiný framework.
+
+### 5.2 Rozdělení backendu
+
+Backend bude rozdělen do tří projektů podle jejich odpovědností:
+
+- **StudentFlow.Api** – zpracování HTTP požadavků, endpointy, controllery a konfigurace aplikace.
+- **StudentFlow.Core** – doménové entity, pravidla a potřebná rozhraní.
+- **StudentFlow.Data** – přístup k databázi a implementace datových operací.
+
+Toto rozdělení podporuje oddělení webové komunikace, doménové logiky a přístupu k datům. Usnadní také samostatné testování jednotlivých částí systému.
+
+Projekt `StudentFlow.Core` nebude přímo záviset na projektech `StudentFlow.Api` ani `StudentFlow.Data`. Datová vrstva bude využívat potřebné typy a rozhraní z projektu `Core`. Implementace potřebných rozhraní budou při konfiguraci aplikace zaregistrovány prostřednictvím dependency injection.
+
+## 6. Komunikace mezi komponentami
+
+### 6.1 REST API
+
+REST API bude zajišťovat komunikaci mezi frontendem a backendem. Frontend bude odesílat požadavky na jednotlivé endpointy backendu, který je zpracuje a vrátí odpovídající odpověď.
+
+Jednotlivé operace budou využívat vhodné HTTP metody:
+
+- `GET` – načtení dat.
+- `POST` – vytvoření nového záznamu.
+- `PUT` nebo `PATCH` – aktualizace existujících dat.
 - `DELETE` – odstranění záznamu.
 
-Data budou předávána ve formátu JSON. REST API umožní oddělit uživatelské rozhraní od implementace serverových funkcí, takže se obě části mohou vyvíjet samostatně při zachování dohodnutého rozhraní.
+REST API bylo zvoleno proto, že vytváří jasně definované rozhraní mezi frontendem a backendem. Obě části lze vyvíjet samostatně, pokud dodržují dohodnutou strukturu požadavků a odpovědí.
 
-### 5.2 Volba backendové technologie
+### 6.2 HTTP/HTTPS a JSON
 
-Konečná technologie backendu zatím není vybrána. Zvažují se dvě varianty: Node.js a ASP.NET Core.
+Data budou mezi frontendem a backendem přenášena ve formátu JSON. Ten je vhodný pro výměnu strukturovaných dat a lze jej snadno zpracovat v TypeScriptu i v .NET.
 
-**Varianta A – Node.js**
+Při nasazení aplikace bude komunikace chráněna pomocí HTTPS. Šifrované spojení pomůže chránit přenášená data před odposlechem a neoprávněnými zásahy během přenosu.
 
-Node.js umožňuje vytvářet serverové aplikace v JavaScriptu, případně s využitím TypeScriptu. Jeho výhodou je možnost používat TypeScript na frontendu i backendu, sjednotit část vývojových nástrojů a sdílet některé datové typy.
+## 7. Databáze a přístup k datům
 
-Tato varianta vyžaduje výběr konkrétního backendového frameworku a návrh struktury serverové aplikace. Pokud by tým zvolil Node.js, bylo by nutné odpovídajícím způsobem upravit současnou strukturu backendových projektů a jejich testování.
-
-**Varianta B – ASP.NET Core Web API**
-
-ASP.NET Core umožňuje vytvářet webová API v jazyce C#. Podporuje zpracování HTTP požadavků, validaci, autentizaci, autorizaci a integraci s databázovými technologiemi.
-
-Výhodou této varianty je skutečnost, že v současném repozitáři již existuje základ backendu rozdělený do projektů `StudentFlow.Api`, `StudentFlow.Core` a `StudentFlow.Data`. K dispozici jsou také samostatné testovací projekty pro .NET a framework xUnit.
-
-Volba ASP.NET Core by proto umožnila navázat na připravenou strukturu bez nutnosti nahrazovat backend jinou technologií.
-
-**Kritéria konečného rozhodnutí**
-
-Při výběru backendové technologie bude tým zohledňovat zejména:
-
-- zkušenosti členů týmu s danou technologií,
-- možnost využít již připravenou strukturu repozitáře,
-- návaznost na PostgreSQL a úložiště souborů,
-- podporu automatizovaného testování,
-- jednoduchost údržby, zabezpečení a dalšího rozvoje aplikace.
-
-Dokud nebude rozhodnutí potvrzeno, budou Node.js a ASP.NET Core vedeny jako alternativy, nikoli jako současně používané backendové technologie.
-
-## 6. Databáze
-
-### 6.1 PostgreSQL
+### 7.1 PostgreSQL
 
 Pro ukládání strukturovaných dat systému StudentFlow byla zvolena relační databáze PostgreSQL.
 
-Systém bude pracovat s propojenými údaji o uživatelích, rolích, týmech, projektech, úkolech a dalších souvisejících objektech. Relační databáze umožňuje tyto vztahy zachytit prostřednictvím tabulek, primárních a cizích klíčů a integritních omezení.
+Aplikace bude pracovat s propojenými údaji o uživatelích, rolích, týmech, projektech, úkolech a dalších objektech. Relační databáze umožňuje tyto vztahy zachytit pomocí tabulek, primárních a cizích klíčů a integritních omezení.
 
-PostgreSQL byl zvolen z následujících důvodů:
+PostgreSQL bylo zvoleno z následujících důvodů:
 
-- podporuje relační datový model vhodný pro strukturované a vzájemně propojené informace,
-- podporuje transakce, které pomáhají zachovat konzistenci dat při změnách,
-- je dostupný jako open-source databázový systém,
-- lze jej provozovat ve vývojovém i nasazeném prostředí,
-- je možné jej integrovat s backendem v Node.js i ASP.NET Core.
+- Podporuje relační datový model vhodný pro vzájemně propojené informace.
+- Podporuje transakce, které pomáhají zachovávat konzistenci dat při změnách.
+- Je dostupné jako open-source řešení bez licenčních poplatků za samotný databázový systém.
+- Lze jej provozovat v běžném vývojovém i nasazeném prostředí.
+- Je možné jej propojit s backendem v .NET prostřednictvím odpovídajícího databázového poskytovatele.
 
-Datový model bude navržen s ohledem na vazby mezi entitami a především na oprávnění uživatelů přistupovat k datům svých týmů.
+Datový model bude navržen s ohledem na vazby mezi entitami a na oprávnění uživatelů přistupovat pouze k datům, ke kterým mají oprávnění.
 
-### 6.2 Přístup k databázi
+### 7.2 Entity Framework Core
 
-Způsob přístupu k PostgreSQL bude záviset na konečné volbě backendu.
+Pro přístup k PostgreSQL z backendu ASP.NET Core se navrhuje využít Entity Framework Core. Jedná se o objektově-relační mapovací nástroj (ORM), který umožňuje pracovat s databázovými záznamy prostřednictvím tříd a objektů v C#.
 
-Pokud bude zvoleno ASP.NET Core, lze využít Entity Framework Core jako objektově-relační mapovací nástroj (ORM). Ten umožňuje pracovat s databázovými záznamy prostřednictvím tříd a objektů v C# a podporuje správu databázového schématu pomocí migrací.
+Entity Framework Core bude možné využít v projektu `StudentFlow.Data` pro načítání, ukládání, aktualizaci a mazání dat. Podporuje také správu databázového schématu prostřednictvím migrací.
 
-Pokud bude zvolen Node.js, tým vybere odpovídající knihovnu nebo ORM kompatibilní s PostgreSQL a TypeScriptem.
+Jeho použití může snížit množství opakujícího se SQL kódu a pomoci udržet přístup k datům oddělený od doménové logiky. Pro PostgreSQL bude potřeba použít odpovídající databázový provider.
 
-V obou případech bude přístup k databázi oddělen od ostatních částí aplikace, aby bylo možné lépe testovat datové operace a udržovat kód.
+## 8. Úložiště souborů
 
-## 7. Úložiště souborů
+### 8.1 MinIO nebo S3 kompatibilní úložiště
 
-### 7.1 MinIO nebo S3 kompatibilní úložiště
+Pro ukládání souborů nahrávaných uživateli se zvažuje MinIO nebo jiné úložiště kompatibilní s rozhraním Amazon S3.
 
-Pro soubory nahrávané do systému se zvažuje MinIO nebo jiné úložiště kompatibilní s rozhraním Amazon S3.
+Objektové úložiště je vhodné pro přílohy projektů, dokumenty a další uživatelský obsah. Umožní oddělit obsah souborů od strukturovaných dat uložených v PostgreSQL.
 
-Objektové úložiště je vhodné pro soubory, jako jsou přílohy projektů, dokumenty a další uživatelský obsah. Umožní oddělit samotné soubory od strukturovaných dat uložených v PostgreSQL.
+Databáze bude uchovávat především metadata souborů, například název, typ, identifikátor úložiště a vazbu na příslušný projekt nebo tým. Samotný obsah souboru bude uložen v objektovém úložišti.
 
-Databáze bude uchovávat především metadata souborů, například název, typ, identifikátor úložiště, vazbu na projekt a informace o vlastníkovi či týmu. Samotný obsah souboru bude uložen v objektovém úložišti.
+Kandidátní řešení bude vyhodnoceno podle snadnosti nasazení, způsobu zabezpečení přístupu, dostupných funkcí a rozsahu projektu.
 
-Kandidátní řešení bude vyhodnoceno podle snadnosti nasazení, dostupnosti potřebných funkcí, zabezpečení přístupu a vhodnosti pro rozsah projektu.
+Přístup k souborům bude kontrolován backendem. Uživatel nesmí získat přístup k souborům jiného týmu pouze na základě znalosti jejich identifikátoru.
 
-Přístup k souborům bude řízen backendem. Uživatel nebude smět získat přístup k souboru jiného týmu pouze na základě znalosti jeho identifikátoru.
+## 9. Cache a sessions
 
-## 8. Cache a sessions
-
-### 8.1 Redis
+### 9.1 Redis
 
 Redis je zvažován jako možné řešení pro ukládání dočasných dat, cachování často používaných informací a případnou správu sdílených sessions.
 
-Cache by mohla snížit počet opakovaných databázových dotazů a urychlit načítání často používaných údajů. Sdílené sessions mohou být užitečné, pokud bude aplikace používat session-based autentizaci a bude potřeba uchovávat session stav mimo proces backendu.
+Cache by mohla snížit počet opakovaných databázových dotazů a urychlit načítání často používaných údajů. Sdílené sessions mohou být užitečné, pokud zvolený způsob autentizace bude vyžadovat uchovávání session stavu mimo proces backendu.
 
-Redis však není nezbytnou součástí první verze aplikace. Jeho zavedení bude záviset na zvoleném způsobu autentizace, skutečných požadavcích na výkon a složitosti řešení.
+Redis však není nezbytnou součástí první verze aplikace. Jeho zavedení bude záviset na skutečných požadavcích na výkon, zvoleném způsobu autentizace a složitosti řešení. Pokud nebude přinášet dostatečný přínos, nebude do systému přidáván pouze kvůli rozšiřování technologického stacku.
 
-Pokud se ukáže, že aplikace Redis nepotřebuje, nebude přidáván pouze kvůli rozšiřování technologického stacku.
-
-## 9. Testování
+## 10. Testování
 
 Testování bude rozděleno podle účelu na jednotkové, integrační a end-to-end testy.
 
-### 9.1 Playwright – end-to-end testování
+### 10.1 Playwright – end-to-end testování
 
 Playwright bude využit pro automatizované end-to-end (E2E) testování webové aplikace prostřednictvím prohlížeče.
 
-Umožní ověřovat celé uživatelské scénáře, například přihlášení, vytvoření projektu, přidání člena do týmu nebo práci s úkoly. Tím prověří spolupráci frontendu a backendu z pohledu uživatele.
+Umožní ověřovat celé uživatelské scénáře, například přihlášení, vytvoření projektu, přidání člena do týmu nebo práci s úkoly. Tím ověří spolupráci frontendu a backendu z pohledu uživatele.
 
-Playwright byl navržen proto, že testuje aplikaci prostřednictvím jejího skutečného uživatelského rozhraní a dokáže odhalovat problémy, které samotné jednotkové testy jednotlivých komponent nemusí zachytit.
+Playwright doplní jednotkové a integrační testy o testování skutečného průchodu aplikací. Díky tomu bude možné odhalovat problémy, které samotné testování jednotlivých komponent nemusí zachytit.
 
-### 9.2 Vitest a xUnit – jednotkové a integrační testy
+### 10.2 Vitest – frontendové testy
 
-Konkrétní testovací framework bude vybrán podle použité technologie a testované části aplikace.
+Vitest bude využit pro jednotkové a případně integrační testování frontendového kódu v TypeScriptu.
 
-**Vitest** je určen pro projekty v JavaScriptu a TypeScriptu. Bude vhodný zejména pro testování frontendových komponent a funkcí. Pokud bude zvolen backend v Node.js, lze jej případně využít také pro testování serverového kódu.
+Umožní testovat jednotlivé funkce a další části frontendové logiky bez nutnosti provádět celý uživatelský scénář v prohlížeči. Společně s Playwrightem tak pokryje různé úrovně testování frontendové aplikace.
 
-**xUnit** je framework pro automatizované testování aplikací v prostředí .NET. Pokud bude zvolen ASP.NET Core, bude vhodný pro testování backendových projektů, včetně doménové logiky a dalších funkcí serveru.
+### 10.3 xUnit – backendové testy
 
-Výběr testovacího frameworku se proto odvíjí od konečného rozhodnutí o backendu. Není nutné používat Vitest i xUnit pro stejnou část systému.
+Pro automatizované testování backendových projektů bude využit framework xUnit, který je určen pro aplikace v prostředí .NET.
 
-### 9.3 Testcontainers – databázové integrační testy
+Testovací projekty budou rozděleny podle testované komponenty:
 
-Testcontainers umožňuje spouštět závislé služby v izolovaných kontejnerech pro účely testování. V systému StudentFlow se navrhuje využít jej pro integrační testy, které potřebují skutečnou instanci PostgreSQL.
+- `StudentFlow.Api.Tests` – testování API, endpointů a jejich chování.
+- `StudentFlow.Core.Tests` – testování doménové logiky a pravidel implementovaných v projektu `StudentFlow.Core`.
+- `StudentFlow.Data.Tests` – testování datové vrstvy a jejích operací.
 
-Tím bude možné ověřovat reálné databázové operace, ukládání a načítání dat, integritu záznamů a chování datové vrstvy bez nutnosti používat sdílenou vývojovou databázi.
+Rozdělení umožní lépe určit, ve které části aplikace se případný problém nachází.
 
-Testcontainers bude zároveň možné využít v automatizovaném testování na CI, pokud bude pro běh testů dostupné odpovídající kontejnerové prostředí.
+### 10.4 Testcontainers – databázové integrační testy
 
-## 10. Infrastruktura a průběžná integrace
+Testcontainers umožňuje spouštět závislé služby v izolovaných kontejnerech pro účely testování. Ve StudentFlow se navrhuje využít jej pro integrační testy, které potřebují skutečnou instanci PostgreSQL.
 
-### 10.1 Git a GitHub
+Umožní testovat reálné databázové operace, ukládání a načítání dat a chování datové vrstvy bez nutnosti používat sdílenou vývojovou databázi.
 
-Git bude využit pro správu verzí zdrojového kódu. Umožní sledovat změny, vytvářet větve, slučovat práci jednotlivých členů týmu a vracet se k předchozím verzím.
+Testcontainers lze propojit s automatizovaným testováním v CI, pokud bude pro běh testů dostupné odpovídající kontejnerové prostředí.
+
+## 11. Infrastruktura a týmová spolupráce
+
+### 11.1 Git a GitHub
+
+Git bude využit pro správu verzí zdrojového kódu. Umožňuje sledovat historii změn, vytvářet větve, slučovat práci členů týmu a vracet se k předchozím verzím.
 
 GitHub bude sloužit jako společné úložiště zdrojového kódu a dokumentace. Podpoří týmovou spolupráci, kontrolu změn a propojení vývoje s automatizovaným testováním.
 
-### 10.2 GitHub Actions
+### 11.2 GitHub Actions
 
 GitHub Actions bude využit pro průběžnou integraci (CI). Umožní automaticky spouštět definované kontroly při změnách v repozitáři.
 
-Workflow v souboru `.github/workflows/ci.yml` bude nastaven tak, aby podle konečného technologického řešení ověřoval sestavení aplikace a spouštěl odpovídající testy.
+Workflow v souboru `.github/workflows/ci.yml` bude postupně nastaven tak, aby podle aktuální konfigurace ověřoval sestavení aplikace a spouštěl odpovídající testy.
 
 Do CI se navrhuje zahrnout zejména:
 
-- sestavení backendu nebo serverové aplikace,
+- sestavení backendu,
 - sestavení frontendu,
 - automatizované jednotkové a integrační testy,
-- E2E testy,
-- testy vyžadující PostgreSQL prostřednictvím Testcontainers.
+- E2E testy pomocí Playwrightu,
+- databázové testy vyžadující PostgreSQL prostřednictvím Testcontainers.
 
-Automatizace pomůže odhalovat chyby průběžně a omezí riziko, že se do společné větve dostanou nefunkční změny.
+Automatizace pomůže odhalovat chyby průběžně a omezí riziko, že se do hlavní větve dostanou nefunkční změny.
 
-### 10.3 Docker a Docker Compose
+### 11.3 Docker a Docker Compose
 
-Docker lze využít pro spuštění podpůrných služeb ve vývojovém prostředí, například PostgreSQL a případně objektového úložiště nebo Redis.
+Docker lze využít pro spuštění podpůrných služeb ve vývojovém a testovacím prostředí, například PostgreSQL a případně objektového úložiště nebo Redis.
 
-Docker Compose může sjednotit konfiguraci a spuštění těchto služeb napříč vývojovými prostředími jednotlivých členů týmu.
+Docker Compose může sjednotit konfiguraci a spuštění těchto služeb napříč prostředími jednotlivých členů týmu.
 
-Docker bude rovněž relevantní pro běh databázových testů prostřednictvím Testcontainers. Rozsah jeho využití při běžném spouštění celé aplikace zatím není nutné definitivně stanovit.
+Docker bude rovněž užitečný při databázových testech prostřednictvím Testcontainers. Rozsah jeho využití pro běžné spouštění celé aplikace může být upřesněn během implementace.
 
-## 11. Bezpečnost
+## 12. Bezpečnost
 
 Bezpečnost je důležitou součástí technologického návrhu, protože systém bude zpracovávat uživatelské účty, týmová data, projekty a případné přílohy.
 
-### 11.1 HTTPS
+### 12.1 HTTPS
 
-Při nasazení aplikace bude komunikace mezi klientem a serverem chráněna pomocí HTTPS. Šifrované spojení pomůže chránit přenášená data před odposlechem a neoprávněnou změnou během přenosu.
+Při nasazení aplikace bude komunikace mezi klientem a serverem chráněna pomocí HTTPS. Šifrované spojení pomáhá chránit přenášená data před odposlechem a neoprávněnými zásahy během přenosu.
 
-### 11.2 Autentizace a autorizace podle rolí
+### 12.2 Autentizace a autorizace podle rolí
 
-Systém bude ověřovat identitu uživatele a řídit přístup k funkcím podle jeho role. Oprávnění budou kontrolována na straně backendu, nikoli pouze skrytím prvků v uživatelském rozhraní.
+Systém bude ověřovat identitu uživatele a řídit přístup k funkcím podle jeho role. Oprávnění budou kontrolována na backendu, nikoli pouze skrytím prvků v uživatelském rozhraní.
 
-Autentizace bude sloužit k ověření identity uživatele, zatímco autorizace určí, jaké operace může provádět.
+Autentizace slouží k ověření identity uživatele, zatímco autorizace určuje, jaké operace může provádět.
 
-Konkrétní způsob implementace autentizace bude navržen s ohledem na zvolenou backendovou technologii.
+### 12.3 Validace vstupních dat
 
-### 11.3 Validace vstupních dat
+Backend bude validovat vstupy od uživatelů před jejich dalším zpracováním a uložením do databáze. Validace ve frontendu pomůže zlepšit uživatelský komfort, ale nenahrazuje serverovou kontrolu.
 
-Backend bude validovat vstupy od uživatelů před jejich dalším zpracováním a uložením do databáze. Validace ve frontendu zlepší uživatelský komfort, ale nebude považována za náhradu serverové kontroly.
+U souborů bude potřeba ověřovat například povolené typy, velikost souboru a oprávnění uživatele k jeho nahrávání.
 
-U souborů bude podle požadavků systému potřeba ověřovat například povolené typy, velikost a oprávnění uživatele k jejich nahrávání.
-
-### 11.4 Izolace dat mezi týmy
+### 12.4 Izolace dat mezi týmy
 
 Jedním z hlavních bezpečnostních požadavků je zabránit tomu, aby člen jednoho týmu získal neoprávněný přístup k datům jiného týmu.
 
 Backend bude při práci s projekty, úkoly, soubory a dalšími týmovými objekty ověřovat, zda má přihlášený uživatel k danému objektu odpovídající oprávnění.
 
-Kontrola bude provedena při každém relevantním požadavku. Nestačí spoléhat pouze na identifikátory posílané klientem ani na omezení viditelnosti dat ve frontendu.
+Kontrola musí proběhnout při každém relevantním požadavku. Nestačí spoléhat pouze na identifikátory posílané klientem ani na omezení viditelnosti dat ve frontendu.
 
-## 12. Otevřená technologická rozhodnutí
+## 13. Otevřená technologická rozhodnutí
 
-Před dokončením technologického řešení musí tým potvrdit následující body:
+Přestože hlavní technologie byly vybrány, několik oblastí vyžaduje ještě rozhodnutí týmu:
 
-1. **Backend:** rozhodnout mezi Node.js a ASP.NET Core. Stávající struktura repozitáře poskytuje výhodu variantě ASP.NET Core, protože již obsahuje základ backendu a testovacích projektů.
-2. **Úložiště souborů:** vybrat mezi MinIO a jiným S3 kompatibilním řešením podle potřeb provozu, způsobu nasazení a zabezpečení.
-3. **Redis:** rozhodnout, zda je cache nebo sdílená session vrstva nezbytná již v první verzi aplikace.
-4. **Testovací framework backendu:** po výběru backendu potvrdit použití xUnit nebo vhodného frameworku v ekosystému Node.js.
-5. **Kontejnerové prostředí:** určit, zda se Docker Compose použije pro lokální provoz podpůrných služeb.
+1. **Úložiště souborů:** vybrat mezi MinIO a jiným S3 kompatibilním řešením podle požadavků na nasazení a zabezpečení.
+2. **Redis:** rozhodnout, zda je cache nebo sdílená session vrstva potřebná již v první verzi aplikace.
+3. **Entity Framework Core:** potvrdit jeho použití a odpovídající PostgreSQL provider v datové vrstvě.
+4. **Testcontainers a Docker Compose:** určit rozsah použití v lokálním prostředí a v CI.
+5. **Konfigurace CI:** ověřit, které sestavovací a testovací kroky už workflow `ci.yml` obsahuje, a doplnit případné chybějící kontroly.
 
-Tato rozhodnutí by měla být provedena před rozsáhlejší implementací příslušných částí systému, aby se omezila potřeba pozdějších zásadních změn.
+Tato rozhodnutí budou provedena podle skutečných požadavků projektu. Kandidátní technologie nebudou zaváděny bez jasného důvodu.
 
-## 13. Zdůvodnění celkového technologického řešení
+## 14. Zdůvodnění celkového technologického řešení
 
-Navržené technologie pokrývají hlavní potřeby systému StudentFlow. React, TypeScript a Vite tvoří základ uživatelského rozhraní. REST API zajišťuje oddělení frontendu od backendu a PostgreSQL poskytuje relační úložiště pro strukturovaná data systému.
+Zvolené technologie tvoří vzájemně kompatibilní celek. React, TypeScript a Vite pokrývají vývoj uživatelského rozhraní. C# a ASP.NET Core Web API zajišťují serverovou část a REST API vytváří jasné rozhraní mezi klientem a serverem.
 
-Pro soubory se zvažuje objektové úložiště, které oddělí obsah souborů od databázových metadat. Redis zůstává volitelnou komponentou a bude zaveden pouze tehdy, pokud bude jeho přínos odpovídat požadavkům aplikace.
+PostgreSQL poskytuje relační úložiště pro propojené údaje o uživatelích, týmech, projektech a úkolech. Entity Framework Core může zjednodušit přístup k datům a zachovat oddělení databázových operací od doménové logiky.
 
-Playwright umožní ověřovat celé uživatelské scénáře, zatímco Vitest nebo xUnit budou použity pro jednotkové a integrační testy podle zvolené technologie. Testcontainers pomůže ověřovat chování aplikace při práci se skutečnou databází. GitHub Actions umožní automatizovat sestavení a testování při změnách v repozitáři.
+Playwright, Vitest a xUnit umožní testovat uživatelské scénáře, frontendovou logiku a backendové komponenty. Testcontainers doplní testování o operace se skutečnou databází. GitHub Actions podpoří automatické ověřování změn během vývoje.
 
-Samostatnou pozornost návrh věnuje zabezpečení přístupu podle rolí, validaci vstupních dat a izolaci dat jednotlivých týmů. Tato opatření jsou zásadní pro ochranu soukromých údajů a obsahu týmových projektů.
+Návrh zahrnuje také bezpečnostní opatření, především autorizaci podle rolí, validaci vstupů a izolaci týmových dat. Úložiště souborů a Redis zůstávají volitelnými rozšířeními, která budou zavedena podle potřeb aplikace.
 
-## 14. Shrnutí
+## 15. Shrnutí
 
-Technologický návrh StudentFlow vychází ze zvoleného frontendu React, TypeScript a Vite, relační databáze PostgreSQL a komunikace prostřednictvím REST API.
+Technologický návrh systému StudentFlow je založen na frontendu React, TypeScript a Vite, backendu C# a ASP.NET Core Web API a relační databázi PostgreSQL. Komunikace mezi frontendem a backendem bude probíhat prostřednictvím REST API s daty ve formátu JSON.
 
-Backendová technologie zatím není definitivně vybrána. Kandidáty jsou Node.js a ASP.NET Core, přičemž současná struktura repozitáře je již připravena pro ASP.NET Core. Další otevřená rozhodnutí se týkají objektového úložiště souborů, Redis a přesného rozdělení testovacích nástrojů.
+Pro přístup k databázi se navrhuje Entity Framework Core. Testování bude rozděleno mezi Playwright pro E2E scénáře, Vitest pro frontend, xUnit pro backend a Testcontainers pro databázové integrační testy.
 
-Playwright, Vitest nebo xUnit a Testcontainers vytvoří základ pro testování na různých úrovních. GitHub Actions podpoří průběžné ověřování změn. Bezpečnostní řešení bude zahrnovat HTTPS, autorizaci podle rolí, validaci vstupů a ochranu dat mezi týmy.
+GitHub Actions bude využit k průběžnému ověřování sestavení a testů. Návrh klade důraz na HTTPS, autorizaci podle rolí, validaci vstupů a ochranu dat mezi týmy.
 
-Návrh tak stanovuje technologický základ projektu a současně transparentně uvádí oblasti, ve kterých je před dokončením implementačního návrhu nutné rozhodnutí celého týmu.
+MinIO nebo jiné S3 kompatibilní úložiště a Redis zůstávají kandidátními řešeními, jejichž zavedení závisí na potřebách systému. Dokument tak stanovuje základní technologický směr projektu a současně vymezuje oblasti, které je potřeba ještě potvrdit.
 
-## 15. Použité zdroje
+## 16. Použité zdroje
 
 - React – oficiální dokumentace: https://react.dev/
 - TypeScript – oficiální dokumentace: https://www.typescriptlang.org/docs/
 - Vite – oficiální dokumentace: https://vite.dev/guide/
-- Node.js – oficiální dokumentace: https://nodejs.org/docs/
 - ASP.NET Core Web API – oficiální dokumentace: https://learn.microsoft.com/en-us/aspnet/core/web-api/
-- PostgreSQL – oficiální dokumentace: https://www.postgresql.org/docs/
 - Entity Framework Core – oficiální dokumentace: https://learn.microsoft.com/en-us/ef/core/
+- PostgreSQL – oficiální dokumentace: https://www.postgresql.org/docs/
 - MinIO – oficiální dokumentace: https://min.io/docs/
 - Redis – oficiální dokumentace: https://redis.io/docs/latest/
 - Playwright – oficiální dokumentace: https://playwright.dev/docs/intro
 - Vitest – oficiální dokumentace: https://vitest.dev/guide/
 - xUnit – oficiální dokumentace: https://xunit.net/
-- Testcontainers – dokumentace pro .NET: https://dotnet.testcontainers.org/
+- Testcontainers pro .NET – dokumentace: https://dotnet.testcontainers.org/
 - GitHub Actions – oficiální dokumentace: https://docs.github.com/en/actions
 - Docker Compose – oficiální dokumentace: https://docs.docker.com/compose/
