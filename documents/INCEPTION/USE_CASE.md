@@ -1,3 +1,53 @@
+# Use Case model
+flowchart LR
+    subgraph Left ["Role"]
+        Clen["Člen týmu"]
+        Vedouci["Vedoucí týmu"]
+        Vyucujici["Vyučující"]
+    end
+
+    subgraph System ["Systém"]
+        direction TB
+        UC02["UC02: Přidat komentář nebo zpětnou vazbu"]
+        UC06["UC06: Zobrazit projekt a jeho průběh"]
+        UC07["UC07: Přehledová statistika"]
+        UC08["UC08: Stáhnout přílohu"]
+        UC11["UC11: Zobrazit a číst oznámení"]
+        UC01["UC01: Aktualizovat stav úkolu"]
+        UC03["UC03: Přiložit soubor nebo výstup práce"]
+        UC05["UC05: Spravovat a přiřazovat úkoly"]
+        UC04["UC04: Založit týmový projekt"]
+        UC09["UC09: Zpřístupnit projekt vyučujícímu"]
+        UC10["UC10: Plánovat deadline"]
+    end
+
+    %% Hierarchie / dědění mezi rolemi (Generalizace)
+    Vedouci -->|extends| Clen
+
+    %% Společné akce pro Člena a Vedoucího
+    Clen --> UC01
+    Clen --> UC02
+    Clen --> UC03
+    Clen --> UC05
+    Clen --> UC06
+    Clen --> UC07
+    Clen --> UC08
+    Clen --> UC11
+
+    %% Unikátní akce Vedoucího týmu
+    Vedouci --> UC04
+    Vedouci --> UC09
+    Vedouci --> UC10
+
+    %% Akce Vyučujícího
+    Vyucujici --> UC02
+    Vyucujici --> UC06
+    Vyucujici --> UC07
+    Vyucujici --> UC08
+    Vyucujici --> UC11
+
+
+
 # Přehled případů užití (Use Cases)
 
 ## UC01 Aktualizovat stav úkolu
