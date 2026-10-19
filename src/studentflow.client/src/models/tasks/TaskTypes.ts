@@ -16,4 +16,9 @@ export interface Task {
   /// Identifikátor sloupce.
   /// </summary>
   columnId: number
+
+  /// <summary>
+  /// Pozice úkolu ve sloupci od nuly.
+  /// </summary>
+  position: number
 }

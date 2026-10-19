@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { getTasks } from '../../services/tasks/kanbanTasksApi'
-import type { KanbanTasksState } from './UseKanbanTasksTypes'
+import type { KanbanTasksResult, KanbanTasksState } from './UseKanbanTasksTypes'
+import { moveTask as moveTaskInBoard } from '../../utils/tasks/moveTask'
 
 /// <summary>
 /// Spravuje načítání úkolů nástěnky.
 /// </summary>
-export function useKanbanTasks(): KanbanTasksState {
+export function useKanbanTasks(): KanbanTasksResult {
   const [state, setState] = useState<KanbanTasksState>({
     tasks: [],
     status: 'loading',
@@ -39,5 +40,15 @@ export function useKanbanTasks(): KanbanTasksState {
     }
   }, [])
 
-  return state
+  /// <summary>
+  /// Aktualizuje sloupec a pozici úkolu.
+  /// </summary>
+  function moveTask(taskId: number, columnId: number, position: number) {
+    setState((current) => ({
+      ...current,
+      tasks: moveTaskInBoard(current.tasks, taskId, columnId, position),
+    }))
+  }
+
+  return { ...state, moveTask }
 }

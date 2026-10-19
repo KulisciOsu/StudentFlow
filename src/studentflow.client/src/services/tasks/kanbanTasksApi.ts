@@ -14,6 +14,10 @@ function isTask(value: unknown): value is Task {
     && 'columnId' in value
     && typeof value.columnId === 'number'
     && Number.isInteger(value.columnId)
+    && 'position' in value
+    && typeof value.position === 'number'
+    && Number.isInteger(value.position)
+    && value.position >= 0
 }
 
 /// <summary>

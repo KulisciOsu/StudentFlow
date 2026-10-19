@@ -19,8 +19,8 @@ public class TasksController : ControllerBase
     {
         return
         [
-            new KanbanBoardTaskDto { Id = 1, Title = "Připravit návrh nástěnky", ColumnId = 1 },
-            new KanbanBoardTaskDto { Id = 2, Title = "Ověřit přesouvání úkolů", ColumnId = 1 }
+            new KanbanBoardTaskDto { Id = 1, Title = "Připravit návrh nástěnky", ColumnId = 1, Position = 0 },
+            new KanbanBoardTaskDto { Id = 2, Title = "Ověřit přesouvání úkolů", ColumnId = 1, Position = 1 }
         ];
     }
 }

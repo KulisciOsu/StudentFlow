@@ -19,4 +19,9 @@ public class KanbanBoardTaskDto
     /// Identifikátor sloupce.
     /// </summary>
     public required int ColumnId { get; init; }
+
+    /// <summary>
+    /// Pozice úkolu ve sloupci od nuly.
+    /// </summary>
+    public required int Position { get; init; }
 }

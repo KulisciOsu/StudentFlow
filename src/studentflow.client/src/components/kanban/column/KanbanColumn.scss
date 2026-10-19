@@ -4,6 +4,11 @@
   border: 1px solid #e6e9ef;
   border-radius: 0.5rem;
   background: #f4f5f7;
+
+  &--over {
+    border-color: #0c66e4;
+    background: #e9f2ff;
+  }
 }
 
 .kanban-column-header {
