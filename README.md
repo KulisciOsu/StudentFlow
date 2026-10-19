@@ -19,6 +19,11 @@ flowchart LR
         M["Marek Szczepanik"]
         H["Honza Sebroň"]
         K["Kryštof Kristuf"]
+
+        A ~~~ V
+        V ~~~ M
+        M ~~~ H
+        H ~~~ K
     end
 
     subgraph RESPONSIBILITIES["Odpovědnosti"]
@@ -40,14 +45,16 @@ flowchart LR
     H --> DATABASE
     K --> TESTING
 
-    classDef person fill:#1d4ed8,stroke:#1e3a8a,color:#ffffff,stroke-width:2px
-    classDef responsibility fill:#334155,stroke:#64748b,color:#ffffff,stroke-width:1px
+    classDef person fill:#e2e8f0,stroke:#a8b5c5,color:#334155,stroke-width:1px
+    classDef responsibility fill:#f1f5f9,stroke:#cbd5e1,color:#475569,stroke-width:1px
 
     class A,V,M,H,K person
     class LEAD,DESIGN,QUALITY,BACKEND,FRONTEND,DATABASE,TESTING responsibility
 
-    style TEAM fill:transparent,stroke:#64748b,color:#64748b
-    style RESPONSIBILITIES fill:transparent,stroke:#64748b,color:#64748b
+    style TEAM fill:transparent,stroke:#cbd5e1,color:#64748b
+    style RESPONSIBILITIES fill:transparent,stroke:#cbd5e1,color:#64748b
+
+    linkStyle default stroke:#94a3b8,stroke-width:1px
 ```
 
 > [!CAUTION]
