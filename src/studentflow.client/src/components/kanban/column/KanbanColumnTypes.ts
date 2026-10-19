@@ -1,5 +1,5 @@
-import type { Column } from '../../../models/ColumnTypes'
-import type { Task } from '../../../models/TaskTypes'
+import type { Column } from '../../../models/columns/ColumnTypes'
+import type { Task } from '../../../models/tasks/TaskTypes'
 
 /// <summary>
 /// Vstupní parametry sloupce.

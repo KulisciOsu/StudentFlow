@@ -1,4 +1,4 @@
-import type { Task } from '../../../models/TaskTypes'
+import type { Task } from '../../../models/tasks/TaskTypes'
 
 /// <summary>
 /// Vstupní parametry karty úkolu.

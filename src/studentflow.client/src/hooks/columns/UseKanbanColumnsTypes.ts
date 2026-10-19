@@ -1,4 +1,4 @@
-import type { Column } from '../models/ColumnTypes'
+import type { Column } from '../../models/columns/ColumnTypes'
 
 /// <summary>
 /// Stav načítání sloupců.

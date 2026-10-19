@@ -1,5 +1,5 @@
-import { useKanbanColumns } from '../../../hooks/useKanbanColumns'
-import { useKanbanTasks } from '../../../hooks/useKanbanTasks'
+import { useKanbanColumns } from '../../../hooks/columns/useKanbanColumns'
+import { useKanbanTasks } from '../../../hooks/tasks/useKanbanTasks'
 import { KanbanColumn } from '../column/KanbanColumn'
 import './KanbanBoard.scss'
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getTasks } from '../services/kanbanTasksApi'
+import { getTasks } from '../../services/tasks/kanbanTasksApi'
 import type { KanbanTasksState } from './UseKanbanTasksTypes'
 
 /// <summary>

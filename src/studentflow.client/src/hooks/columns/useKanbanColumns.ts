@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getColumns } from '../services/kanbanColumnsApi'
+import { getColumns } from '../../services/columns/kanbanColumnsApi'
 import type { KanbanColumnsState } from './UseKanbanColumnsTypes'
 
 /// <summary>
