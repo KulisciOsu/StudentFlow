@@ -74,3 +74,7 @@ flowchart LR
 | [Požadavky systému](documents/INCEPTION/REQUIREMENTS.md) |  |
 | [Kandidát architektury](documents/INCEPTION/Kandidat-architektury.png) |  |
 
+## 🧪 Testování
+
+[Pravidla testování, aktuální stav a spuštění testů](documents/TESTING.md).
+
