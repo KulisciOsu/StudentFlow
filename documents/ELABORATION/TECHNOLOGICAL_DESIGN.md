@@ -18,15 +18,12 @@ Dokument rozlišuje mezi technologiemi, které jsou pro projekt zvolené, a kand
 | Backend | C# a ASP.NET Core Web API | Zvoleno |
 | Komunikace | REST API, HTTP/HTTPS, JSON | Zvoleno |
 | Databáze | PostgreSQL | Zvoleno |
-| Přístup k databázi | Entity Framework Core | Navrženo |
-| Úložiště souborů | MinIO nebo jiné S3 kompatibilní úložiště | Kandidátní řešení |
+| Přístup k databázi | DAPPER | Zvoleno |
 | Cache a sessions | Redis | Kandidát |
 | E2E testování | Playwright | Zvoleno pro automatizované testování uživatelských scénářů |
-| Testování frontendu | Vitest | Navrženo |
+| Testování frontendu | Vitest | Zvoleno |
 | Testování backendu | xUnit | Zvoleno |
 | Databázové integrační testy | Testcontainers | Navrženo |
-| Správa zdrojového kódu | Git a GitHub | Používáno |
-| Průběžná integrace | GitHub Actions | Použije se pro automatizaci sestavení a testů |
 | Kontejnerové prostředí | Docker a případně Docker Compose | Možnost pro vývoj a testování |
 
 ## 3. Diagram technologického řešení
