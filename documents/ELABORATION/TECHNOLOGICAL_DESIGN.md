@@ -19,7 +19,6 @@ Dokument rozlišuje mezi technologiemi, které jsou pro projekt zvolené, a kand
 | Komunikace | REST API, HTTP/HTTPS, JSON | Zvoleno |
 | Databáze | PostgreSQL | Zvoleno |
 | Přístup k databázi | DAPPER | Zvoleno |
-| Cache a sessions | Redis | Kandidát |
 | E2E testování | Playwright | Zvoleno pro automatizované testování uživatelských scénářů |
 | Testování frontendu | Vitest | Zvoleno |
 | Testování backendu | xUnit | Zvoleno |
