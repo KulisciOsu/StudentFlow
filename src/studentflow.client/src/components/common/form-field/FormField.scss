@@ -1,0 +1,56 @@
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+
+  label {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid #98a6bd;
+    border-radius: 0.5rem;
+    background: #fff;
+    color: inherit;
+    font: inherit;
+
+    &::placeholder {
+      color: #8592a6;
+    }
+
+    &:focus-visible {
+      border-color: #0c66e4;
+      outline: 2px solid #0c66e4;
+      outline-offset: 0;
+    }
+
+    &:disabled {
+      background: #f1f3f7;
+      cursor: not-allowed;
+    }
+  }
+
+  input[type='date'] {
+    max-width: 14rem;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  &--invalid input,
+  &--invalid textarea {
+    border-color: #b42318;
+  }
+
+  &__error {
+    margin: 0;
+    color: #b42318;
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+}

@@ -1,0 +1,132 @@
+.project-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem;
+  border: 1px solid #dce3ed;
+  border-radius: 0.75rem;
+  background: #fff;
+
+  &:hover,
+  &:focus-within {
+    border-color: #1e3a5f;
+    box-shadow: 0 2px 8px rgb(30 58 95 / 12%);
+  }
+
+  p {
+    margin: 0;
+  }
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+
+    h3 {
+      margin: 0;
+      font-size: 1.0625rem;
+      line-height: 1.35;
+    }
+  }
+
+  // Celá karta je klikací přes odkaz v nadpisu.
+  &__open {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #1e3a5f;
+    font: inherit;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+
+    &::after {
+      position: absolute;
+      inset: 0;
+      content: '';
+    }
+
+    &:focus-visible {
+      outline: 2px solid #0c66e4;
+      outline-offset: 2px;
+    }
+  }
+
+  &__role {
+    flex: none;
+    padding: 0.125rem 0.625rem;
+    border: 1px solid #1e3a5f;
+    border-radius: 999px;
+    color: #1e3a5f;
+    font-size: 0.75rem;
+    font-weight: 600;
+
+    &--leader {
+      background: #1e3a5f;
+      color: #fff;
+    }
+  }
+
+  &__team {
+    margin-top: 0.125rem;
+    color: #626f86;
+    font-size: 0.875rem;
+  }
+
+  &__progress-label {
+    margin-top: 1rem;
+    color: #626f86;
+    font-size: 0.8125rem;
+  }
+
+  &__progress {
+    height: 0.5rem;
+    margin-top: 0.375rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e6e9ef;
+  }
+
+  &__progress-bar {
+    height: 100%;
+    border-radius: 999px;
+    background: #1e3a5f;
+  }
+
+  &__mine {
+    margin-top: 1rem;
+    font-size: 0.875rem;
+  }
+
+  &__overdue {
+    color: #b42318;
+  }
+
+  &__milestone {
+    margin-top: 0.25rem;
+    color: #626f86;
+    font-size: 0.875rem;
+  }
+
+  &__members {
+    display: flex;
+    margin: auto 0 0;
+    padding: 1rem 0 0;
+    list-style: none;
+
+    li {
+      display: grid;
+      width: 2rem;
+      height: 2rem;
+      margin-right: -0.375rem;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      background: #e2e8f0;
+      color: #334155;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      place-items: center;
+    }
+  }
+}
