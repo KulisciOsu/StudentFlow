@@ -119,6 +119,7 @@ erDiagram
     }
 
     TYM {
+        int id "# * Identifikátor týmu"
         string nazev "* Název týmu"
     }
 
@@ -165,7 +166,8 @@ erDiagram
 
     UZIVATEL }o..|{ ROLE : "má systémovou roli (N:N)"
     UZIVATEL }|..o{ TYM : "je členem (N:N)"
-    UZIVATEL }|..o{ PROJEKT : "podílí se (N:N)"
+    UZIVATEL }|..o{ PROJEKT : "hodnotí (N:N)"
+    TYM ||..|{ PROJEKT : "realizuje"
     PROJEKT ||--o{ UKOL : "skládá se z úkolů"
     UZIVATEL ||..o{ UKOL : "vytvořil/řeší"
     STAV ||..o{ UKOL : "je aktuálním stavem"
