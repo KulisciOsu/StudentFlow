@@ -85,24 +85,29 @@
 %%         {"symbol": "text", "value": "int", "text": "celé číslo"},
 %%         {"symbol": "text", "value": "string", "text": "text"},
 %%         {"symbol": "text", "value": "datetime", "text": "datum a čas"},
-%%         {"symbol": "text", "value": "binary", "text": "bajty souboru"}
+%%         {"symbol": "text", "value": "boolean", "text": "ano / ne"}
 %%       ]
 %%     }
 %%   ]
 %% }
 %% @svg-end
-%% @rule Členství je aktuální N:N vztah uživatel–tým; systémové role tvoří samostatný číselník ROLE.
-%% @rule Jedna ROLE je jeden typ systémové role, identifikovaný povinným unikátním kódem; název je povinný text.
-%% @rule Doména ROLE.kod: CLEN_TYMU, VEDOUCI_TYMU, VYUCUJICI.
-%% @rule Jeden UZIVATEL má 1..N rolí; jedna ROLE je přiřazena 0..N uživatelům.
-%% @rule TYM je slabá entita identifikovaná pouze projektem; vlastní identifikační atribut nemá. Jeden PROJEKT má právě jeden TYM a jeden TYM patří právě jednomu PROJEKTU.
+%% @rule UZIVATEL má povinné boolean atributy clen a vyucujici. Alespoň jeden z nich je true; oba mohou být true současně.
+%% @rule CLEN_PROJEKTU zachycuje aktuální členství jednoho UZIVATELE s clen = true v jednom PROJEKTU. Identifikuje jej dvojice UZIVATEL a PROJEKT; pro tuto dvojici existuje nejvýše jedno členství.
+%% @rule Jeden UZIVATEL může mít 0..N členství; jeden PROJEKT má 1..N členství. Každé CLEN_PROJEKTU patří právě jednomu UZIVATELI a právě jednomu PROJEKTU.
+%% @rule Povinný boolean CLEN_PROJEKTU.vedouci určuje, zda je daný uživatel vedoucím právě tohoto projektu. V jiných projektech může mít odlišnou hodnotu.
+%% @rule Každý PROJEKT má právě jedno členství s vedouci = true; ostatní členství tohoto projektu mají vedouci = false.
+%% @rule Jeden UZIVATEL s vyucujici = true může mít přístup k 0..N projektům; jeden PROJEKT může mít 0..N takových vyučujících. Vazba UZIVATEL–PROJEKT je přímá a neidentifikující.
 %% @rule Úkol identifikuje projekt a číslo úkolu.
-%% @rule Jedna PRILOHA představuje jedno nahrání souboru k úkolu. Identifikuje ji projekt, číslo úkolu a lokální číslo přílohy.
-%% @rule Jeden KOMENTAR představuje jeden příspěvek k úkolu, případně k jeho příloze. Identifikuje jej projekt, číslo úkolu a lokální číslo komentáře.
-%% @rule Čísla úkolů, příloh a komentářů jsou kladná celá čísla. Číslo úkolu je unikátní v projektu; číslo přílohy a číslo komentáře jsou každé samostatně unikátní v úkolu.
+%% @rule Každý UKOL má právě jednoho UZIVATELE jako autora a právě jednoho UZIVATELE jako řešitele; může jít o stejného uživatele. Jeden UZIVATEL může vytvořit 0..N úkolů a řešit 0..N úkolů. Obě vazby jsou neidentifikující.
+%% @rule Jedna PRILOHA představuje jedno nahrání souboru k úkolu. Identifikuje ji vlastní povinný atribut id, unikátní mezi všemi přílohami. Vazba na UKOL je neidentifikující.
+%% @rule Jeden KOMENTAR představuje jeden příspěvek k úkolu. Identifikuje jej projekt, číslo úkolu a lokální číslo komentáře.
+%% @rule Čísla úkolů a komentářů jsou kladná celá čísla. Číslo úkolu je unikátní v projektu; číslo komentáře je unikátní v úkolu.
 %% @rule Jeden UKOL má 0..N příloh a každá PRILOHA patří právě jednomu UKOLU. Jeden UKOL má 0..N komentářů a každý KOMENTAR patří právě jednomu UKOLU.
 %% @rule Jeden UKOL má právě jeden aktuální STAV; jeden STAV může mít 0..N úkolů. Historie změn se v tomto modelu neeviduje.
-%% @rule Jeden KOMENTAR může upřesňovat nejvýše jednu PRILOHU; jedna PRILOHA může mít 0..N komentářů. Tato vazba je neidentifikující a příloha musí patřit ke stejnému úkolu jako komentář.
+%% @rule Jeden PROJEKT má právě jeden aktuální STAV; jeden STAV může mít 0..N projektů.
+%% @rule Jedno OZNAMENI má právě jednoho UZIVATELE jako příjemce; jeden UZIVATEL může mít 0..N oznámení. Stejná zpráva pro více příjemců tvoří samostatná oznámení s vlastním časem přečtení.
+%% @rule Jedno OZNAMENI může odkazovat nejvýše na jednu PRILOHU a jeden KOMENTAR; každý z těchto objektů může mít 0..N oznámení. Tyto vazby jsou neidentifikující.
+%% @rule Všechny objekty UKOL, PRILOHA a KOMENTAR, na které OZNAMENI odkazuje, musí patřit do PROJEKTU tohoto oznámení. Je-li uveden konkrétní UKOL, odkazovaná PRILOHA a KOMENTAR musí patřit k tomuto UKOLU.
 %% @rule Přílohy i komentáře jsou vedeny výhradně u úkolů; projekt je dostupný přes identifikační vztah úkolu.
 %% @source documents/INCEPTION/USE_CASE.md; identifikace a vazby upraveny podle výslovného zadání uživatele.
 erDiagram
@@ -110,17 +115,15 @@ erDiagram
 
     UZIVATEL {
         int id "# * Identifikátor účtu"
+        string email "* Email uživatele"
         string jmeno "* Zobrazované jméno"
+        boolean clen "* Je členem"
+        boolean vyucujici "* Je vyučujícím"
     }
 
-    ROLE {
-        string kod "# * Kód systémové role"
-        string nazev "* Název systémové role"
-    }
 
-    TYM {
-        int id "# * Identifikátor týmu"
-        string nazev "* Název týmu"
+    CLEN_PROJEKTU {
+        boolean vedouci "* Je vedoucím tohoto týmu"
     }
 
     PROJEKT {
@@ -146,7 +149,7 @@ erDiagram
     }
 
     PRILOHA {
-        int cislo_prilohy "# * Číslo přílohy v rámci úkolu"
+        int id "# * Identifikátor přílohy"
         string nazev_souboru "* Původní název souboru"
         datetime nahrano "* Čas úspěšného nahrání"
     }
@@ -164,17 +167,20 @@ erDiagram
         datetime precteno_v "o Čas označení jako přečtené"
     }
 
-    UZIVATEL }o..|{ ROLE : "má systémovou roli (N:N)"
-    UZIVATEL }|..o{ TYM : "je členem (N:N)"
-    UZIVATEL }|..o{ PROJEKT : "hodnotí (N:N)"
-    TYM ||..|{ PROJEKT : "realizuje"
+    UZIVATEL ||--o{ CLEN_PROJEKTU : "má členství"
+    PROJEKT ||--|{ CLEN_PROJEKTU : "má členství"
+    UZIVATEL }o..o{ PROJEKT : "má přístup jako vyučující"
     PROJEKT ||--o{ UKOL : "skládá se z úkolů"
-    UZIVATEL ||..o{ UKOL : "vytvořil/řeší"
+    UZIVATEL ||..o{ UKOL : "vytvořil"
+    UZIVATEL ||..o{ UKOL : "řeší"
     STAV ||..o{ UKOL : "je aktuálním stavem"
+    STAV ||..o{ PROJEKT : "je aktuálním stavem"
     UZIVATEL ||..o{ PRILOHA : "nahrál"
-    UKOL ||--o{ PRILOHA : "identifikuje přílohu"
+    UKOL ||..o{ PRILOHA : "příloha úkolu"
     UZIVATEL ||..o{ KOMENTAR : "napsal"
     UKOL ||--o{ KOMENTAR : "identifikuje komentář"
     PROJEKT ||..o{ OZNAMENI : "oznámení o aktivitě"
     UKOL |o..o{ OZNAMENI : "oznámení o aktivitě"
-    UZIVATEL }|..o{ OZNAMENI : "je příjemcem"
+    OZNAMENI }o..o| PRILOHA : "týká se přílohy"
+    OZNAMENI }o..o| KOMENTAR : "týká se komentáře"
+    UZIVATEL ||..o{ OZNAMENI : "je příjemcem"
