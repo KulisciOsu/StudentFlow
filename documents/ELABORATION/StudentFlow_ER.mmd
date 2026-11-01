@@ -1,0 +1,186 @@
+%% @title StudentFlow — konceptuální ER model
+%% @notation Nativní Mermaid erDiagram s tabulkovým zobrazením atributů.
+%% Hlavička, legenda a vzhled SVG jsou definované výhradně v následujícím JSON bloku.
+%% Běžný Mermaid tyto komentáře nezobrazuje; úplný export: npm --prefix tools/er-diagram run render
+%% @svg-begin
+%% {
+%%   "version": 1,
+%%   "id": "StudentFlow_ER",
+%%   "subtitle": "{entities} entit · {attributes} atributů · {relationships} vztahů. Nativní Mermaid ER s tabulkovými bloky entit.",
+%%   "metadata": {"kind": "conceptual ER", "notation": "native Mermaid ER"},
+%%   "mermaid": {
+%%     "theme": "neutral",
+%%     "fontFamily": "Arial, sans-serif",
+%%     "deterministicIds": true,
+%%     "deterministicIDSeed": "StudentFlow_ER",
+%%     "er": {"useMaxWidth": false, "layoutDirection": "LR"}
+%%   },
+%%   "style": {
+%%     "background": "white",
+%%     "fontFamily": "Arial, sans-serif",
+%%     "textColor": "#1e293b",
+%%     "cardFill": "#f8fafc",
+%%     "cardStroke": "#cbd5e1",
+%%     "symbolStroke": "#334155",
+%%     "symbolStrokeWidth": 1.8,
+%%     "titleSize": 27,
+%%     "subtitleSize": 17,
+%%     "cardTitleSize": 20,
+%%     "textSize": 18,
+%%     "noteSize": 16
+%%   },
+%%   "layout": {
+%%     "margin": 20,
+%%     "headingX": 24,
+%%     "titleY": 38,
+%%     "subtitleY": 66,
+%%     "legendX": 24,
+%%     "legendY": 90,
+%%     "cardWidth": 456.2,
+%%     "cardHeight": 236,
+%%     "cardGap": 16,
+%%     "cardPadding": 16,
+%%     "cardTitleY": 32,
+%%     "cardNoteY": 214,
+%%     "cardRadius": 8,
+%%     "diagramGap": 30
+%%   },
+%%   "legend": [
+%%     {
+%%       "title": "Povinnost a kardinalita",
+%%       "rowStart": 66, "rowStep": 36, "symbolOffset": 57, "textOffset": 96,
+%%       "items": [
+%%         {"symbol": "bar", "text": "Povinná vazba"},
+%%         {"symbol": "circle", "text": "Nepovinná vazba"},
+%%         {"symbol": "bar", "text": "Kardinalita 1"},
+%%         {"symbol": "crow-foot", "text": "Kardinalita N"}
+%%       ]
+%%     },
+%%     {
+%%       "title": "Typ spojnice",
+%%       "rowStart": 66, "rowStep": 66, "symbolOffset": 16, "textOffset": 96,
+%%       "textWeight": 700, "descriptionOffset": 27,
+%%       "items": [
+%%         {"symbol": "solid-line", "text": "Identifikující", "description": "Vlastník je součástí identifikace."},
+%%         {"symbol": "dashed-line", "text": "Neidentifikující", "description": "Identifikace na této vazbě nezávisí."}
+%%       ],
+%%       "note": "Povinnost určují koncové značky."
+%%     },
+%%     {
+%%       "title": "Značky atributů",
+%%       "rowStart": 66, "rowStep": 42, "symbolOffset": 18, "textOffset": 62,
+%%       "symbolSize": 22,
+%%       "items": [
+%%         {"symbol": "text", "value": "#", "text": "Součást identifikace"},
+%%         {"symbol": "text", "value": "*", "text": "Povinný atribut"},
+%%         {"symbol": "text", "value": "o", "text": "Nepovinný atribut"}
+%%       ],
+%%       "note": "# * = povinná složka identifikace"
+%%     },
+%%     {
+%%       "title": "Datové typy",
+%%       "rowStart": 58, "rowStep": 31, "symbolOffset": 16, "textOffset": 130,
+%%       "symbolSize": 18,
+%%       "items": [
+%%         {"symbol": "text", "value": "int", "text": "celé číslo"},
+%%         {"symbol": "text", "value": "string", "text": "text"},
+%%         {"symbol": "text", "value": "datetime", "text": "datum a čas"},
+%%         {"symbol": "text", "value": "boolean", "text": "ano / ne"}
+%%       ]
+%%     }
+%%   ]
+%% }
+%% @svg-end
+%% @rule UZIVATEL má povinné boolean atributy clen a vyucujici. Alespoň jeden z nich je true; oba mohou být true současně.
+%% @rule CLEN_PROJEKTU zachycuje aktuální členství jednoho UZIVATELE s clen = true v jednom PROJEKTU. Identifikuje jej dvojice UZIVATEL a PROJEKT; pro tuto dvojici existuje nejvýše jedno členství.
+%% @rule Jeden UZIVATEL může mít 0..N členství; jeden PROJEKT má 1..N členství. Každé CLEN_PROJEKTU patří právě jednomu UZIVATELI a právě jednomu PROJEKTU.
+%% @rule Povinný boolean CLEN_PROJEKTU.vedouci určuje, zda je daný uživatel vedoucím právě tohoto projektu. V jiných projektech může mít odlišnou hodnotu.
+%% @rule Každý PROJEKT má právě jedno členství s vedouci = true; ostatní členství tohoto projektu mají vedouci = false.
+%% @rule Jeden UZIVATEL s vyucujici = true může mít přístup k 0..N projektům; jeden PROJEKT může mít 0..N takových vyučujících. Vazba UZIVATEL–PROJEKT je přímá a neidentifikující.
+%% @rule Úkol identifikuje projekt a číslo úkolu.
+%% @rule Každý UKOL má právě jednoho UZIVATELE jako autora a právě jednoho UZIVATELE jako řešitele; může jít o stejného uživatele. Jeden UZIVATEL může vytvořit 0..N úkolů a řešit 0..N úkolů. Obě vazby jsou neidentifikující.
+%% @rule Jedna PRILOHA představuje jedno nahrání souboru k úkolu. Identifikuje ji vlastní povinný atribut id, unikátní mezi všemi přílohami. Vazba na UKOL je neidentifikující.
+%% @rule Jeden KOMENTAR představuje jeden příspěvek k úkolu. Identifikuje jej projekt, číslo úkolu a lokální číslo komentáře.
+%% @rule Čísla úkolů a komentářů jsou kladná celá čísla. Číslo úkolu je unikátní v projektu; číslo komentáře je unikátní v úkolu.
+%% @rule Jeden UKOL má 0..N příloh a každá PRILOHA patří právě jednomu UKOLU. Jeden UKOL má 0..N komentářů a každý KOMENTAR patří právě jednomu UKOLU.
+%% @rule Jeden UKOL má právě jeden aktuální STAV; jeden STAV může mít 0..N úkolů. Historie změn se v tomto modelu neeviduje.
+%% @rule Jeden PROJEKT má právě jeden aktuální STAV; jeden STAV může mít 0..N projektů.
+%% @rule Jedno OZNAMENI má právě jednoho UZIVATELE jako příjemce; jeden UZIVATEL může mít 0..N oznámení. Stejná zpráva pro více příjemců tvoří samostatná oznámení s vlastním časem přečtení.
+%% @rule Jedno OZNAMENI může odkazovat nejvýše na jednu PRILOHU a jeden KOMENTAR; každý z těchto objektů může mít 0..N oznámení. Tyto vazby jsou neidentifikující.
+%% @rule Všechny objekty UKOL, PRILOHA a KOMENTAR, na které OZNAMENI odkazuje, musí patřit do PROJEKTU tohoto oznámení. Je-li uveden konkrétní UKOL, odkazovaná PRILOHA a KOMENTAR musí patřit k tomuto UKOLU.
+%% @rule Přílohy i komentáře jsou vedeny výhradně u úkolů; projekt je dostupný přes identifikační vztah úkolu.
+%% @source documents/INCEPTION/USE_CASE.md; identifikace a vazby upraveny podle výslovného zadání uživatele.
+erDiagram
+    direction LR
+
+    UZIVATEL {
+        int id "# * Identifikátor účtu"
+        string email "* Email uživatele"
+        string jmeno "* Zobrazované jméno"
+        boolean clen "* Je členem"
+        boolean vyucujici "* Je vyučujícím"
+    }
+
+
+    CLEN_PROJEKTU {
+        boolean vedouci "* Je vedoucím tohoto týmu"
+    }
+
+    PROJEKT {
+        int id "# * Identifikátor projektu"
+        string nazev "* Název projektu"
+        string popis "o Zadání projektu"
+        datetime termin "o Deadline projektu"
+        datetime vytvoreno "* Čas založení"
+    }
+
+    UKOL {
+        int cislo_ukolu "# * Číslo úkolu v rámci projektu"
+        string nazev "* Název úkolu"
+        string popis "o Zadání úkolu"
+        datetime termin "o Deadline úkolu"
+        string priorita "o Priorita práce"
+        datetime vytvoreno "* Čas vytvoření"
+    }
+
+    STAV {
+        string kod "# * Kód stavu"
+        string nazev "* Zobrazovaný název stavu"
+    }
+
+    PRILOHA {
+        int id "# * Identifikátor přílohy"
+        string nazev_souboru "* Původní název souboru"
+        datetime nahrano "* Čas úspěšného nahrání"
+    }
+
+    KOMENTAR {
+        int cislo_komentare "# * Číslo komentáře v rámci úkolu"
+        string text "* Text komentáře nebo feedbacku"
+        datetime vytvoreno "* Čas vložení"
+    }
+
+    OZNAMENI {
+        int id "# * Identifikátor individuální zprávy"
+        string text "* Obsah oznámení"
+        datetime vytvoreno "* Čas vzniku"
+        datetime precteno_v "o Čas označení jako přečtené"
+    }
+
+    UZIVATEL ||--o{ CLEN_PROJEKTU : "má členství"
+    PROJEKT ||--|{ CLEN_PROJEKTU : "má členství"
+    UZIVATEL }o..o{ PROJEKT : "má přístup jako vyučující"
+    PROJEKT ||--o{ UKOL : "skládá se z úkolů"
+    UZIVATEL ||..o{ UKOL : "vytvořil"
+    UZIVATEL ||..o{ UKOL : "řeší"
+    STAV ||..o{ UKOL : "je aktuálním stavem"
+    STAV ||..o{ PROJEKT : "je aktuálním stavem"
+    UZIVATEL ||..o{ PRILOHA : "nahrál"
+    UKOL ||..o{ PRILOHA : "příloha úkolu"
+    UZIVATEL ||..o{ KOMENTAR : "napsal"
+    UKOL ||--o{ KOMENTAR : "identifikuje komentář"
+    PROJEKT ||..o{ OZNAMENI : "oznámení o aktivitě"
+    UKOL |o..o{ OZNAMENI : "oznámení o aktivitě"
+    OZNAMENI }o..o| PRILOHA : "týká se přílohy"
+    OZNAMENI }o..o| KOMENTAR : "týká se komentáře"
+    UZIVATEL ||..o{ OZNAMENI : "je příjemcem"
