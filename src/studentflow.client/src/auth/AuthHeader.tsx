@@ -1,0 +1,16 @@
+import { useAuth } from './AuthContext'
+import { homeFor } from './types'
+
+export function AuthHeader({ navigate }: { navigate: (path: string) => void }) {
+  const { state, signOut } = useAuth()
+  if (state.status !== 'authenticated') return null
+  const { user } = state.identity
+  const home = homeFor(user)
+  return <header className="session-header">
+    <p><strong>{user.displayName}</strong><span>{user.accountType === 'STUDENT' ? 'Člen' : 'Vyučující'}</span></p>
+    <nav aria-label="Účet">
+      <a href={home} onClick={event => { event.preventDefault(); navigate(home) }}>Můj přehled</a>
+      <button type="button" onClick={() => void signOut()}>Odhlásit se</button>
+    </nav>
+  </header>
+}
