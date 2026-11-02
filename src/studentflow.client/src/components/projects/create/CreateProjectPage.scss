@@ -244,3 +244,22 @@
     min-height: 44px;
   }
 }
+
+/* Validace formuláře */
+.sf-field .sf-input-invalid {
+  border-color: #dc2626;
+}
+
+.sf-field .sf-input-invalid:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.12);
+  outline: none;
+}
+
+.sf-error-message {
+  display: block;
+  margin-top: 6px;
+  color: #dc2626;
+  font-size: 12px;
+  line-height: 1.4;
+}
