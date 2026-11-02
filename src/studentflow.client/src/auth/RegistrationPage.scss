@@ -1,0 +1,71 @@
+.app--auth { max-width: 28rem; padding: clamp(1rem, 4vw, 2rem); }
+.app--auth h1 { font-size: 1.5rem; margin-bottom: 1.5rem; }
+.app--auth h2 { font-size: 1.75rem; line-height: 1.2; margin: 0 0 .75rem; }
+.app--auth p { overflow-wrap: anywhere; }
+.app--auth :focus-visible { outline: 3px solid #1d4ed8; outline-offset: 3px; }
+.registration-fields, .account-types { border: 0; margin: 0; padding: 0; min-width: 0; }
+.registration-field { margin: 1.25rem 0; }
+.registration-field > label, .account-types > legend { font-weight: 600; display: block; margin-bottom: .4rem; }
+.registration-field input { display: block; width: 100%; min-width: 0; min-height: 44px; border: 1px solid #94a3b8; border-radius: .4rem; padding: .65rem; font: inherit; }
+.password-input { display: flex; border: 1px solid #94a3b8; border-radius: .4rem; }
+.password-input input { border: 0; background: transparent; }
+.password-input button { border: 0; border-left: 1px solid #cbd5e1; background: transparent; min-height: 44px; padding: .5rem; font: inherit; font-size: .875rem; cursor: pointer; }
+.field-hint, .account-type small { font-size: .875rem; color: #475569; margin: .4rem 0; }
+.field-error { font-size: .875rem; color: #991b1b; margin: .4rem 0; }
+.account-type { display: flex; gap: .75rem; align-items: flex-start; border: 1px solid #94a3b8; border-radius: .4rem; padding: .75rem; min-height: 44px; margin: .65rem 0; cursor: pointer; }
+.account-type:has(input:checked) { border-color: #1d4ed8; background: #eff6ff; }
+.account-type input { width: 1.125rem; height: 1.125rem; margin: .2rem 0 0; flex-shrink: 0; }
+.account-type small { display: block; }
+.registration-submit { width: 100%; min-height: 44px; font: inherit; font-weight: 600; padding: .75rem; border: 0; border-radius: .4rem; background: #1e3a5f; color: #fff; margin-top: 1rem; cursor: pointer; }
+.registration-submit:disabled { background: #64748b; cursor: wait; }
+.registration-back { display: inline-flex; align-items: center; min-height: 44px; margin-top: 1rem; }
+.error-summary { border: 1px solid #991b1b; border-radius: .4rem; background: #fef2f2; color: #7f1d1d; padding: .75rem; margin: 1rem 0; }
+.error-summary p { margin: 0; }
+.error-summary a { color: inherit; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.app-navigation { margin-bottom: 1.5rem; }
+.remember-me { display: flex; gap: .75rem; align-items: flex-start; padding: .5rem 0; min-height: 44px; cursor: pointer; }
+.remember-me input { width: 1.125rem; height: 1.125rem; flex-shrink: 0; margin: .2rem 0 0; }
+.remember-me small { display: block; font-size: .875rem; color: #475569; }
+.app button { min-height: 44px; font: inherit; cursor: pointer; }
+.session-header { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; flex-wrap: wrap; border-bottom: 1px solid #dce3ed; margin-bottom: 1.5rem; padding-bottom: 1rem; }
+.session-header p { margin: 0; overflow-wrap: anywhere; max-width: 100%; }
+.session-header span { display: block; color: #475569; }
+.session-header nav { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+.session-header a { display: inline-flex; min-height: 44px; align-items: center; }
+.app--workspace :focus-visible { outline: 3px solid #1d4ed8; outline-offset: 3px; }
+
+// Tablet na výšku i na šířku, včetně menších tabletů od 704 CSS px.
+@media (min-width: 44rem) and (max-width: 74.999rem) {
+  .app.app--auth { padding: 2rem; }
+  .app.app--auth h1 { font-size: 2rem; margin-bottom: 1rem; }
+  .app.app--register { max-width: 40rem; }
+  .app.app--login { max-width: 34rem; }
+
+  .app--register .registration-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem 1.5rem;
+    margin-top: 1.25rem;
+  }
+  .app--register .registration-field { margin: 0; }
+  .app--register .account-types,
+  .app--register .registration-submit { grid-column: 1 / -1; }
+  .app--register .registration-submit { margin-top: 0; }
+  .app--register .account-type-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: .65rem;
+  }
+  .app--register .account-type { margin: 0; }
+
+  .app.app--workspace { max-width: 64rem; padding: 2rem; }
+  .app--workspace .session-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .app--workspace .session-header p { min-width: 0; }
+}

@@ -22,5 +22,5 @@ body {
   display: grid;
   min-height: 100svh;
   place-items: center;
-  padding: 1.5rem;
+  padding: clamp(.75rem, 3vw, 1.5rem);
 }
