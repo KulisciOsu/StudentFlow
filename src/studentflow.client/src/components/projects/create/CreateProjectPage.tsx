@@ -1,19 +1,11 @@
 
 import { useState, type FormEvent } from 'react'
+import type {
+  CreateProjectPageProps,
+  FormErrors,
+  FormValues,
+} from './CreateProjectPageTypes'
 import './CreateProjectPage.scss'
-
-type FormValues = {
-  projectName: string
-  description: string
-  deadline: string
-  teamName: string
-}
-
-type FormErrors = Partial<Record<keyof FormValues, string>>
-
-type CreateProjectPageProps = {
-  onBack: () => void
-}
 
 const initialValues: FormValues = {
   projectName: 'Rezervační systém knihovny',
@@ -22,6 +14,9 @@ const initialValues: FormValues = {
   teamName: '',
 }
 
+/// <summary>
+/// Vykresluje ikonu oznámení v horní navigační liště.
+/// </summary>
 function BellIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -30,6 +25,9 @@ function BellIcon() {
   )
 }
 
+/// <summary>
+/// Vykresluje ikonu kalendáře u pole termínu odevzdání.
+/// </summary>
 function CalendarIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -39,6 +37,9 @@ function CalendarIcon() {
   )
 }
 
+/// <summary>
+/// Vykresluje informační ikonu u upozornění o přidávání členů týmu.
+/// </summary>
 function InfoIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -48,13 +49,18 @@ function InfoIcon() {
   )
 }
 
+/// <summary>
+/// Zobrazuje formulář pro založení projektu včetně validace zadaných údajů.
+/// </summary>
 export function CreateProjectPage({ onBack }: CreateProjectPageProps) {
   const [values, setValues] = useState<FormValues>(initialValues)
   const [profileOpen, setProfileOpen] = useState(false)
   const [createdProject, setCreatedProject] = useState<string | null>(null)
   const [errors, setErrors] = useState<FormErrors>({})
 
-  // Kontrola všech formulářových polí
+  /// <summary>
+  /// Kontroluje správnost zadaných hodnot a vrací validační chyby.
+  /// </summary>
   function validateForm(formValues: FormValues): FormErrors {
     const validationErrors: FormErrors = {}
 
@@ -100,7 +106,9 @@ export function CreateProjectPage({ onBack }: CreateProjectPageProps) {
     return validationErrors
   }
 
-  // Aktualizace hodnoty formulářového pole
+  /// <summary>
+  /// Aktualizuje hodnotu formulářového pole a přepočítává jeho validační chybu.
+  /// </summary>
   function update<K extends keyof FormValues>(
     key: K,
     value: FormValues[K],
@@ -125,7 +133,9 @@ export function CreateProjectPage({ onBack }: CreateProjectPageProps) {
     })
   }
 
-  // Odeslání formuláře
+  /// <summary>
+  /// Zpracovává odeslání formuláře a ověřuje platnost zadaných údajů.
+  /// </summary>
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
@@ -140,7 +150,9 @@ export function CreateProjectPage({ onBack }: CreateProjectPageProps) {
     setCreatedProject(values.projectName.trim())
   }
 
-  // Reset formuláře
+  /// <summary>
+  /// Obnovuje výchozí hodnoty formuláře a odstraňuje validační chyby.
+  /// </summary>
   function handleCancel() {
     setValues(initialValues)
     setErrors({})
