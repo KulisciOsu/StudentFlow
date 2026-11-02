@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig } from 'vite';
 import plugin from '@vitejs/plugin-react';
 
@@ -13,5 +14,9 @@ export default defineConfig({
                 secure: false,
             },
         },
-    }
+    },
+    test: {
+        environment: 'jsdom',
+        include: ['src/**/*.test.{ts,tsx}'],
+    },
 })

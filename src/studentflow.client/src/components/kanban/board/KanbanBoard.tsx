@@ -9,6 +9,7 @@ import { kanbanConfig } from '../kanbanConfig'
 import { useKanbanColumns } from '../../../hooks/columns/useKanbanColumns'
 import { useKanbanProject } from '../../../hooks/projects/useKanbanProject'
 import { useKanbanTasks } from '../../../hooks/tasks/useKanbanTasks'
+import { useIsMobile } from '../../../hooks/useIsMobile'
 import { emptyTaskFilters, filterTasks } from '../../../utils/tasks/filterTasks'
 import type { TaskFilters } from '../../../utils/tasks/filterTasks'
 import { moveTask as moveTaskInBoard } from '../../../utils/tasks/moveTask'
@@ -16,6 +17,7 @@ import { KanbanColumn } from '../column/KanbanColumn'
 import { MoveErrorToast } from '../feedback/MoveErrorToast'
 import { BoardFilters } from '../filters/BoardFilters'
 import { BoardHeader } from '../header/BoardHeader'
+import { MobileBoard } from '../mobile/MobileBoard'
 import { TaskCardContent } from '../task/TaskCardContent'
 import './KanbanBoard.scss'
 
@@ -38,6 +40,7 @@ export function KanbanBoard() {
     tasks, status: tasksStatus, moveError, moveTask, retryMove, dismissMoveError,
   } = useKanbanTasks()
   const [filters, setFilters] = useState<TaskFilters>(emptyTaskFilters)
+  const isMobile = useIsMobile()
   const [activeTaskId, setActiveTaskId] = useState<number | null>(null)
   const [previewTasks, setPreviewTasks] = useState<Task[] | null>(null)
   const displayedTasks = previewTasks ?? tasks
@@ -146,44 +149,54 @@ export function KanbanBoard() {
       {tasks.length > 0 && visibleTaskIds.size === 0 && (
         <p className="kanban-board-message">Žádný úkol neodpovídá filtrům.</p>
       )}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={detectCollision}
-        onDragStart={startDrag}
-        onDragOver={previewDrag}
-        onDragEnd={finishDrag}
-        onDragCancel={cancelDrag}
-      >
-        <div className="kanban-columns">
-          {columns.map((column) => (
-            <KanbanColumn
-              key={column.id}
-              column={column}
-              tasks={displayedTasks
-                .filter((task) => task.columnId === column.id
-                  && (visibleTaskIds.has(task.id) || task.id === activeTaskId))
-                .sort((first, second) => first.position - second.position)}
-            />
-          ))}
-        </div>
-        <DragOverlay
-          dropAnimation={{
-            ...kanbanConfig.animation,
-            sideEffects: defaultDropAnimationSideEffects({
-              styles: { active: { opacity: '0' } },
-            }),
-          }}
-        >
-          {activeTask && (
-            <article className="task-card task-card--overlay" aria-hidden="true">
-              <TaskCardContent
-                task={activeTask}
-                isDone={columns.find((column) => column.id === activeTask.columnId)?.isDone ?? false}
-              />
-            </article>
+      {isMobile ? (
+        <MobileBoard
+          columns={columns}
+          tasks={tasks.filter((task) => visibleTaskIds.has(task.id))}
+          onMoveTask={(taskId, columnId) => void moveTask(
+            taskId, columnId, tasks.filter((task) => task.columnId === columnId).length,
           )}
-        </DragOverlay>
-      </DndContext>
+        />
+      ) : (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={detectCollision}
+          onDragStart={startDrag}
+          onDragOver={previewDrag}
+          onDragEnd={finishDrag}
+          onDragCancel={cancelDrag}
+        >
+          <div className="kanban-columns">
+            {columns.map((column) => (
+              <KanbanColumn
+                key={column.id}
+                column={column}
+                tasks={displayedTasks
+                  .filter((task) => task.columnId === column.id
+                    && (visibleTaskIds.has(task.id) || task.id === activeTaskId))
+                  .sort((first, second) => first.position - second.position)}
+              />
+            ))}
+          </div>
+          <DragOverlay
+            dropAnimation={{
+              ...kanbanConfig.animation,
+              sideEffects: defaultDropAnimationSideEffects({
+                styles: { active: { opacity: '0' } },
+              }),
+            }}
+          >
+            {activeTask && (
+              <article className="task-card task-card--overlay" aria-hidden="true">
+                <TaskCardContent
+                  task={activeTask}
+                  isDone={columns.find((column) => column.id === activeTask.columnId)?.isDone ?? false}
+                />
+              </article>
+            )}
+          </DragOverlay>
+        </DndContext>
+      )}
       {moveError && (
         <MoveErrorToast
           taskTitle={moveError.task.title}

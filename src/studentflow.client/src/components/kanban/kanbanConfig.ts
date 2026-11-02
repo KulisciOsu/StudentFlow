@@ -8,6 +8,11 @@ export const kanbanConfig = {
   useMockApi: true,
 
   /// <summary>
+  /// Media query pro mobilní zobrazení se záložkami.
+  /// </summary>
+  mobileQuery: '(max-width: 600px)',
+
+  /// <summary>
   /// Nastavení animací.
   /// </summary>
   animation: {

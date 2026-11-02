@@ -22,3 +22,9 @@ body {
   min-height: 100svh;
   padding: 1.5rem;
 }
+
+@media (max-width: 600px) {
+  #root {
+    padding: 0;
+  }
+}

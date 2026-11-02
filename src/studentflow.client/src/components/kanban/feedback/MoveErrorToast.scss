@@ -31,6 +31,13 @@
   }
 }
 
+@media (max-width: 600px) {
+  .move-error-toast {
+    bottom: calc(4.75rem + env(safe-area-inset-bottom));
+    z-index: 20;
+  }
+}
+
 .move-error-toast-actions {
   display: flex;
   gap: 0.5rem;
