@@ -1,3 +1,4 @@
+
 .sf-shell {
   width: 100%;
   min-height: min(854px, calc(100vh - 2px));
@@ -190,16 +191,56 @@
 .sf-button:hover { filter: brightness(.96); }
 .sf-success-message { margin-top: 17px; padding: 10px 12px; border: 1px solid #b8d7c1; border-radius: 6px; background: #f0f8f2; color: #245b34; font-size: 12px; line-height: 1.4; }
 
+/* Tablet – pouze úprava rozměrů */
+@media (min-width: 641px) and (max-width: 900px) {
+  .sf-topbar {
+    padding: 0 18px;
+  }
+
+  .sf-content {
+    padding: 26px 22px 50px;
+  }
+
+  .sf-content-inner {
+    width: min(100%, 600px);
+  }
+
+  .sf-form-card {
+    padding: 22px;
+  }
+}
+
+/* Mobil */
 @media (max-width: 640px) {
   .sf-shell { min-height: 100vh; }
-  .sf-topbar { height: 58px; padding: 0 12px; }
-  .sf-brand { gap: 7px; font-size: 14px; }
+  .sf-topbar { height: 58px; padding: 0 10px; }
+  .sf-brand { gap: 7px; font-size: 13px; }
+  .sf-brand-mark { width: 27px; height: 27px; }
   .sf-account-area { gap: 8px; }
   .sf-profile { min-width: 0; width: 42px; height: 42px; padding: 4px; justify-content: center; }
   .sf-profile-copy, .sf-chevron { display: none; }
-  .sf-content { min-height: calc(100vh - 58px); padding: 22px 13px 40px; }
-  .sf-page-heading h1 { font-size: 22px; }
+  .sf-content { min-height: calc(100vh - 58px); padding: 18px 10px 30px; }
+  .sf-content-inner { width: 100%; }
+  .sf-page-heading h1 { font-size: 21px; }
   .sf-page-heading p { font-size: 13px; }
-  .sf-form-card { padding: 20px 16px; }
+  .sf-form-card { padding: 18px 14px; }
   .sf-date-field { width: 100%; }
+
+  .sf-field input,
+  .sf-field textarea {
+    font-size: 16px;
+  }
+
+  .sf-info-note {
+    padding: 10px;
+  }
+
+  .sf-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .sf-button {
+    width: 100%;
+    min-height: 44px;
+  }
 }
