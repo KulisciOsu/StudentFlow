@@ -25,7 +25,7 @@ internal sealed class RegistrationApp : IAsyncDisposable
     public bool FailSessionCreates { get; set; }
     public bool FailSessionRevocations { get; set; }
 
-    private RegistrationApp(PostgresTestDatabase database, int permitLimit, bool failWrites, int loginPermitLimit)
+    private RegistrationApp(PostgresTestDatabase database, int permitLimit, bool failWrites, int loginPermitLimit, bool includeHandoffExample)
     {
         Database = database;
         factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
@@ -38,6 +38,8 @@ internal sealed class RegistrationApp : IAsyncDisposable
             builder.ConfigureServices(services =>
             {
                 services.AddDataProtection().UseEphemeralDataProtectionProvider();
+                if (includeHandoffExample)
+                    services.AddControllers().AddApplicationPart(typeof(StudentFlow.Api.Controllers.AccountSummaryController).Assembly);
                 services.AddSingleton<TimeProvider>(Clock);
                 services.RemoveAll<IUserSessionStore>();
                 services.AddScoped<IUserSessionStore>(_ => new SessionStoreWithFailures(new PostgresUserSessionStore(Database.DataSource), this));
@@ -53,10 +55,10 @@ internal sealed class RegistrationApp : IAsyncDisposable
     public HttpClient CreateClient(bool cookies = true) => factory.CreateClient(new WebApplicationFactoryClientOptions
     { BaseAddress = new Uri("https://localhost"), AllowAutoRedirect = false, HandleCookies = cookies });
 
-    public static async Task<RegistrationApp> CreateAsync(int permitLimit = 100, bool failWrites = false, int loginPermitLimit = 100)
+    public static async Task<RegistrationApp> CreateAsync(int permitLimit = 100, bool failWrites = false, int loginPermitLimit = 100, bool includeHandoffExample = false)
     {
         var database = await PostgresTestDatabase.CreateAsync();
-        try { return new(database, permitLimit, failWrites, loginPermitLimit); }
+        try { return new(database, permitLimit, failWrites, loginPermitLimit, includeHandoffExample); }
         catch { await database.DisposeAsync(); throw; }
     }
 

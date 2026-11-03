@@ -14,5 +14,6 @@
     <ProjectReference Include="../StudentFlow.Testing/StudentFlow.Testing.csproj" />
     <Using Include="Xunit" />
     <None Include="../../database/migrations/*.sql" Link="Migrations/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Compile Include="../../examples/authentication/AccountSummaryController.cs" Link="Examples/AccountSummaryController.cs" />
   </ItemGroup>
 </Project>
