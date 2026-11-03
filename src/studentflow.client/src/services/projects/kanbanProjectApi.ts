@@ -1,6 +1,5 @@
 import type { Project } from '../../models/projects/ProjectTypes'
 import { kanbanConfig } from '../../components/kanban/kanbanConfig'
-import { kanbanMockApi } from '../mock/kanbanMockApi'
 
 /// <summary>
 /// Ověří data projektu.
@@ -22,9 +21,7 @@ function isProject(value: unknown): value is Project {
 /// Načte projekt nástěnky z API.
 /// </summary>
 export async function getProject(signal?: AbortSignal): Promise<Project> {
-  if (kanbanConfig.useMockApi) return kanbanMockApi.getProject()
-
-  const response = await fetch('/api/project', { signal })
+  const response = await fetch(`/api/projects/${kanbanConfig.projectId}`, { signal })
 
   if (!response.ok) {
     throw new Error('Nepodařilo se načíst projekt.')

@@ -1,6 +1,5 @@
 import type { Task } from '../../models/tasks/TaskTypes'
 import { kanbanConfig } from '../../components/kanban/kanbanConfig'
-import { kanbanMockApi } from '../mock/kanbanMockApi'
 
 /// <summary>
 /// Ověří data úkolu.
@@ -32,9 +31,7 @@ function isTask(value: unknown): value is Task {
 /// Načte úkoly nástěnky z API.
 /// </summary>
 export async function getTasks(signal?: AbortSignal): Promise<Task[]> {
-  if (kanbanConfig.useMockApi) return kanbanMockApi.getTasks()
-
-  const response = await fetch('/api/tasks', { signal })
+  const response = await fetch(`/api/projects/${kanbanConfig.projectId}/tasks`, { signal })
 
   if (!response.ok) {
     throw new Error('Nepodařilo se načíst úkoly.')
@@ -53,9 +50,7 @@ export async function getTasks(signal?: AbortSignal): Promise<Task[]> {
 /// Uloží nový sloupec a pozici úkolu.
 /// </summary>
 export async function saveTaskMove(taskId: number, columnId: number, position: number): Promise<void> {
-  if (kanbanConfig.useMockApi) return kanbanMockApi.saveTaskMove(taskId, columnId, position)
-
-  const response = await fetch(`/api/tasks/${taskId}/position`, {
+  const response = await fetch(`/api/projects/${kanbanConfig.projectId}/tasks/${taskId}/position`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ columnId, position }),

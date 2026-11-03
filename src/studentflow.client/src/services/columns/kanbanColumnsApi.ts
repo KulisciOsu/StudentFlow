@@ -1,6 +1,5 @@
 import type { Column } from '../../models/columns/ColumnTypes'
 import { kanbanConfig } from '../../components/kanban/kanbanConfig'
-import { kanbanMockApi } from '../mock/kanbanMockApi'
 
 /// <summary>
 /// Ověří data sloupce.
@@ -21,9 +20,7 @@ function isColumn(value: unknown): value is Column {
 /// Načte sloupce nástěnky z API.
 /// </summary>
 export async function getColumns(signal?: AbortSignal): Promise<Column[]> {
-  if (kanbanConfig.useMockApi) return kanbanMockApi.getColumns()
-
-  const response = await fetch('/api/columns', { signal })
+  const response = await fetch(`/api/projects/${kanbanConfig.projectId}/columns`, { signal })
 
   if (!response.ok) {
     throw new Error('Nepodařilo se načíst sloupce.')

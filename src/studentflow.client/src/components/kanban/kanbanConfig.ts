@@ -3,9 +3,9 @@
 /// </summary>
 export const kanbanConfig = {
   /// <summary>
-  /// Používat ukázková data místo backendu.
+  /// Identifikátor zobrazeného projektu.
   /// </summary>
-  useMockApi: true,
+  projectId: 1,
 
   /// <summary>
   /// Media query pro mobilní zobrazení se záložkami.
