@@ -1,71 +1,384 @@
+
 <svg xmlns="http://www.w3.org/2000/svg"
      width="800" height="1050"
      viewBox="0 0 800 1050">
 
-  <rect width="800" height="1050" fill="#f5f6f8"/>
+  <style>
+    text {
+      font-family: Arial, sans-serif;
+      fill: #242424;
+    }
 
-  <!-- Hlavička -->
-  <rect x="20" y="20" width="760" height="70"
-        rx="12" fill="white" stroke="#cbd5e1"/>
+    .heading {
+      font-size: 23px;
+      font-weight: bold;
+    }
 
-  <text x="40" y="65" font-family="Arial"
-        font-size="26" font-weight="bold">StudentFlow</text>
+    .title {
+      font-size: 15px;
+      font-weight: bold;
+    }
 
-  <text x="650" y="65" font-family="Arial"
-        font-size="18">Uživatel</text>
+    .normal {
+      font-size: 13px;
+    }
 
-  <!-- Uvítání -->
-  <text x="30" y="140" font-family="Arial"
-        font-size="25" font-weight="bold">
-    Vítej zpět, Jane!
+    .small {
+      font-size: 11px;
+      fill: #666;
+    }
+
+    .card {
+      fill: #fff;
+      stroke: #ccc;
+      stroke-width: 1;
+    }
+
+    .dark {
+      fill: #292929;
+    }
+
+    .button-text {
+      fill: #fff;
+      font-weight: bold;
+    }
+
+    .danger {
+      fill: #c62828;
+    }
+
+    .avatar {
+      fill: #e5e5e5;
+    }
+
+    .avatar-text {
+      font-size: 10px;
+      text-anchor: middle;
+    }
+  </style>
+
+  <!-- POZADÍ -->
+  <rect width="800" height="1050" fill="#f7f7f7"/>
+
+  <!-- HLAVIČKA -->
+  <rect width="800" height="70" fill="#fff"/>
+
+  <!-- Logo StudentFlow -->
+  <g>
+    <path d="M25 31 L45 22 L65 31 L45 40 Z"
+          fill="#292929"/>
+    <path d="M33 37 V45 Q45 55 57 45 V37"
+          fill="none"
+          stroke="#292929"
+          stroke-width="3"/>
+
+    <text x="78" y="43"
+          font-size="21"
+          font-weight="bold">
+      StudentFlow
+    </text>
+  </g>
+
+  <!-- Zvonek -->
+  <g>
+    <path d="M545 37 Q545 22 556 22
+             Q567 22 567 37 L571 43 H541 Z"
+          fill="none"
+          stroke="#333"
+          stroke-width="2"/>
+
+    <circle cx="556" cy="46" r="3" fill="#333"/>
+
+    <circle cx="570" cy="22" r="10" fill="#333"/>
+
+    <text x="570" y="26"
+          font-size="11"
+          text-anchor="middle"
+          class="button-text">3</text>
+  </g>
+
+  <!-- Uživatelský profil -->
+  <g>
+    <rect x="600" y="14"
+          width="185" height="43"
+          rx="22"
+          class="card"/>
+
+    <circle cx="625" cy="35"
+            r="15" fill="#eee"/>
+
+    <text x="625" y="39"
+          font-size="12"
+          text-anchor="middle">PS</text>
+
+    <text x="648" y="32"
+          class="normal">
+      Petra Svobodová
+    </text>
+
+    <text x="648" y="47"
+          class="small">Student</text>
+
+    <path d="M765 32 L770 37 L775 32"
+          fill="none"
+          stroke="#333"
+          stroke-width="1.5"/>
+  </g>
+
+  <!-- SEKCE PROJEKTŮ -->
+  <text x="30" y="115" class="heading">
+    Moje projekty
   </text>
 
-  <!-- Statistiky -->
-  <g fill="white" stroke="#cbd5e1">
-    <rect x="30" y="180" width="230" height="120" rx="12"/>
-    <rect x="285" y="180" width="230" height="120" rx="12"/>
-    <rect x="540" y="180" width="230" height="120" rx="12"/>
+  <text x="30" y="140" class="small">
+    Projekty, ve kterých jste členem nebo vedoucím týmu.
+  </text>
+
+  <!-- Tlačítko založení projektu -->
+  <rect x="602" y="95"
+        width="168" height="43"
+        rx="6" class="dark"/>
+
+  <text x="686" y="122"
+        font-size="13"
+        text-anchor="middle"
+        class="button-text">
+    + Založit projekt
+  </text>
+
+  <!-- PROJEKT 1 -->
+  <rect x="30" y="175"
+        width="355" height="290"
+        rx="10" class="card"/>
+
+  <text x="48" y="205" class="title">
+    Rezervační systém knihovny
+  </text>
+
+  <text x="48" y="229" class="small">
+    Tým Sova · 5 členů
+  </text>
+
+  <!-- Role -->
+  <rect x="48" y="246"
+        width="70" height="24"
+        rx="12" class="dark"/>
+
+  <text x="83" y="262"
+        font-size="11"
+        text-anchor="middle"
+        class="button-text">
+    Vedoucí
+  </text>
+
+  <!-- Průběh -->
+  <text x="48" y="301" class="normal">
+    3 z 10 úkolů hotovo
+  </text>
+
+  <rect x="48" y="318"
+        width="315" height="8"
+        rx="4" fill="#ddd"/>
+
+  <rect x="48" y="318"
+        width="95" height="8"
+        rx="4" fill="#333"/>
+
+  <!-- Informace -->
+  <text x="48" y="352" class="normal">
+    Moje úkoly: 1 otevřený
+  </text>
+
+  <text x="48" y="378" class="small">
+    Nejbližší milník: Inception, 31. 10.
+  </text>
+
+  <!-- AVATAŘI PROJEKTU 1 -->
+  <g>
+    <circle cx="60" cy="425" r="15" class="avatar"/>
+    <circle cx="97" cy="425" r="15" class="avatar"/>
+    <circle cx="134" cy="425" r="15" class="avatar"/>
+    <circle cx="171" cy="425" r="15" class="avatar"/>
+    <circle cx="208" cy="425" r="15" class="avatar"/>
+
+    <g class="avatar-text">
+      <text x="60" y="429">PS</text>
+      <text x="97" y="429">JN</text>
+      <text x="134" y="429">TD</text>
+      <text x="171" y="429">LČ</text>
+      <text x="208" y="429">MK</text>
+    </g>
   </g>
 
-  <g font-family="Arial" font-size="18">
-    <text x="50" y="220">Moje projekty</text>
-    <text x="305" y="220">Moje úkoly</text>
-    <text x="560" y="220">Blízké termíny</text>
+  <!-- PROJEKT 2 -->
+  <rect x="405" y="175"
+        width="365" height="290"
+        rx="10" class="card"/>
+
+  <text x="423" y="205" class="title">
+    Analýza dat: semestrální práce
+  </text>
+
+  <text x="423" y="229" class="small">
+    Tým Delta · 4 členové
+  </text>
+
+  <!-- Role -->
+  <rect x="423" y="246"
+        width="55" height="24"
+        rx="12"
+        fill="#eee"
+        stroke="#aaa"/>
+
+  <text x="450" y="262"
+        font-size="11"
+        text-anchor="middle">
+    Člen
+  </text>
+
+  <!-- Průběh -->
+  <text x="423" y="301" class="normal">
+    5 z 8 úkolů hotovo
+  </text>
+
+  <rect x="423" y="318"
+        width="325" height="8"
+        rx="4" fill="#ddd"/>
+
+  <rect x="423" y="318"
+        width="203" height="8"
+        rx="4" fill="#333"/>
+
+  <!-- Informace -->
+  <text x="423" y="352" class="normal">
+    Moje úkoly: 2 otevřené
+  </text>
+
+  <text x="423" y="378" class="small">
+    Nejbližší milník: Odevzdání, 12. 12.
+  </text>
+
+  <!-- AVATAŘI PROJEKTU 2 -->
+  <g>
+    <circle cx="435" cy="425" r="15" class="avatar"/>
+    <circle cx="472" cy="425" r="15" class="avatar"/>
+    <circle cx="509" cy="425" r="15" class="avatar"/>
+    <circle cx="546" cy="425" r="15" class="avatar"/>
+
+    <g class="avatar-text">
+      <text x="435" y="429">KB</text>
+      <text x="472" y="429">PS</text>
+      <text x="509" y="429">OV</text>
+      <text x="546" y="429">RH</text>
+    </g>
   </g>
 
-  <g font-family="Arial" font-size="34" font-weight="bold">
-    <text x="50" y="275">3</text>
-    <text x="305" y="275">8</text>
-    <text x="560" y="275">2</text>
+  <!-- ZALOŽENÍ NOVÉHO PROJEKTU -->
+  <rect x="30" y="485"
+        width="740" height="135"
+        rx="10"
+        fill="none"
+        stroke="#aaa"
+        stroke-dasharray="6 5"/>
+
+  <text x="400" y="527"
+        font-size="30"
+        text-anchor="middle">
+    +
+  </text>
+
+  <text x="400" y="558"
+        class="title"
+        text-anchor="middle">
+    Založit nový projekt
+  </text>
+
+  <text x="400" y="581"
+        class="small"
+        text-anchor="middle">
+    Stanete se vedoucím jeho týmu.
+  </text>
+
+  <!-- SEKCE ÚKOLŮ -->
+  <text x="30" y="675" class="heading">
+    Moje úkoly napříč projekty
+  </text>
+
+  <!-- Přepínač -->
+  <rect x="570" y="647"
+        width="200" height="40"
+        rx="6" fill="#eee"/>
+
+  <rect x="575" y="652"
+        width="112" height="30"
+        rx="5" class="dark"/>
+
+  <text x="631" y="672"
+        font-size="12"
+        text-anchor="middle"
+        class="button-text">
+    Otevřené (3)
+  </text>
+
+  <text x="728" y="672"
+        class="normal"
+        text-anchor="middle">
+    Hotové
+  </text>
+
+  <!-- TABULKA ÚKOLŮ -->
+  <rect x="30" y="710"
+        width="740" height="260"
+        rx="8" class="card"/>
+
+  <rect x="31" y="711"
+        width="738" height="44"
+        rx="7" fill="#eee"/>
+
+  <!-- Hlavička -->
+  <g class="normal">
+    <text x="45" y="739">Úkol</text>
+    <text x="225" y="739">Projekt</text>
+    <text x="430" y="739">Termín</text>
+    <text x="565" y="739">Priorita</text>
+    <text x="660" y="739">Stav</text>
   </g>
 
-  <!-- Projekty -->
-  <rect x="30" y="340" width="740" height="300"
-        rx="12" fill="white" stroke="#cbd5e1"/>
+  <!-- Oddělovače -->
+  <path d="M30 755 H770
+           M30 826 H770
+           M30 897 H770"
+        stroke="#ddd"/>
 
-  <g font-family="Arial">
-    <text x="50" y="385" font-size="24" font-weight="bold">
-      Moje projekty
+  <!-- Řádek 1 -->
+  <g font-size="11">
+    <text x="45" y="785">Čištění datasetu</text>
+    <text x="225" y="785">Analýza dat</text>
+
+    <text x="430" y="785" class="danger">
+      24. 10. – po termínu
     </text>
-    <text x="50" y="450" font-size="19">Informační systém</text>
-    <text x="50" y="515" font-size="19">Webová aplikace</text>
-    <text x="50" y="580" font-size="19">Databázový projekt</text>
+
+    <text x="565" y="785">Vysoká</text>
+    <text x="660" y="785">Rozpracováno</text>
   </g>
 
-  <!-- Termíny -->
-  <rect x="30" y="680" width="740" height="280"
-        rx="12" fill="white" stroke="#cbd5e1"/>
+  <!-- Řádek 2 -->
+  <g font-size="11">
+    <text x="45" y="856">Wireframy obrazovek</text>
+    <text x="225" y="856">Rezervační systém</text>
+    <text x="430" y="856">30. 10.</text>
+    <text x="565" y="856">Střední</text>
+    <text x="660" y="856">Rozpracováno</text>
+  </g>
 
-  <g font-family="Arial">
-    <text x="50" y="725" font-size="24" font-weight="bold">
-      Nejbližší termíny
-    </text>
-    <text x="50" y="790" font-size="19">
-      Dokončení API – 10. 11.
-    </text>
-    <text x="50" y="850" font-size="19">
-      Prezentace – 12. 11.
-    </text>
+  <!-- Řádek 3 -->
+  <g font-size="11">
+    <text x="45" y="927">Regresní model</text>
+    <text x="225" y="927">Analýza dat</text>
+    <text x="430" y="927">6. 11.</text>
+    <text x="565" y="927">Střední</text>
+    <text x="660" y="927">K řešení</text>
   </g>
 
 </svg>
