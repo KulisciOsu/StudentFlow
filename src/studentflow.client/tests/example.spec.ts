@@ -1,10 +1,9 @@
-
 import { test, expect } from '@playwright/test';
 
-test('zobrazi hlavni stranku StudentFlow', async ({ page }) => {
+test('zobrazi dashboard Moje projekty', async ({ page }) => {
   await page.goto('/');
 
   await expect(
-    page.getByRole('heading', { name: 'StudentFlow' })
+    page.getByRole('heading', { name: 'Moje projekty' })
   ).toBeVisible();
 });
