@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Mvc;
 using StudentFlow.Api.Controllers;
+using StudentFlow.Data.Kanban;
 
 namespace StudentFlow.Api.Tests;
 
@@ -8,31 +10,30 @@ namespace StudentFlow.Api.Tests;
 public class ColumnsControllerTests
 {
     /// <summary>
-    /// Ověří výchozí sloupce a jejich pořadí.
+    /// Ověří, že se vrátí jen sloupce daného projektu v pořadí.
     /// </summary>
     [Fact]
-    public void Get_ReturnsDefaultColumnsInOrder()
+    public async Task Get_ExistingProject_ReturnsProjectColumnsInOrder()
     {
-        var controller = new ColumnsController();
+        var controller = new ColumnsController(new KanbanBoardRepository());
 
-        var columns = controller.Get();
+        var result = await controller.Get(1);
 
-        Assert.Collection(
-            columns,
-            column =>
-            {
-                Assert.Equal(1, column.Id);
-                Assert.Equal("To Do", column.Title);
-            },
-            column =>
-            {
-                Assert.Equal(2, column.Id);
-                Assert.Equal("In Progress", column.Title);
-            },
-            column =>
-            {
-                Assert.Equal(3, column.Id);
-                Assert.Equal("Done", column.Title);
-            });
+        Assert.NotNull(result.Value);
+        Assert.Equal(new[] { "K řešení", "Rozpracováno", "Ke kontrole", "Hotovo" }, result.Value.Select(column => column.Title));
+        Assert.All(result.Value, column => Assert.Equal(1, column.ProjectId));
+    }
+
+    /// <summary>
+    /// Ověří, že neexistující projekt vrátí 404.
+    /// </summary>
+    [Fact]
+    public async Task Get_UnknownProject_ReturnsNotFound()
+    {
+        var controller = new ColumnsController(new KanbanBoardRepository());
+
+        var result = await controller.Get(99);
+
+        Assert.IsType<NotFoundResult>(result.Result);
     }
 }
