@@ -1,14 +1,39 @@
-.app {
-  width: min(100%, 72rem);
-  padding: clamp(1.5rem, 5vw, 3rem);
-  border: 1px solid #dce3ed;
-  border-radius: 1rem;
-  background: #fff;
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
-.app h1 {
-  margin: 0 0 1.5rem;
-  color: #1e3a5f;
-  font-size: clamp(2rem, 7vw, 3rem);
-  line-height: 1.15;
+.app-header h1 {
+  margin-bottom: 0;
+}
+
+.app-create-project-button {
+  padding: 0.75rem 1rem;
+  border: 1px solid #1e3a5f;
+  border-radius: 0.5rem;
+  background: #1e3a5f;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.app-create-project-button:hover {
+  background: #294d78;
+  border-color: #294d78;
+}
+
+.app-create-project-button:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .app-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }

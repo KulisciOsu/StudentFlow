@@ -1,0 +1,265 @@
+
+.sf-shell {
+  width: 100%;
+  min-height: min(854px, calc(100vh - 2px));
+  background: #f5f5f5;
+  color: #292929;
+  border: 1px solid #bdbdbd;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+.sf-topbar {
+  height: 55px;
+  padding: 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border-bottom: 1px solid #dedede;
+}
+
+.sf-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #292929;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.sf-brand-mark {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid #555;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.sf-account-area { display: flex; align-items: center; gap: 18px; }
+.sf-notification {
+  position: relative;
+  width: 27px;
+  height: 32px;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  color: #292929;
+  cursor: pointer;
+}
+.sf-notification svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.sf-notification-count {
+  position: absolute;
+  top: 0;
+  right: -2px;
+  width: 15px;
+  height: 15px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #303030;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+}
+.sf-profile-wrap { position: relative; }
+.sf-profile {
+  min-width: 176px;
+  height: 40px;
+  padding: 3px 10px 3px 4px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid #d4d4d4;
+  border-radius: 22px;
+  background: #fff;
+  color: #292929;
+  text-align: left;
+  cursor: pointer;
+}
+.sf-avatar {
+  width: 31px;
+  height: 31px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #dedede;
+  color: #303030;
+  font-size: 10px;
+  font-weight: 700;
+}
+.sf-profile-copy { display: flex; flex: 1; flex-direction: column; line-height: 1.2; }
+.sf-profile-copy strong { font-size: 12px; font-weight: 700; white-space: nowrap; }
+.sf-profile-copy small { margin-top: 2px; color: #777; font-size: 10px; }
+.sf-chevron {
+  width: 7px;
+  height: 7px;
+  margin: -4px 2px 0 4px;
+  border-right: 1.5px solid #444;
+  border-bottom: 1.5px solid #444;
+  transform: rotate(45deg);
+}
+.sf-chevron.is-open { margin-top: 4px; transform: rotate(225deg); }
+.sf-profile-menu {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 220px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid #ddd;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 8px 24px #00000018;
+  font-size: 12px;
+}
+.sf-profile-menu span { color: #777; }
+.sf-profile-menu button { margin-top: 8px; padding: 7px; border: 1px solid #ddd; border-radius: 5px; background: #f7f7f7; cursor: pointer; }
+
+.sf-content {
+  min-height: 798px;
+  padding: 29px 24px 70px;
+  background: #f5f5f5;
+}
+.sf-content-inner { width: min(100%, 646px); margin: 0 auto; }
+.sf-breadcrumb { margin: 0 0 17px; color: #666; font-size: 12px; line-height: 1.4; }
+.sf-breadcrumb a { color: #666; text-decoration: underline; text-underline-offset: 2px; }
+.sf-breadcrumb span:last-child { color: #666; }
+.sf-page-heading { margin-bottom: 18px; }
+.sf-page-heading h1 { margin: 0 0 4px; color: #262626; font-size: 24px; font-weight: 700; line-height: 1.2; letter-spacing: -0.35px; }
+.sf-page-heading p { margin: 0; color: #686868; font-size: 14px; line-height: 1.45; }
+.sf-form-card {
+  width: 100%;
+  padding: 25px 25px 25px;
+  border: 1px solid #d0d0d0;
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 0 0 0.5px #00000005;
+}
+.sf-form-section h2 { margin: 0 0 15px; color: #292929; font-size: 15px; font-weight: 700; line-height: 1.35; }
+.sf-field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 14px; }
+.sf-field label { color: #303030; font-size: 12px; font-weight: 700; line-height: 1.2; }
+.sf-field label span { font-weight: 700; }
+.sf-field input, .sf-field textarea {
+  width: 100%;
+  border: 1px solid #999;
+  border-radius: 6px;
+  background: #fff;
+  color: #333;
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+  box-shadow: inset 0 1px 1px #00000008;
+}
+.sf-field input { height: 40px; padding: 0 11px; }
+.sf-field textarea { min-height: 88px; padding: 9px 11px; resize: vertical; line-height: 1.45; }
+.sf-field input:focus, .sf-field textarea:focus { border-color: #555; box-shadow: 0 0 0 2px #33333318; }
+.sf-field input::placeholder, .sf-field textarea::placeholder { color: #898989; opacity: 1; }
+.sf-date-field { width: 254px; max-width: 100%; margin-bottom: 21px; }
+.sf-date-control { position: relative; }
+.sf-date-control input { padding-right: 37px; }
+.sf-date-control input::-webkit-calendar-picker-indicator { opacity: 0; position: absolute; right: 0; width: 38px; height: 100%; cursor: pointer; }
+.sf-date-control svg { position: absolute; top: 10px; right: 11px; width: 19px; height: 19px; pointer-events: none; fill: none; stroke: #333; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.sf-form-divider { height: 1px; margin: 0 0 22px; background: #dedede; }
+.sf-team-section h2 { margin-bottom: 15px; }
+.sf-team-section .sf-field { margin-bottom: 15px; }
+.sf-info-note {
+  min-height: 41px;
+  padding: 0 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 8px;
+  background: #f0f0f0;
+  color: #454545;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.sf-info-note svg { width: 16px; height: 16px; flex: 0 0 auto; fill: none; stroke: #333; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.sf-form-actions { margin-top: 21px; display: flex; justify-content: flex-end; gap: 10px; }
+.sf-button { min-height: 42px; padding: 0 16px; border: 1px solid #999; border-radius: 6px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.sf-button-secondary { background: #fff; color: #333; }
+.sf-button-primary { min-width: 126px; border-color: #292929; background: #292929; color: #fff; }
+.sf-button:hover { filter: brightness(.96); }
+.sf-success-message { margin-top: 17px; padding: 10px 12px; border: 1px solid #b8d7c1; border-radius: 6px; background: #f0f8f2; color: #245b34; font-size: 12px; line-height: 1.4; }
+
+/* Tablet – pouze úprava rozměrů */
+@media (min-width: 641px) and (max-width: 900px) {
+  .sf-topbar {
+    padding: 0 18px;
+  }
+
+  .sf-content {
+    padding: 26px 22px 50px;
+  }
+
+  .sf-content-inner {
+    width: min(100%, 600px);
+  }
+
+  .sf-form-card {
+    padding: 22px;
+  }
+}
+
+/* Mobil */
+@media (max-width: 640px) {
+  .sf-shell { min-height: 100vh; }
+  .sf-topbar { height: 58px; padding: 0 10px; }
+  .sf-brand { gap: 7px; font-size: 13px; }
+  .sf-brand-mark { width: 27px; height: 27px; }
+  .sf-account-area { gap: 8px; }
+  .sf-profile { min-width: 0; width: 42px; height: 42px; padding: 4px; justify-content: center; }
+  .sf-profile-copy, .sf-chevron { display: none; }
+  .sf-content { min-height: calc(100vh - 58px); padding: 18px 10px 30px; }
+  .sf-content-inner { width: 100%; }
+  .sf-page-heading h1 { font-size: 21px; }
+  .sf-page-heading p { font-size: 13px; }
+  .sf-form-card { padding: 18px 14px; }
+  .sf-date-field { width: 100%; }
+
+  .sf-field input,
+  .sf-field textarea {
+    font-size: 16px;
+  }
+
+  .sf-info-note {
+    padding: 10px;
+  }
+
+  .sf-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .sf-button {
+    width: 100%;
+    min-height: 44px;
+  }
+}
+
+/* Validace formuláře */
+.sf-field .sf-input-invalid {
+  border-color: #dc2626;
+}
+
+.sf-field .sf-input-invalid:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.12);
+  outline: none;
+}
+
+.sf-error-message {
+  display: block;
+  margin-top: 6px;
+  color: #dc2626;
+  font-size: 12px;
+  line-height: 1.4;
+}
