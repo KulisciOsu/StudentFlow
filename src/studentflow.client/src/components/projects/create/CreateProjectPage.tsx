@@ -52,11 +52,14 @@ function InfoIcon() {
 /// <summary>
 /// Zobrazuje formulář pro založení projektu včetně validace zadaných údajů.
 /// </summary>
-export function CreateProjectPage({ onBack }: CreateProjectPageProps) {
+export function CreateProjectPage({ onBack, embedded = false }: CreateProjectPageProps) {
   const [values, setValues] = useState<FormValues>(initialValues)
   const [profileOpen, setProfileOpen] = useState(false)
   const [createdProject, setCreatedProject] = useState<string | null>(null)
   const [errors, setErrors] = useState<FormErrors>({})
+  const Container = embedded ? 'section' : 'main'
+  const PageHeading = embedded ? 'h2' : 'h1'
+  const SectionHeading = embedded ? 'h3' : 'h2'
 
   /// <summary>
   /// Kontroluje správnost zadaných hodnot a vrací validační chyby.
@@ -160,8 +163,8 @@ export function CreateProjectPage({ onBack }: CreateProjectPageProps) {
   }
 
   return (
-    <main className="sf-shell">
-      <header className="sf-topbar">
+    <Container className={`sf-shell${embedded ? ' sf-shell--embedded' : ''}`} aria-labelledby="create-project-title">
+      {!embedded && <header className="sf-topbar">
         <a className="sf-brand" href="/" aria-label="StudentFlow – úvodní stránka">
           <span className="sf-brand-mark">SF</span>
           <span>StudentFlow</span>
@@ -203,7 +206,7 @@ export function CreateProjectPage({ onBack }: CreateProjectPageProps) {
             )}
           </div>
         </div>
-      </header>
+      </header>}
 
       <section className="sf-content">
         <div className="sf-content-inner">
@@ -222,7 +225,7 @@ export function CreateProjectPage({ onBack }: CreateProjectPageProps) {
           </nav>
 
           <div className="sf-page-heading">
-            <h1>Založit projekt</h1>
+            <PageHeading id="create-project-title">Založit projekt</PageHeading>
             <p>
               Projekt se zakládá společně s týmem. Vy se stanete jeho vedoucím.
             </p>
@@ -233,7 +236,7 @@ export function CreateProjectPage({ onBack }: CreateProjectPageProps) {
               className="sf-form-section"
               aria-labelledby="project-section-title"
             >
-              <h2 id="project-section-title">1 · Projekt</h2>
+              <SectionHeading id="project-section-title">1 · Projekt</SectionHeading>
 
               <div className="sf-field">
                 <label htmlFor="project-name">
@@ -343,7 +346,7 @@ export function CreateProjectPage({ onBack }: CreateProjectPageProps) {
               className="sf-form-section sf-team-section"
               aria-labelledby="team-section-title"
             >
-              <h2 id="team-section-title">2 · Tým</h2>
+              <SectionHeading id="team-section-title">2 · Tým</SectionHeading>
 
               <div className="sf-field">
                 <label htmlFor="team-name">
@@ -410,6 +413,6 @@ export function CreateProjectPage({ onBack }: CreateProjectPageProps) {
           </form>
         </div>
       </section>
-    </main>
+    </Container>
   )
 }

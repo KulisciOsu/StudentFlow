@@ -4,6 +4,7 @@ import { LoginPage } from './auth/LoginPage'
 import { AuthHeader } from './auth/AuthHeader'
 import { useAuth } from './auth/AuthContext'
 import { homeFor } from './auth/types'
+import { CreateProjectPage } from './components/projects/create/CreateProjectPage'
 import './App.scss'
 
 type Route = { path: string; email?: string; notice?: string }
@@ -51,12 +52,17 @@ function App() {
     const home = homeFor(user)
     if (route.path === '/' || route.path === '/login' || route.path === '/register') content = <Redirect to={home} navigate={navigate} />
     else {
-      const wrongType = (route.path === '/projects' || route.path === '/teaching') && route.path !== home
+      const creatingProject = route.path === '/projects/new'
+      const wrongType = ((route.path === '/projects' || route.path === '/teaching') && route.path !== home)
+        || (creatingProject && user.accountType !== 'STUDENT')
       content = <>
         <AuthHeader navigate={navigate} />
         {wrongType ? <section><h2>Přístup odepřen</h2><p>Tento pohled není určen pro váš typ účtu.</p>
           <a href={home} onClick={event => { event.preventDefault(); navigate(home) }}>Přejít na můj přehled</a></section>
-          : route.path === home ? <section><h2>{user.accountType === 'STUDENT' ? 'Projekty' : 'Přehled vyučujícího'}</h2>
+          : creatingProject ? <CreateProjectPage embedded onBack={() => navigate(home)} />
+            : route.path === home ? <section><div className="app-header"><h2>{user.accountType === 'STUDENT' ? 'Projekty' : 'Přehled vyučujícího'}</h2>
+              {user.accountType === 'STUDENT' && <button className="app-create-project-button" type="button" onClick={() => navigate('/projects/new')}>Založit projekt</button>}
+            </div>
             <p>{user.accountType === 'STUDENT' ? 'Zde budete mít přehled svých projektů.' : 'Zde budete mít přehled projektů, ke kterým dostanete přístup.'}</p></section>
             : <section><h2>Stránka nebyla nalezena</h2><a href={home} onClick={event => { event.preventDefault(); navigate(home) }}>Přejít na můj přehled</a></section>}
       </>

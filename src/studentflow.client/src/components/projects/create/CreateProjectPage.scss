@@ -134,7 +134,7 @@
 .sf-breadcrumb a { color: #666; text-decoration: underline; text-underline-offset: 2px; }
 .sf-breadcrumb span:last-child { color: #666; }
 .sf-page-heading { margin-bottom: 18px; }
-.sf-page-heading h1 { margin: 0 0 4px; color: #262626; font-size: 24px; font-weight: 700; line-height: 1.2; letter-spacing: -0.35px; }
+.sf-page-heading :is(h1, h2) { margin: 0 0 4px; color: #262626; font-size: 24px; font-weight: 700; line-height: 1.2; letter-spacing: -0.35px; }
 .sf-page-heading p { margin: 0; color: #686868; font-size: 14px; line-height: 1.45; }
 .sf-form-card {
   width: 100%;
@@ -144,7 +144,7 @@
   background: #fff;
   box-shadow: 0 0 0 0.5px #00000005;
 }
-.sf-form-section h2 { margin: 0 0 15px; color: #292929; font-size: 15px; font-weight: 700; line-height: 1.35; }
+.sf-form-section :is(h2, h3) { margin: 0 0 15px; color: #292929; font-size: 15px; font-weight: 700; line-height: 1.35; }
 .sf-field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 14px; }
 .sf-field label { color: #303030; font-size: 12px; font-weight: 700; line-height: 1.2; }
 .sf-field label span { font-weight: 700; }
@@ -169,7 +169,7 @@
 .sf-date-control input::-webkit-calendar-picker-indicator { opacity: 0; position: absolute; right: 0; width: 38px; height: 100%; cursor: pointer; }
 .sf-date-control svg { position: absolute; top: 10px; right: 11px; width: 19px; height: 19px; pointer-events: none; fill: none; stroke: #333; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .sf-form-divider { height: 1px; margin: 0 0 22px; background: #dedede; }
-.sf-team-section h2 { margin-bottom: 15px; }
+.sf-team-section :is(h2, h3) { margin-bottom: 15px; }
 .sf-team-section .sf-field { margin-bottom: 15px; }
 .sf-info-note {
   min-height: 41px;
@@ -221,7 +221,7 @@
   .sf-profile-copy, .sf-chevron { display: none; }
   .sf-content { min-height: calc(100vh - 58px); padding: 18px 10px 30px; }
   .sf-content-inner { width: 100%; }
-  .sf-page-heading h1 { font-size: 21px; }
+  .sf-page-heading :is(h1, h2) { font-size: 21px; }
   .sf-page-heading p { font-size: 13px; }
   .sf-form-card { padding: 18px 14px; }
   .sf-date-field { width: 100%; }
@@ -243,6 +243,11 @@
     width: 100%;
     min-height: 44px;
   }
+}
+
+.sf-shell.sf-shell--embedded,
+.sf-shell--embedded .sf-content {
+  min-height: 0;
 }
 
 /* Validace formuláře */
