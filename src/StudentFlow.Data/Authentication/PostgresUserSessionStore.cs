@@ -4,6 +4,7 @@ using StudentFlow.Core.Authentication;
 
 namespace StudentFlow.Data.Authentication;
 
+/// <summary>Spravuje session v PostgreSQL; zamknutí účtu při vytvoření chrání kontrolu hesla i rehash.</summary>
 public sealed class PostgresUserSessionStore(NpgsqlDataSource dataSource) : IUserSessionStore
 {
     private const string SelectSession = """
@@ -15,6 +16,7 @@ public sealed class PostgresUserSessionStore(NpgsqlDataSource dataSource) : IUse
         WHERE r.role_code IN ('STUDENT', 'TEACHER')
         """;
 
+    /// <inheritdoc />
     public async Task<SessionIdentity?> CreateAsync(long userId, string expectedPasswordHash, string? replacementPasswordHash,
         byte[] tokenHash, bool persistent, byte[]? previousTokenHash, DateTimeOffset now,
         CancellationToken cancellationToken = default)
@@ -54,6 +56,7 @@ public sealed class PostgresUserSessionStore(NpgsqlDataSource dataSource) : IUse
         return row.ToIdentity();
     }
 
+    /// <inheritdoc />
     public async Task<SessionIdentity?> FindActiveAsync(byte[] tokenHash, DateTimeOffset now, CancellationToken cancellationToken = default)
     {
         ValidateHash(tokenHash);
@@ -64,6 +67,7 @@ public sealed class PostgresUserSessionStore(NpgsqlDataSource dataSource) : IUse
         return row?.ToIdentity();
     }
 
+    /// <inheritdoc />
     public async Task RevokeAsync(byte[] tokenHash, DateTimeOffset now, CancellationToken cancellationToken = default)
     {
         ValidateHash(tokenHash);

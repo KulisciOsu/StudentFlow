@@ -14,6 +14,7 @@ using StudentFlow.Data.Authentication;
 
 namespace StudentFlow.Api.IntegrationTests;
 
+/// <summary>Spouští skutečnou HTTP pipeline nad izolovanou databází s řízeným časem a volitelnými výpadky.</summary>
 internal sealed class RegistrationApp : IAsyncDisposable
 {
     private readonly WebApplicationFactory<Program> factory;
@@ -52,9 +53,11 @@ internal sealed class RegistrationApp : IAsyncDisposable
         });
         Client = CreateClient();
     }
+    /// <summary>Vytvoří HTTPS klienta bez automatických přesměrování; vlastní cookie jar představuje další prohlížeč.</summary>
     public HttpClient CreateClient(bool cookies = true) => factory.CreateClient(new WebApplicationFactoryClientOptions
     { BaseAddress = new Uri("https://localhost"), AllowAutoRedirect = false, HandleCookies = cookies });
 
+    /// <summary>Připraví testovací API s vlastní databází, nastavitelnými limity a volitelným integračním vzorem.</summary>
     public static async Task<RegistrationApp> CreateAsync(int permitLimit = 100, bool failWrites = false, int loginPermitLimit = 100, bool includeHandoffExample = false)
     {
         var database = await PostgresTestDatabase.CreateAsync();
@@ -65,6 +68,7 @@ internal sealed class RegistrationApp : IAsyncDisposable
     public async Task<HttpResponseMessage> SetCsrfAsync()
         => await SetCsrfAsync(Client);
 
+    /// <summary>Obnoví CSRF hlavičku podle aktuálních cookies klienta, například po změně přihlášení.</summary>
     public static async Task<HttpResponseMessage> SetCsrfAsync(HttpClient client)
     {
         var response = await client.GetAsync("/api/auth/csrf");
@@ -109,6 +113,7 @@ internal sealed class RegistrationApp : IAsyncDisposable
     }
 }
 
+/// <summary>Posouvá čas serveru bez čekání, aby šlo ověřit přesné hranice platnosti session.</summary>
 internal sealed class TestClock : TimeProvider
 {
     private DateTimeOffset now = DateTimeOffset.UtcNow;

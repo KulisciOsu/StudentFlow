@@ -8,11 +8,13 @@ using StudentFlow.Core.Authentication;
 
 namespace StudentFlow.Api.Controllers;
 
+/// <summary>HTTP rozhraní registrace, přihlášení a správy identity pomocí serverové session.</summary>
 [ApiController]
 [Route("api/auth")]
 public sealed class AuthController(IAntiforgery antiforgery, IUserAccountStore accounts, IPasswordHasher<object> hasher,
     IUserSessionStore sessions, LoginPasswordVerifier passwordVerifier, TimeProvider clock) : ControllerBase
 {
+    /// <summary>Vydá CSRF token pro aktuální identitu a nastaví odpovídající ochrannou cookie.</summary>
     [HttpGet("csrf")]
     [AllowAnonymous]
     public IActionResult Csrf()
@@ -21,6 +23,7 @@ public sealed class AuthController(IAntiforgery antiforgery, IUserAccountStore a
         return Ok(new { token = tokens.RequestToken, headerName = "X-CSRF-TOKEN" });
     }
 
+    /// <summary>Založí účet s jedním typem a vrátí jeho veřejné údaje; přihlášení tím nevzniká.</summary>
     [HttpPost("register")]
     [AllowAnonymous]
     [RequestSizeLimit(AuthErrorMiddleware.MaxAuthBytes)]
@@ -44,6 +47,8 @@ public sealed class AuthController(IAntiforgery antiforgery, IUserAccountStore a
         return StatusCode(201, new { user = AuthUserDto.From(result.User!) });
     }
 
+    /// <summary>Ověří heslo a nastaví cookie nové session; předchozí session tohoto prohlížeče zneplatní.</summary>
+    /// <remarks>Neexistující, neaktivní účet i chybné heslo vracejí stejné odmítnutí.</remarks>
     [HttpPost("login")]
     [AllowAnonymous]
     [RequestSizeLimit(AuthErrorMiddleware.MaxAuthBytes)]
@@ -67,10 +72,12 @@ public sealed class AuthController(IAntiforgery antiforgery, IUserAccountStore a
         return Ok(ToResponse(session));
     }
 
+    /// <summary>Vrátí serverem ověřenou identitu a pevný konec platnosti aktuální session.</summary>
     [HttpGet("me")]
     [Authorize]
     public IActionResult Me() => Ok(ToResponse(HttpContext.Features.Get<SessionIdentity>()!));
 
+    /// <summary>Zneplatní session a odstraní cookie; opakované odhlášení bez platné session je přípustné.</summary>
     [HttpPost("logout")]
     [AllowAnonymous]
     [ServiceFilter(typeof(CsrfValidationFilter))]

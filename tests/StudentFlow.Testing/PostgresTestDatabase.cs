@@ -2,6 +2,7 @@ using Npgsql;
 
 namespace StudentFlow.Testing;
 
+/// <summary>Vlastní izolovanou databázi jednoho testu na vyhrazeném PostgreSQL 17 serveru.</summary>
 public sealed class PostgresTestDatabase : IAsyncDisposable
 {
     private readonly string adminConnectionString;
@@ -17,6 +18,8 @@ public sealed class PostgresTestDatabase : IAsyncDisposable
         DataSource = NpgsqlDataSource.Create(ConnectionString);
     }
 
+    /// <summary>Vytvoří náhodně pojmenovanou databázi ze STUDENTFLOW_TEST_DATABASE a aplikuje migrace.</summary>
+    /// <param name="legacy">Ponechá stav po V002 pro testy přechodu na autentizační schéma V003.</param>
     public static async Task<PostgresTestDatabase> CreateAsync(bool legacy = false)
     {
         var connectionString = Environment.GetEnvironmentVariable("STUDENTFLOW_TEST_DATABASE")
@@ -58,6 +61,7 @@ public sealed class PostgresTestDatabase : IAsyncDisposable
         return (T)(await command.ExecuteScalarAsync())!;
     }
 
+    /// <summary>Uvolní připojení a odstraní pouze databázi vytvořenou touto instancí, včetně aktivních spojení.</summary>
     public async ValueTask DisposeAsync()
     {
         await DataSource.DisposeAsync();

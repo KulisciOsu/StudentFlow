@@ -2,9 +2,10 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace StudentFlow.Api.Authentication;
 
-// Také chunked požadavky se ověří před model bindingem, nejen Content-Length.
+/// <summary>Před model bindingem ověří typ a skutečnou velikost JSON těla, i bez hlavičky Content-Length.</summary>
 public sealed class AuthBodyLimitFilter : IAsyncResourceFilter
 {
+    /// <inheritdoc />
     public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
     {
         var request = context.HttpContext.Request;

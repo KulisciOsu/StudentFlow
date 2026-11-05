@@ -2,10 +2,12 @@ using Npgsql;
 
 namespace StudentFlow.Api.Authentication;
 
+/// <summary>Zakazuje cachování odpovědí API a převádí neošetřené chyby na odpovědi bez citlivých detailů.</summary>
 public sealed class AuthErrorMiddleware(RequestDelegate next, ILogger<AuthErrorMiddleware> logger)
 {
     public const int MaxAuthBytes = 16 * 1024;
 
+    /// <summary>Omezí známou velikost auth požadavků a rozliší překročení limitu, výpadek služby a ostatní chyby.</summary>
     public async Task InvokeAsync(HttpContext context)
     {
         if (!context.Request.Path.StartsWithSegments("/api"))

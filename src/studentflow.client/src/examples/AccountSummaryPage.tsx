@@ -6,13 +6,14 @@ import type { AuthUser } from '../auth/types'
 type Result = { status: 'loading' } | { status: 'error' } | { status: 'forbidden' }
   | { status: 'loaded'; user: AuthUser }
 
-// Vzor pro předání dashboardu; App ho nemountuje, dokud vývojář nezapojí i vzorový controller.
+/** Vzor chráněné stránky; do App se přidává společně s odpovídajícím vzorovým controllerem. */
 export function AccountSummaryPage() {
   const { state, refresh } = useAuth()
   if (state.status !== 'authenticated') return null
   return <AccountSummaryContent key={state.identity.user.id} refresh={refresh} />
 }
 
+/** Načte údaje; po 401 obnoví identitu, kdežto 403 zobrazí bez zrušení přihlášení. */
 function AccountSummaryContent({ refresh }: { refresh: () => Promise<void> }) {
   const [result, setResult] = useState<Result>({ status: 'loading' })
   useEffect(() => {

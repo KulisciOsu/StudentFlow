@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace StudentFlow.Api.IntegrationTests;
 
+/// <summary>Zachytává zprávy i připojené výjimky pro testy úniku citlivých údajů do logů.</summary>
 internal sealed class CapturedLogProvider(ConcurrentQueue<string> messages) : ILoggerProvider
 {
     public ILogger CreateLogger(string categoryName) => new CapturedLogger(messages);

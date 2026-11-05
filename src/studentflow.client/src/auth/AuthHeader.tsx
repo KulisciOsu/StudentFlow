@@ -1,6 +1,7 @@
 import { useAuth } from './AuthContext'
 import { homeFor } from './types'
 
+/** Společná hlavička ověřeného účtu s navigací podle typu a serverovým odhlášením. */
 export function AuthHeader({ navigate }: { navigate: (path: string) => void }) {
   const { state, signOut } = useAuth()
   if (state.status !== 'authenticated') return null

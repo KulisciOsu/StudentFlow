@@ -1,8 +1,11 @@
 import { isRecord } from './types'
 
+/** Chyba použitelná ve formuláři; převádí odpověď API na zprávu, chyby polí a čekání na další pokus. */
 export class AuthFailure extends Error {
   readonly errors: Partial<Record<'displayName' | 'email' | 'password' | 'accountType', string>>
+  /** Počet sekund do dalšího pokusu po omezení frekvence; nula znamená bez čekání. */
   readonly retryAfter: number
+  /** HTTP status; nula znamená, že stav odpovědi operace nebyl předán. */
   readonly status: number
   constructor(message: string, errors: AuthFailure['errors'] = {}, retryAfter = 0, status = 0) {
     super(message)
@@ -12,6 +15,10 @@ export class AuthFailure extends Error {
   }
 }
 
+/**
+ * Odešle POST se session cookie a čerstvým CSRF tokenem pro aktuální identitu.
+ * Pouze po CSRF_INVALID obnoví token a požadavek jednou zopakuje; ostatní HTTP chyby vrátí volajícímu.
+ */
 export async function authPost(path: string, body: unknown, signal?: AbortSignal): Promise<Response> {
   async function csrf() {
     const response = await fetch('/api/auth/csrf', { signal, credentials: 'same-origin', cache: 'no-store' })
@@ -37,6 +44,7 @@ export async function authPost(path: string, body: unknown, signal?: AbortSignal
   throw new AuthFailure('Ověření požadavku se nepodařilo. Zkuste to znovu.')
 }
 
+/** Převede známé HTTP chyby a Retry-After na zprávu pro UI; neznámé chyby použijí předaný fallback. */
 export async function responseFailure(response: Response, fallback: string): Promise<AuthFailure> {
   const value: unknown = await response.json().catch(() => null)
   const errors: AuthFailure['errors'] = {}

@@ -49,9 +49,7 @@ function InfoIcon() {
   )
 }
 
-/// <summary>
-/// Zobrazuje formulář pro založení projektu včetně validace zadaných údajů.
-/// </summary>
+/** Zobrazí a ověří formulář projektu; zatím nepotvrzuje uložení do API ani nevytváří tým. */
 export function CreateProjectPage({ onBack, embedded = false }: CreateProjectPageProps) {
   const [values, setValues] = useState<FormValues>(initialValues)
   const [profileOpen, setProfileOpen] = useState(false)

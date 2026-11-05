@@ -4,6 +4,7 @@ using StudentFlow.Core.Authentication;
 
 namespace StudentFlow.Data.Authentication;
 
+/// <summary>Ukládá účty v PostgreSQL; normalizaci e-mailu a unikátnost zajišťují databázová pravidla.</summary>
 public sealed class PostgresUserAccountStore(NpgsqlDataSource dataSource) : IUserAccountStore
 {
     private const string SelectUser = """
@@ -16,6 +17,7 @@ public sealed class PostgresUserAccountStore(NpgsqlDataSource dataSource) : IUse
         WHERE r.role_code IN ('STUDENT', 'TEACHER')
         """;
 
+    /// <inheritdoc />
     public async Task<CreateUserResult> CreateAsync(NewUserAccount account, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(account);
@@ -54,6 +56,7 @@ public sealed class PostgresUserAccountStore(NpgsqlDataSource dataSource) : IUse
         }
     }
 
+    /// <inheritdoc />
     public async Task<UserCredentials?> FindByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(email);
@@ -64,6 +67,7 @@ public sealed class PostgresUserAccountStore(NpgsqlDataSource dataSource) : IUse
         return row is null ? null : new(row.ToIdentity(), row.PasswordHash);
     }
 
+    /// <inheritdoc />
     public async Task<UserIdentity?> FindByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         await using var connection = await dataSource.OpenConnectionAsync(cancellationToken);
@@ -72,6 +76,7 @@ public sealed class PostgresUserAccountStore(NpgsqlDataSource dataSource) : IUse
         return row?.ToIdentity();
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyList<string>> GetRoleCodesAsync(long id, CancellationToken cancellationToken = default)
     {
         await using var connection = await dataSource.OpenConnectionAsync(cancellationToken);
@@ -82,6 +87,7 @@ public sealed class PostgresUserAccountStore(NpgsqlDataSource dataSource) : IUse
         return roles.AsList();
     }
 
+    /// <inheritdoc />
     public async Task<bool> UpdatePasswordHashAsync(long id, string expectedHash, string newHash, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(expectedHash);

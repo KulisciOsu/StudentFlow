@@ -10,8 +10,11 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace StudentFlow.Api.Authentication;
 
+/// <summary>Společná konfigurace autentizace a ochrany požadavků API.</summary>
 public static class AuthSecurity
 {
+    /// <summary>Zaregistruje session, CSRF, hashování, limity a jednotné validační chyby.</summary>
+    /// <remarks>Výchozí autorizační politika vyžaduje přihlášení, pokud endpoint nemá AllowAnonymous.</remarks>
     public static void AddAuthSecurity(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddAntiforgery(options =>

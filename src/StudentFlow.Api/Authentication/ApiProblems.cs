@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace StudentFlow.Api.Authentication;
 
+/// <summary>Sjednocuje chyby API ve formátu ProblemDetails s aplikačním kódem a identifikátorem požadavku.</summary>
 public static class ApiProblems
 {
+    /// <summary>Sestaví veřejnou chybu; volitelné errors mapují názvy polí na validační zprávy.</summary>
     public static ProblemDetails Create(HttpContext context, int status, string code, string title, string detail,
         IDictionary<string, string[]>? errors = null)
     {
@@ -14,6 +16,7 @@ public static class ApiProblems
         return problem;
     }
 
+    /// <summary>Zabalí chybu do MVC výsledku s typem application/problem+json.</summary>
     public static ObjectResult Result(HttpContext context, int status, string code, string title, string detail,
         IDictionary<string, string[]>? errors = null) => new(Create(context, status, code, title, detail, errors))
     {
@@ -21,6 +24,7 @@ public static class ApiProblems
         ContentTypes = { "application/problem+json" }
     };
 
+    /// <summary>Zapíše chybu přímo do HTTP odpovědi se zákazem cachování pro middleware a autentizační handler.</summary>
     public static Task WriteAsync(HttpContext context, int status, string code, string title, string detail)
     {
         context.Response.StatusCode = status;

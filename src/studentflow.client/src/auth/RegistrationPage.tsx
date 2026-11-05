@@ -9,6 +9,7 @@ const labels: Record<keyof RegistrationFields, string> = {
   displayName: 'Jméno a příjmení', email: 'E-mail', password: 'Heslo', passwordConfirmation: 'Heslo znovu', accountType: 'Typ účtu',
 }
 
+/** Formulář pro jeden typ účtu; onRegistered volá až po potvrzení založení účtu serverem. */
 export function RegistrationPage({ onRegistered, onLogin }: { onRegistered: (user: RegisteredUser) => void; onLogin: () => void }) {
   const [fields, setFields] = useState(initialFields)
   const [errors, setErrors] = useState<RegistrationErrors>({})
@@ -37,6 +38,7 @@ export function RegistrationPage({ onRegistered, onLogin }: { onRegistered: (use
     setErrors(current => ({ ...current, [field]: undefined }))
   }
 
+  /** Odešle validní údaje bez souběžných pokusů; při chybě smaže hesla a zohlední čekání z Retry-After. */
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (inFlight.current || Date.now() < retryUntil) return

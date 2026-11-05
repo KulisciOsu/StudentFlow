@@ -6,6 +6,7 @@ import { fetchIdentity, loginAccount, logoutAccount } from './session'
 import type { LoginFields } from './session'
 import type { Identity } from './types'
 
+/** Obnovuje serverovou identitu a sdílí změny přihlášení mezi stránkami i kartami prohlížeče. */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({ status: 'loading' })
   const current = useRef<AuthState>(state)
@@ -14,6 +15,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const hadIdentity = useRef(false)
   const channel = useRef<BroadcastChannel | null>(null)
   const commit = useCallback((value: AuthState) => { current.current = value; setState(value) }, [])
+  /** Zruší předchozí požadavek; generace brání přepsání nového stavu opožděnou odpovědí. */
   const begin = useCallback(() => {
     request.current?.abort()
     const controller = new AbortController()

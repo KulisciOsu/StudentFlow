@@ -5,6 +5,7 @@ import { AuthFailure } from './client'
 import { validateLogin } from './session'
 import type { LoginErrors } from './session'
 
+/** Přihlašovací formulář; initialEmail a notice umožňují navázat na registraci bez údajů v URL. */
 export function LoginPage({ initialEmail = '', notice, onRegister }: { initialEmail?: string; notice?: string; onRegister: () => void }) {
   const { signIn, refresh } = useAuth()
   const [email, setEmail] = useState(initialEmail)
@@ -28,6 +29,7 @@ export function LoginPage({ initialEmail = '', notice, onRegister }: { initialEm
     const timer = window.setInterval(() => setRemaining(Math.max(0, Math.ceil((retryUntil - Date.now()) / 1000))), 1000)
     return () => window.clearInterval(timer)
   }, [retryUntil])
+  /** Po validaci přihlásí účet; při nepotvrzeném výsledku nabídne nové ověření identity. */
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (inFlight.current || Date.now() < retryUntil) return

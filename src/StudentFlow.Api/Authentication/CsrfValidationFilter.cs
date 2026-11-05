@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace StudentFlow.Api.Authentication;
 
+/// <summary>Vyžaduje CSRF token v hlavičce X-CSRF-TOKEN a ověří jeho vazbu na cookie a aktuální identitu.</summary>
 public sealed class CsrfValidationFilter(IAntiforgery antiforgery) : IAsyncActionFilter
 {
+    /// <inheritdoc />
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         if (string.IsNullOrWhiteSpace(context.HttpContext.Request.Headers["X-CSRF-TOKEN"]))

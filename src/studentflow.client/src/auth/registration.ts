@@ -3,16 +3,19 @@ import { isRecord, isAuthUser } from './types'
 import type { AccountType, AuthUser } from './types'
 export { AuthFailure as RegistrationFailure } from './client'
 export type { AccountType } from './types'
+/** Stav formuláře před validací, včetně dosud nevybraného typu účtu. */
 export type RegistrationFields = {
   displayName: string
   email: string
   password: string
+  /** Slouží jen pro kontrolu shody ve formuláři; do API se neposílá. */
   passwordConfirmation: string
   accountType: AccountType | ''
 }
 export type RegistrationErrors = Partial<Record<keyof RegistrationFields, string>>
 export type RegisteredUser = AuthUser
 
+/** Ověří údaje a shodu hesel pro UI; autoritativní kontrolu registrace provádí také server. */
 export function validateRegistration(fields: RegistrationFields): RegistrationErrors {
   const errors: RegistrationErrors = {}
   const nameLength = Array.from(fields.displayName.trim()).length
@@ -26,6 +29,7 @@ export function validateRegistration(fields: RegistrationFields): RegistrationEr
   return errors
 }
 
+/** Založí účet a ověří odpověď 201; session nevzniká a uživatel se musí následně přihlásit. */
 export async function registerAccount(fields: RegistrationFields, signal?: AbortSignal): Promise<RegisteredUser> {
   const payload = { displayName: fields.displayName, email: fields.email, password: fields.password, accountType: fields.accountType }
   const response = await authPost('/api/auth/register', payload, signal)

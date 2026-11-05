@@ -15,6 +15,7 @@ function Redirect({ to, navigate }: { to: string; navigate: Navigate }) {
   return <p role="status">Přesměrováváme…</p>
 }
 
+/** Volí stránky podle ověřené identity a typu účtu; během ověřování či odhlášení chráněný obsah skryje. */
 function App() {
   const { state, refresh, signOut } = useAuth()
   const [route, setRoute] = useState<Route>({ path: window.location.pathname })
