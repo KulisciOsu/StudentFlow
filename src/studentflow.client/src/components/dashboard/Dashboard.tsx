@@ -168,10 +168,12 @@ function ProjectCard({ project }: ProjectCardProps) {
  * Hlavní přehled projektů a úkolů uživatele.
  * @param onCreateProject Callback pro přechod na formulář založení projektu.
  */
-export function Dashboard({ onCreateProject }: DashboardProps) {
+export function Dashboard({ onCreateProject, embedded = false }: DashboardProps) {
   const [activeTab, setActiveTab] = useState<'open' | 'done'>('open')
   const [profileOpen, setProfileOpen] = useState(false)
   const [notice, setNotice] = useState('')
+  const Container = embedded ? 'section' : 'main'
+  const ProjectsHeading = embedded ? 'h2' : 'h1'
 
   const visibleTasks = tasks.filter((task) =>
     activeTab === 'done' ? task.completed : !task.completed
@@ -189,8 +191,8 @@ export function Dashboard({ onCreateProject }: DashboardProps) {
   }
 
   return (
-    <div className="dashboard">
-      <header className="dashboard__header">
+    <div className={`dashboard${embedded ? ' dashboard--embedded' : ''}`}>
+      {!embedded && <header className="dashboard__header">
         <a
           className="dashboard__brand"
           href="/dashboard"
@@ -248,9 +250,9 @@ export function Dashboard({ onCreateProject }: DashboardProps) {
             )}
           </div>
         </div>
-      </header>
+      </header>}
 
-      <main className="dashboard__content">
+      <Container className="dashboard__content">
         {notice && (
           <div className="dashboard__notice" role="status">
             <span>{notice}</span>
@@ -267,7 +269,7 @@ export function Dashboard({ onCreateProject }: DashboardProps) {
         <section aria-labelledby="projects-title">
           <div className="dashboard__section-heading">
             <div>
-              <h1 id="projects-title">Moje projekty</h1>
+              <ProjectsHeading id="projects-title">Moje projekty</ProjectsHeading>
               <p>Projekty, ve kterých jste členem nebo vedoucím týmu.</p>
             </div>
 
@@ -276,7 +278,7 @@ export function Dashboard({ onCreateProject }: DashboardProps) {
               className="dashboard__create-button"
               onClick={onCreateProject}
             >
-              + Založit projekt
+              <span aria-hidden="true">+ </span>Založit projekt
             </button>
           </div>
 
@@ -370,7 +372,7 @@ export function Dashboard({ onCreateProject }: DashboardProps) {
             </table>
           </div>
         </section>
-      </main>
+      </Container>
     </div>
   )
 }

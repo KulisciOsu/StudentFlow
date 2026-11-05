@@ -55,6 +55,8 @@ export type Task = {
 export type DashboardProps = {
   /** Otevře formulář pro založení nového projektu. */
   onCreateProject: () => void
+  /** Vloží obsah pod společnou hlavičku aplikace bez ukázkového profilu a dalšího main. */
+  embedded?: boolean
 }
 
 /**

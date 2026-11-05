@@ -6,11 +6,18 @@ services:
     environment:
       POSTGRES_DB: studentflow
       POSTGRES_USER: studentflow
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Spustte node scripts/dev.mjs setup nebo nastavte POSTGRES_PASSWORD v .env}
     ports:
       - "127.0.0.1:5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./database/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U studentflow -d studentflow"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
 
 volumes:
   postgres_data:

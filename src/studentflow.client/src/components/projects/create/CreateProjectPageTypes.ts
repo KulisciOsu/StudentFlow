@@ -13,10 +13,9 @@ export type FormValues = {
 /// </summary>
 export type FormErrors = Partial<Record<keyof FormValues, string>>
 
-/// <summary>
-/// Definuje vlastnosti komponenty CreateProjectPage.
-/// Obsahuje funkci pro návrat na Kanban nástěnku.
-/// </summary>
+/** Zapojení formuláře do navigace a rozvržení aplikace. */
 export type CreateProjectPageProps = {
   onBack: () => void
+  /** Použije sekci uvnitř aplikace a vynechá samostatnou ukázkovou hlavičku účtu. */
+  embedded?: boolean
 }
