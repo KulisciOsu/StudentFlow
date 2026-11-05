@@ -5,6 +5,7 @@ import { AuthHeader } from './auth/AuthHeader'
 import { useAuth } from './auth/AuthContext'
 import { homeFor } from './auth/types'
 import { CreateProjectPage } from './components/projects/create/CreateProjectPage'
+import { Dashboard } from './components/dashboard/Dashboard'
 import './App.scss'
 
 type Route = { path: string; email?: string; notice?: string }
@@ -61,10 +62,9 @@ function App() {
         {wrongType ? <section><h2>Přístup odepřen</h2><p>Tento pohled není určen pro váš typ účtu.</p>
           <a href={home} onClick={event => { event.preventDefault(); navigate(home) }}>Přejít na můj přehled</a></section>
           : creatingProject ? <CreateProjectPage embedded onBack={() => navigate(home)} />
-            : route.path === home ? <section><div className="app-header"><h2>{user.accountType === 'STUDENT' ? 'Projekty' : 'Přehled vyučujícího'}</h2>
-              {user.accountType === 'STUDENT' && <button className="app-create-project-button" type="button" onClick={() => navigate('/projects/new')}>Založit projekt</button>}
-            </div>
-            <p>{user.accountType === 'STUDENT' ? 'Zde budete mít přehled svých projektů.' : 'Zde budete mít přehled projektů, ke kterým dostanete přístup.'}</p></section>
+            : route.path === home ? user.accountType === 'STUDENT'
+              ? <Dashboard embedded onCreateProject={() => navigate('/projects/new')} />
+              : <section><h2>Přehled vyučujícího</h2><p>Zde budete mít přehled projektů, ke kterým dostanete přístup.</p></section>
             : <section><h2>Stránka nebyla nalezena</h2><a href={home} onClick={event => { event.preventDefault(); navigate(home) }}>Přejít na můj přehled</a></section>}
       </>
     }

@@ -16,7 +16,7 @@ zavedené části od těch, které je potřeba implementovat.
 | Integrační API | HTTP routování, stavové kódy, serializace, validace a autentizace. | xUnit, WebApplicationFactory, PostgreSQL 17 | 57 testů registrace, loginu, session, hashování, CSRF, limitů, chybových odpovědí a chráněného integračního vzoru přes skutečnou pipeline. |
 | Integrační databázové | Dotazy, zápisy, omezení a migrace na stejném databázovém systému jako produkce. | xUnit, Npgsql, skutečná PostgreSQL 17 | 30 testů v `StudentFlow.Data.IntegrationTests`: migrace, účty, normalizace, transakce, souběhy a session včetně rollbacku rehashe. Testcontainers zatím není zaveden. |
 | E2E | Kritické uživatelské průchody přes prohlížeč, frontend a API. | TypeScript, Playwright | 28 scénářů v Chromium, Firefox a WebKit (84 testů): HTTPS, registrace obou typů, login, refresh, role, logout a replay cookie, více karet, výpadky, klávesnice, mobil a tablet s dotykovým ovládáním. |
-| Frontendová integrace | Propojení formuláře projektu s routováním a stavem identity. | TypeScript, Playwright, řízené odpovědi API | 7 scénářů v `project-creation-integration.spec.ts`: anonymní přístup, čekání a výpadek ověření, omezení vyučujícího a průchod člena na mobilu, tabletu a desktopu. |
+| Frontendová integrace | Propojení dashboardu a formuláře projektu s routováním a stavem identity. | TypeScript, Playwright, řízené odpovědi API | 8 scénářů v `project-creation-integration.spec.ts`: anonymní přístup, čekání a výpadek ověření, omezení vyučujícího, filtry dashboardu, oba vstupy do založení projektu a průchod člena na mobilu, tabletu a desktopu. |
 
 Vybírej nejnižší úroveň, která spolehlivě ověří dané riziko. E2E sada pokrývá
 kritické průchody; kombinace vstupů a okrajové případy ověřuj převážně v rychlejších
@@ -151,7 +151,7 @@ Přesnou časovou hranici 8 hodin a 30 dní ověřují HTTP testy řízeným
 `TimeProvider`; browser testy ověřují cookie, refresh a serverové zneplatnění.
 
 Sada `project-creation-integration.spec.ts` používá řízené odpovědi autentizace,
-aby odděleně ověřila propojení KAN-86 s přihlášením KAN-46. Běží stejným
+aby odděleně ověřila propojení dashboardu KAN-81 a formuláře KAN-86 s přihlášením KAN-46. Běží stejným
 příkazem společně s E2E. Neověřuje skutečné session ani uložení projektu;
 formulář projektu zatím není napojený na zapisující API.
 

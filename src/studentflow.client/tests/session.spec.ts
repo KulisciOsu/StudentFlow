@@ -70,7 +70,7 @@ test('výpadek ověření se nevydává za odhlášení a dovolí nové ověřen
   await page.goto('/projects')
   await expect(page.getByRole('heading', { name: 'Přihlášení se nepodařilo ověřit' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Přihlásit se', exact: true })).toHaveCount(0)
-  await expect(page.getByRole('heading', { name: 'Projekty', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Moje projekty', exact: true })).toHaveCount(0)
   await page.unroute('**/api/auth/me')
   await page.getByRole('button', { name: 'Zkusit znovu', exact: true }).click()
   await expect(page).toHaveURL('/login')

@@ -1,4 +1,3 @@
-
 import { test, expect } from '@playwright/test';
 
 test('nepřihlášený uživatel pokračuje na přihlášení bez soukromého obsahu', async ({ page }) => {
@@ -10,6 +9,7 @@ test('nepřihlášený uživatel pokračuje na přihlášení bez soukromého ob
   await expect(page).toHaveURL('/login');
   await expect(page.getByRole('heading', { name: 'Přihlášení', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Kanban', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Moje projekty', exact: true })).toHaveCount(0);
   await expect(page.getByRole('alert')).toHaveCount(0);
 });
 
