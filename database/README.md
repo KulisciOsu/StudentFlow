@@ -1,7 +1,8 @@
 
 # Databáze StudentFlow
 
-Projekt používá PostgreSQL 17 provozovaný v Dockeru.
+Projekt používá PostgreSQL 17 provozovaný v Dockeru. Kompletní prostředí API
+a frontendu popisuje [vývojový návod](../documents/DEVELOPMENT.md).
 
 ## Požadavky
 - Docker Desktop
@@ -9,20 +10,22 @@ Projekt používá PostgreSQL 17 provozovaný v Dockeru.
 
 ## 1. Konfigurace
 
-V kořenové složce projektu vytvořte soubor `.env`:
+Společný setup z kořene projektu vytvoří `.env` s náhodným lokálním heslem:
 
-```dotenv
-POSTGRES_PASSWORD=StudentFlow
+```bash
+node scripts/dev.mjs setup
 ```
 
-Soubor `.env` není verzovaný v Gitu.
+Pro samotnou databázi bez Node/.NET lze zkopírovat `.env.example` do `.env`
+a vyplnit neprázdné `POSTGRES_PASSWORD`. Soubor `.env` není verzovaný v Gitu.
+U existujícího svazku použijte původní heslo; změna `.env` heslo v DB nezmění.
 
 ## 2. Spuštění PostgreSQL
 
 V kořenové složce projektu spusťte:
 
 ```powershell
-docker compose up -d
+docker compose up -d --wait
 ```
 
 Databáze bude dostupná na:
@@ -33,6 +36,14 @@ Databáze bude dostupná na:
 - Password: hodnota z `.env`
 
 ## 3. Vytvoření tabulek a rolí
+
+Na novém datovém svazku se SQL soubory z `database/migrations/` automaticky
+provedou při prvním startu kontejneru. Následující ruční postup je určen pouze
+pro starší svazek, kde ještě příslušné migrace nebyly provedeny. Na databázi
+inicializované automaticky znovu nespouštějte V001.
+
+V003 přidává normalizované unikátní e-maily, právě jeden typ účtu a schéma
+session. [Pravidla, diagnostika a datové operace](AUTHENTICATION.md).
 
 Příkazy spusťte v terminálu PowerShell
 z kořenové složky projektu.
@@ -57,6 +68,22 @@ Get-Content .\database\migrations\V002__seed_roles.sql -Raw -Encoding UTF8 | doc
 Migraci V001 spouštějte pouze na nové databázi.
 Opakované spuštění skončí chybou,
 protože tabulky již existují.
+
+Po V001 a V002 se na existující databázi provede V003. Má vlastní transakci,
+proto se zde nepřidává `--single-transaction`:
+
+```powershell
+Get-Content .\database\migrations\V003__authentication_foundation.sql -Raw -Encoding UTF8 | docker exec -i studentflow-db psql -v ON_ERROR_STOP=1 -U studentflow -d studentflow
+```
+
+V Bash z kořene projektu:
+
+```bash
+docker compose exec -T postgres psql -v ON_ERROR_STOP=1 -U studentflow -d studentflow < database/migrations/V003__authentication_foundation.sql
+```
+
+Úspěšně aplikované migrace se neopakují. Při odmítnutí V003 kvůli starým datům
+nejprve vyřešte hlášené konflikty podle diagnostiky, potom V003 opakujte.
 
 ## 4. Zastavení databáze
 

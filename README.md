@@ -66,8 +66,8 @@ flowchart LR
 | :--- | :--- |
 | [Vize projektu](documents/INCEPTION/VIZE_PROJEKTU.md) | [Návrh architektury](documents/ELABORATION/ARCHITECTURAL_DESIGN.md) |
 | [Popis problému](documents/INCEPTION/PROBLEM_DESCRIPTION.md) | [Technologický návrh](documents/ELABORATION/TECHNOLOGICAL_DESIGN.md) |
-| [Stakeholděři](documents/INCEPTION/STAKEHOLDERS.md) |  |
-| [Risk-list – seznam rizik](documents/INCEPTION/RISK_LIST.md) |  |
+| [Stakeholděři](documents/INCEPTION/STAKEHOLDERS.md) | [Autentizace – API a doplňky původních wireframů](documents/ELABORATION/auth/README.md) |
+| [Risk-list – seznam rizik](documents/INCEPTION/RISK_LIST.md) | [Původní wireframy – zdroj pravdy](documents/ELABORATION/Wireframe.pdf) |
 | [Rozsah projektu – Scope](documents/INCEPTION/SCOPE_OF_PROJECT.md) |  |
 | [Cíle projektu](documents/INCEPTION/PROJECT_OBJECTIVES.md) |  |
 | [Use Case – případy užití](documents/INCEPTION/USE_CASE.md) |  |
@@ -78,3 +78,6 @@ flowchart LR
 
 [Pravidla testování, aktuální stav a spuštění testů](documents/TESTING.md).
 
+## Lokální spuštění
+
+[Společné vývojové prostředí: HTTPS, API, frontend a PostgreSQL](documents/DEVELOPMENT.md).

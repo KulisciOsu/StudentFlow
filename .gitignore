@@ -12,4 +12,28 @@
 
 # Environment
 .env
-.env.local
+.env.*
+!.env.example
+.certs/
+*.key
+*.pfx
+*.p12
+
+# Generated test and coverage output
+**/TestResults/
+**/test-results/
+**/playwright-report/
+**/blob-report/
+**/coverage/
+*.trx
+*.coverage
+*.coveragexml
+
+# Local scratch files
+/tmp/
+/temp/
+*.log
+*.tmp
+*.bak
+*.orig
+*.rej

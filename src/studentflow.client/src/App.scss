@@ -16,16 +16,46 @@
   line-height: 1.15;
 }
 
-@media (max-width: 600px) {
-  .app {
-    min-height: 100svh;
-    padding: 1rem;
-    border: 0;
-    border-radius: 0;
-  }
+.app--workspace {
+  min-width: 0;
+}
 
-  .app h1 {
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.app-header h2 {
+  margin-bottom: 0;
+}
+
+.app-create-project-button {
+  padding: 0.75rem 1rem;
+  border: 1px solid #1e3a5f;
+  border-radius: 0.5rem;
+  background: #1e3a5f;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.app-create-project-button:hover {
+  background: #294d78;
+  border-color: #294d78;
+}
+
+.app-create-project-button:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .app-header {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
