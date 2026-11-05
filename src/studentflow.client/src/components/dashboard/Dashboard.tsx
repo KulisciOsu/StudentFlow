@@ -1,32 +1,9 @@
 
 import { useState } from 'react'
+import type { Project, Task, DashboardProps, ProjectCardProps } from './DashboardPageTypes'
 import './Dashboard.scss'
 
-type Project = {
-  id: number
-  name: string
-  team: string
-  membersCount: number
-  role: 'Vedoucí' | 'Člen'
-  completed: number
-  total: number
-  openTasks: number
-  overdueTasks: number
-  milestone: string
-  members: string[]
-}
-
-type Task = {
-  id: number
-  name: string
-  project: string
-  deadline: string
-  priority: 'Vysoká' | 'Střední'
-  status: string
-  overdue?: boolean
-  completed?: boolean
-}
-
+/** Ukázková data projektů pro přehled na dashboardu. */
 const projects: Project[] = [
   {
     id: 1,
@@ -56,6 +33,7 @@ const projects: Project[] = [
   },
 ]
 
+/** Ukázková data úkolů pro přehled napříč projekty. */
 const tasks: Task[] = [
   {
     id: 1,
@@ -93,6 +71,7 @@ const tasks: Task[] = [
   },
 ]
 
+/** Vykreslí ikonu oznámení v záhlaví dashboardu. */
 function BellIcon() {
   return (
     <svg
@@ -112,7 +91,11 @@ function BellIcon() {
   )
 }
 
-function ProjectCard({ project }: { project: Project }) {
+/**
+ * Zobrazí kartu projektu s průběhem plnění, termínem milníku a členy týmu.
+ * @param project Projekt zobrazovaný na kartě.
+ */
+function ProjectCard({ project }: ProjectCardProps) {
   const progress = (project.completed / project.total) * 100
 
   return (
@@ -181,7 +164,11 @@ function ProjectCard({ project }: { project: Project }) {
   )
 }
 
-export function Dashboard({ onCreateProject }: { onCreateProject: () => void }) {
+/**
+ * Hlavní přehled projektů a úkolů uživatele.
+ * @param onCreateProject Callback pro přechod na formulář založení projektu.
+ */
+export function Dashboard({ onCreateProject }: DashboardProps) {
   const [activeTab, setActiveTab] = useState<'open' | 'done'>('open')
   const [profileOpen, setProfileOpen] = useState(false)
   const [notice, setNotice] = useState('')
@@ -192,6 +179,10 @@ export function Dashboard({ onCreateProject }: { onCreateProject: () => void }) 
 
   const openTaskCount = tasks.filter((task) => !task.completed).length
 
+  /**
+   * Zobrazí informační hlášku pro dosud nedostupnou funkci a zavře nabídku profilu.
+   * @param message Text hlášky.
+   */
   function showPlaceholder(message: string) {
     setNotice(message)
     setProfileOpen(false)
@@ -283,7 +274,7 @@ export function Dashboard({ onCreateProject }: { onCreateProject: () => void }) 
             <button
               type="button"
               className="dashboard__create-button"
-              onClick={() => showPlaceholder('Založení projektu bude doplněno v samostatné části aplikace.')}
+              onClick={onCreateProject}
             >
               + Založit projekt
             </button>
