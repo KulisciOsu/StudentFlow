@@ -13,7 +13,7 @@ zavedené části od těch, které je potřeba implementovat.
 | --- | --- | --- | --- |
 | Jednotkové backendové | Doménová pravidla, validace a výpočty bez infrastruktury. | C#, xUnit | Tři testovací projekty; dva testy controllerů a dva prázdné testy. Doménová logika zatím chybí. |
 | Jednotkové a komponentové frontendové | Validace a zpracování odpovědí API. | TypeScript, Vitest | 28 testů registrace, loginu, obnovy identity, logoutu a pravidel navigace. Komponentové testy a `moveTask` zatím chybí. |
-| Integrační API | HTTP routování, stavové kódy, serializace, validace a autentizace. | xUnit, WebApplicationFactory, PostgreSQL 17 | 65 testů registrace, loginu, session, hashování, CSRF, limitů, vývojového seedu a chráněného integračního vzoru přes skutečnou pipeline. |
+| Integrační API | HTTP routování, stavové kódy, serializace, validace a autentizace. | xUnit, WebApplicationFactory, PostgreSQL 17 | 79 testů registrace, loginu, session, hashování, CSRF, limitů, vývojového seedu a chráněného integračního vzoru přes skutečnou pipeline. |
 | Integrační databázové | Dotazy, zápisy, omezení a migrace na stejném databázovém systému jako produkce. | xUnit, Npgsql, skutečná PostgreSQL 17 | 30 testů v `StudentFlow.Data.IntegrationTests`: migrace, účty, normalizace, transakce, souběhy a session včetně rollbacku rehashe. Testcontainers zatím není zaveden. |
 | E2E | Kritické uživatelské průchody přes prohlížeč, frontend a API. | TypeScript, Playwright | 28 scénářů v Chromium, Firefox a WebKit (84 testů): HTTPS, registrace obou typů, login, refresh, role, logout a replay cookie, více karet, výpadky, klávesnice, mobil a tablet s dotykovým ovládáním. |
 | Frontendová integrace | Propojení dashboardu a formuláře projektu s routováním a stavem identity. | TypeScript, Playwright, řízené odpovědi API | 8 scénářů v `project-creation-integration.spec.ts`: anonymní přístup, čekání a výpadek ověření, omezení vyučujícího, filtry dashboardu, oba vstupy do založení projektu a průchod člena na mobilu, tabletu a desktopu. |
@@ -217,7 +217,12 @@ citlivého obsahu vnitřní výjimky.
 `DevelopmentAccountSeedTests` ověřuje vytvoření účtů člena i vyučujícího
 při vývojovém startu včetně přihlášení a odhlášení, opakované i souběžné spuštění
 bez duplicit a zachování existujícího hesla, typu, jména a aktivity. Ověřuje
-také doplnění chybějícího účtu při existenci druhého. Seed se nesmí provést v prostředí
+také doplnění chybějícího účtu při existenci druhého, vlastní heslo z konfigurace
+včetně mezer, různé hashe obou účtů, zachování hesla po změně konfigurace
+a odmítnutí chybějícího či neplatného hesla nebo e-mailu před zápisem. Shodné
+e-maily obou typů se odmítají. Testy si generují vlastní náhodné údaje, předávají
+je konfigurací před startem API a nečtou lokální `.env`. Bez vlastní konfigurace
+je seed standardně vypnutý. Seed se nesmí provést v prostředí
 `Production` ani `Testing`, i kdyby byl v konfiguraci povolený; ve vývoji lze
 seeding vypnout. E2E spouštěč jej vypíná, aby si automatické testy zakládaly
 pouze vlastní účty.

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 using Npgsql;
 using StudentFlow.Core.Authentication;
 using StudentFlow.Testing;
@@ -28,13 +29,15 @@ internal sealed class RegistrationApp : IAsyncDisposable
     public bool FailSessionRevocations { get; set; }
 
     private RegistrationApp(PostgresTestDatabase database, int permitLimit, bool failWrites, int loginPermitLimit,
-        bool includeHandoffExample, string environment, bool? seedEnabled)
+        bool includeHandoffExample, string environment, bool? seedEnabled, IReadOnlyDictionary<string, string?>? seedConfiguration)
     {
         Database = database;
         factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseEnvironment(environment);
             if (seedEnabled.HasValue) builder.UseSetting("DevelopmentSeed:Enabled", seedEnabled.Value.ToString());
+            if (seedConfiguration is not null)
+                builder.ConfigureAppConfiguration((_, configuration) => configuration.AddInMemoryCollection(seedConfiguration));
             builder.UseSetting("ConnectionStrings:DefaultConnection", database.ConnectionString);
             builder.UseSetting("Auth:RegistrationRateLimit:PermitLimit", permitLimit.ToString());
             builder.UseSetting("Auth:LoginRateLimit:PermitLimit", loginPermitLimit.ToString());
@@ -61,11 +64,20 @@ internal sealed class RegistrationApp : IAsyncDisposable
     { BaseAddress = new Uri("https://localhost"), AllowAutoRedirect = false, HandleCookies = cookies });
 
     /// <summary>Připraví testovací API s vlastní databází, nastavitelnými limity a volitelným integračním vzorem.</summary>
+    /// <param name="permitLimit">Limit registračních požadavků pro testovací IP.</param>
+    /// <param name="failWrites">Zda má datová služba simulovat nedostupnost při registraci.</param>
+    /// <param name="loginPermitLimit">Limit přihlašovacích požadavků pro testovací IP.</param>
+    /// <param name="includeHandoffExample">Zda zapojit ukázkový chráněný controller do testovacího API.</param>
+    /// <param name="environment">Prostředí hostitele API.</param>
+    /// <param name="seedEnabled">Volitelné přepsání přepínače vývojového seedu.</param>
+    /// <param name="seedConfiguration">Vlastní testovací konfigurace seedu načtená před spuštěním API.</param>
+    /// <returns>Testovací aplikaci s vlastní databází a klientem.</returns>
     public static async Task<RegistrationApp> CreateAsync(int permitLimit = 100, bool failWrites = false, int loginPermitLimit = 100,
-        bool includeHandoffExample = false, string environment = "Testing", bool? seedEnabled = null)
+        bool includeHandoffExample = false, string environment = "Testing", bool? seedEnabled = null,
+        IReadOnlyDictionary<string, string?>? seedConfiguration = null)
     {
         var database = await PostgresTestDatabase.CreateAsync();
-        try { return new(database, permitLimit, failWrites, loginPermitLimit, includeHandoffExample, environment, seedEnabled); }
+        try { return new(database, permitLimit, failWrites, loginPermitLimit, includeHandoffExample, environment, seedEnabled, seedConfiguration); }
         catch { await database.DisposeAsync(); throw; }
     }
 

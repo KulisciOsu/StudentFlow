@@ -98,24 +98,35 @@ samostatně slouží `npm --prefix src/studentflow.client run dev`.
 
 ## Testovací účty pro lokální vývoj
 
-Při startu API v prostředí `Development` se automaticky založí tyto účty:
+Vývojový seed umí při startu API založit účet člena (`STUDENT`) a vyučujícího
+(`TEACHER`). Přihlašovací údaje nastavte ve vlastním lokálním `.env`, který Git
+ignoruje. Jejich aktuální hodnoty najdete pouze v tomto souboru; projekt
+neobsahuje výchozí e-maily ani heslo. Názvy proměnných uvádí také `.env.example`:
 
-| Typ účtu | E-mail | Heslo |
-| --- | --- | --- |
-| Člen (`STUDENT`) | `tester@studentflow.test` | `StudentFlow-Test-2026!` |
-| Vyučující (`TEACHER`) | `teacher@studentflow.test` | `StudentFlow-Test-2026!` |
+| Proměnná | Význam |
+| --- | --- |
+| `DevelopmentSeed__MemberEmail` | Vlastní e-mail účtu člena. |
+| `DevelopmentSeed__TeacherEmail` | Vlastní, odlišný e-mail účtu vyučujícího. |
+| `DevelopmentSeed__Password` | Heslo pro oba nově vytvářené účty, 15 až 128 znaků Unicode; mezery jsou jeho součástí. |
+| `DevelopmentSeed__Enabled` | Nastavte `true` až po vyplnění všech přihlašovacích údajů. |
 
-Nejdříve musí běžet databáze s provedenými migracemi V001–V003.
+Nejdříve musí běžet databáze s provedenými migracemi V001–V003. Potom spusťte
+`node scripts/dev.mjs`, který předá `.env` aplikaci. Při samostatném spuštění
+přes `dotnet run` předejte stejné hodnoty jako proměnné prostředí.
+
+Seed je standardně vypnutý. V prostředí `Production` ani `Testing` se účty
+nezakládají, ani při ručním povolení konfigurace. Pro vypnutí při vývoji nastavte
+`DevelopmentSeed__Enabled=false`. Chybějící nebo neplatné údaje při povoleném
+seedu zastaví start API před vytvořením účtů.
+
 Účty vytváří API přes stejné hashování a datové operace jako registrace.
-Opakované spuštění nevytváří duplicity. Pokud daný e-mail již existuje,
-seed nemění jeho heslo, jméno, typ ani aktivitu; uvedené přihlašovací údaje
-platí pro nově založené vývojové účty. Každý účet se doplňuje samostatně,
-takže na databázi s existujícím členem přibude pouze chybějící vyučující.
+Do databáze ukládá hash s vlastní náhodnou solí pro každý účet. Opakovaný start
+nevytváří duplicity. Existující účet podle e-mailu zůstane zachovaný včetně
+hesla, jména, typu a aktivity. Změna konfigurace nepřepisuje ani nepřejmenovává
+existující účty; doplní pouze chybějící účty podle nových e-mailů.
 
-Seed je povolený v `appsettings.Development.json`. V prostředí `Production`
-ani `Testing` se účty nezakládají, ani při ručním povolení konfigurace.
-Pro vypnutí při vývoji nastavte `DevelopmentSeed__Enabled=false` v `.env`
-nebo v prostředí před spuštěním `node scripts/dev.mjs`.
+Odstranění údajů ze současných souborů je neodstraňuje z historie Gitu.
+Přepnutí prostředí na `Production` již založené testovací účty neodstraní.
 
 ## Vlastní vývojová PostgreSQL bez Dockeru
 
