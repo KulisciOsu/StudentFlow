@@ -20,18 +20,21 @@ internal sealed class RegistrationApp : IAsyncDisposable
     private readonly WebApplicationFactory<Program> factory;
     public PostgresTestDatabase Database { get; }
     public HttpClient Client { get; }
+    public IServiceProvider Services => factory.Services;
     public TestClock Clock { get; } = new();
     public ConcurrentQueue<string> Logs { get; } = new();
     public bool FailSessionReads { get; set; }
     public bool FailSessionCreates { get; set; }
     public bool FailSessionRevocations { get; set; }
 
-    private RegistrationApp(PostgresTestDatabase database, int permitLimit, bool failWrites, int loginPermitLimit, bool includeHandoffExample)
+    private RegistrationApp(PostgresTestDatabase database, int permitLimit, bool failWrites, int loginPermitLimit,
+        bool includeHandoffExample, string environment, bool? seedEnabled)
     {
         Database = database;
         factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
-            builder.UseEnvironment("Testing");
+            builder.UseEnvironment(environment);
+            if (seedEnabled.HasValue) builder.UseSetting("DevelopmentSeed:Enabled", seedEnabled.Value.ToString());
             builder.UseSetting("ConnectionStrings:DefaultConnection", database.ConnectionString);
             builder.UseSetting("Auth:RegistrationRateLimit:PermitLimit", permitLimit.ToString());
             builder.UseSetting("Auth:LoginRateLimit:PermitLimit", loginPermitLimit.ToString());
@@ -58,10 +61,11 @@ internal sealed class RegistrationApp : IAsyncDisposable
     { BaseAddress = new Uri("https://localhost"), AllowAutoRedirect = false, HandleCookies = cookies });
 
     /// <summary>Připraví testovací API s vlastní databází, nastavitelnými limity a volitelným integračním vzorem.</summary>
-    public static async Task<RegistrationApp> CreateAsync(int permitLimit = 100, bool failWrites = false, int loginPermitLimit = 100, bool includeHandoffExample = false)
+    public static async Task<RegistrationApp> CreateAsync(int permitLimit = 100, bool failWrites = false, int loginPermitLimit = 100,
+        bool includeHandoffExample = false, string environment = "Testing", bool? seedEnabled = null)
     {
         var database = await PostgresTestDatabase.CreateAsync();
-        try { return new(database, permitLimit, failWrites, loginPermitLimit, includeHandoffExample); }
+        try { return new(database, permitLimit, failWrites, loginPermitLimit, includeHandoffExample, environment, seedEnabled); }
         catch { await database.DisposeAsync(); throw; }
     }
 

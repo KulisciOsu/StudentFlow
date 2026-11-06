@@ -70,9 +70,9 @@ origin připravený pro zabezpečené cookies. Kontrola `/api/health` ověřuje 
 API; dostupnost databáze ověřuje Compose healthcheck, nikoli tento endpoint.
 
 Registrace a login již vyžadují funkční databázi po migraci V003. Úvodní
-adresa přesměruje na přihlášení; po loginu člen pokračuje na `/projects`
-a vyučující na `/teaching`. Tyto vstupní obrazovky zatím neobsahují projektový
-dashboard. Ukázkové API sloupců a úkolů je také chráněné session.
+adresa přesměruje na přihlášení; po loginu člen pokračuje na dashboard `/projects`
+a vyučující na `/teaching`. Dashboard zatím používá ukázková data projektů
+a úkolů. Ukázkové API sloupců a úkolů je také chráněné session.
 
 Pro důvěru vývojovému certifikátu lze podle platformy použít:
 
@@ -95,6 +95,27 @@ docker compose stop
 
 Samotné API lze spustit pomocí `node scripts/dev.mjs api`. Pro frontend
 samostatně slouží `npm --prefix src/studentflow.client run dev`.
+
+## Testovací účet pro lokální vývoj
+
+Při startu API v prostředí `Development` se automaticky založí tento účet:
+
+| Údaj | Hodnota |
+| --- | --- |
+| E-mail | `tester@studentflow.test` |
+| Heslo | `StudentFlow-Test-2026!` |
+| Typ účtu | Člen (`STUDENT`) |
+
+Nejdříve musí běžet databáze s provedenými migracemi V001–V003.
+Účet vytváří API přes stejné hashování a datové operace jako registrace.
+Opakované spuštění nevytváří duplicitu. Pokud daný e-mail již existuje,
+seed nemění jeho heslo, jméno, typ ani aktivitu; uvedené přihlašovací údaje
+platí pro nově založený vývojový účet.
+
+Seed je povolený v `appsettings.Development.json`. V prostředí `Production`
+ani `Testing` se účet nezakládá, ani při ručním povolení konfigurace.
+Pro vypnutí při vývoji nastavte `DevelopmentSeed__Enabled=false` v `.env`
+nebo v prostředí před spuštěním `node scripts/dev.mjs`.
 
 ## Vlastní vývojová PostgreSQL bez Dockeru
 
