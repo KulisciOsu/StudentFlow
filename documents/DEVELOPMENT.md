@@ -96,24 +96,24 @@ docker compose stop
 Samotné API lze spustit pomocí `node scripts/dev.mjs api`. Pro frontend
 samostatně slouží `npm --prefix src/studentflow.client run dev`.
 
-## Testovací účet pro lokální vývoj
+## Testovací účty pro lokální vývoj
 
-Při startu API v prostředí `Development` se automaticky založí tento účet:
+Při startu API v prostředí `Development` se automaticky založí tyto účty:
 
-| Údaj | Hodnota |
-| --- | --- |
-| E-mail | `tester@studentflow.test` |
-| Heslo | `StudentFlow-Test-2026!` |
-| Typ účtu | Člen (`STUDENT`) |
+| Typ účtu | E-mail | Heslo |
+| --- | --- | --- |
+| Člen (`STUDENT`) | `tester@studentflow.test` | `StudentFlow-Test-2026!` |
+| Vyučující (`TEACHER`) | `teacher@studentflow.test` | `StudentFlow-Test-2026!` |
 
 Nejdříve musí běžet databáze s provedenými migracemi V001–V003.
-Účet vytváří API přes stejné hashování a datové operace jako registrace.
-Opakované spuštění nevytváří duplicitu. Pokud daný e-mail již existuje,
+Účty vytváří API přes stejné hashování a datové operace jako registrace.
+Opakované spuštění nevytváří duplicity. Pokud daný e-mail již existuje,
 seed nemění jeho heslo, jméno, typ ani aktivitu; uvedené přihlašovací údaje
-platí pro nově založený vývojový účet.
+platí pro nově založené vývojové účty. Každý účet se doplňuje samostatně,
+takže na databázi s existujícím členem přibude pouze chybějící vyučující.
 
 Seed je povolený v `appsettings.Development.json`. V prostředí `Production`
-ani `Testing` se účet nezakládá, ani při ručním povolení konfigurace.
+ani `Testing` se účty nezakládají, ani při ručním povolení konfigurace.
 Pro vypnutí při vývoji nastavte `DevelopmentSeed__Enabled=false` v `.env`
 nebo v prostředí před spuštěním `node scripts/dev.mjs`.
 

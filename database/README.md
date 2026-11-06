@@ -45,9 +45,9 @@ inicializované automaticky znovu nespouštějte V001.
 V003 přidává normalizované unikátní e-maily, právě jeden typ účtu a schéma
 session. [Pravidla, diagnostika a datové operace](AUTHENTICATION.md).
 
-Migrace zakládají číselník rolí. Vývojový testovací účet se vytváří až při
+Migrace zakládají číselník rolí. Vývojové účty člena a vyučujícího se vytvářejí až při
 startu API v prostředí `Development`, také na již inicializované databázi.
-[Přihlašovací údaje a vypnutí seedu](../documents/DEVELOPMENT.md#testovací-účet-pro-lokální-vývoj).
+[Přihlašovací údaje a vypnutí seedu](../documents/DEVELOPMENT.md#testovací-účty-pro-lokální-vývoj).
 
 Příkazy spusťte v terminálu PowerShell
 z kořenové složky projektu.
