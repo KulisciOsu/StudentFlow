@@ -125,6 +125,8 @@ jobs:
           --health-cmd "pg_isready -U studentflow -d postgres"
           --health-interval 5s --health-timeout 3s --health-retries 12
     env:
+      # Firefox vyžaduje domovský adresář vlastněný uživatelem procesu; kontejner běží jako root.
+      HOME: /root
       # Uvnitř job kontejneru je databáze dostupná pod názvem služby, nikoliv přes localhost.
       STUDENTFLOW_E2E_DATABASE_URL: postgresql://studentflow:studentflow-ci-only@postgres:5432/postgres
     defaults:

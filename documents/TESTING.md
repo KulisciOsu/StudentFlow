@@ -85,6 +85,9 @@ WebKit a jejich systémové knihovny. Krok `playwright install --with-deps` se
 v CI nespouští, aby instalace balíčků přes apt nespotřebovala limit jobu.
 Node.js 22 a .NET 10 připravují obvyklé setup actions uvnitř kontejneru;
 `npm ci`, příprava HTTPS a obnovení API závislostí probíhají nadále při běhu jobu.
+E2E job nastavuje `HOME=/root`, protože procesy v kontejneru běží jako `root`.
+Výchozí `/github/home` v GitHub Actions patří jinému uživateli a Firefox
+kvůli odlišnému vlastníkovi domovského adresáře odmítá nastartovat.
 
 Po `npm ci` workflow porovná verzi instalovaného `@playwright/test` s metadaty
 skutečného image v `/ms-playwright/.docker-info`. Při aktualizaci Playwrightu
