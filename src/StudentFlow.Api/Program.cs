@@ -9,7 +9,6 @@ using StudentFlow.Data.Kanban;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-builder.Services.AddSingleton<IKanbanBoardRepository, KanbanBoardRepository>();
 builder.Services.AddOpenApi();
 builder.Services.AddAuthSecurity(builder.Configuration);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
@@ -17,6 +16,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddSingleton(_ => NpgsqlDataSource.Create(connectionString));
 builder.Services.AddScoped<IUserAccountStore, PostgresUserAccountStore>();
 builder.Services.AddScoped<IUserSessionStore, PostgresUserSessionStore>();
+builder.Services.AddScoped<IKanbanBoardRepository, KanbanBoardRepository>();
 
 var app = builder.Build();
 

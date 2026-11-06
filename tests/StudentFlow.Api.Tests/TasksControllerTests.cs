@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using StudentFlow.Api.Controllers;
 using StudentFlow.Api.Models;
-using StudentFlow.Data.Kanban;
 
 namespace StudentFlow.Api.Tests;
 
@@ -16,7 +15,7 @@ public class TasksControllerTests
     [Fact]
     public async Task Get_ExistingProject_ReturnsProjectTasksOnly()
     {
-        var controller = new TasksController(new KanbanBoardRepository());
+        var controller = new TasksController(new FakeKanbanBoardRepository());
 
         var result = await controller.Get(1);
 
@@ -31,7 +30,7 @@ public class TasksControllerTests
     [Fact]
     public async Task Get_UnknownProject_ReturnsNotFound()
     {
-        var controller = new TasksController(new KanbanBoardRepository());
+        var controller = new TasksController(new FakeKanbanBoardRepository());
 
         var result = await controller.Get(99);
 
@@ -44,7 +43,7 @@ public class TasksControllerTests
     [Fact]
     public async Task Move_ValidRequest_SavesNewPosition()
     {
-        var repository = new KanbanBoardRepository();
+        var repository = new FakeKanbanBoardRepository();
         var controller = new TasksController(repository);
         var request = new MoveTaskRequestDto { ColumnId = 3, Position = 0 };
 
@@ -63,7 +62,7 @@ public class TasksControllerTests
     [Fact]
     public async Task Move_ColumnFromOtherProject_ReturnsBadRequest()
     {
-        var controller = new TasksController(new KanbanBoardRepository());
+        var controller = new TasksController(new FakeKanbanBoardRepository());
         var request = new MoveTaskRequestDto { ColumnId = 5, Position = 0 };
 
         var result = await controller.Move(1, 2, request);
@@ -77,7 +76,7 @@ public class TasksControllerTests
     [Fact]
     public async Task Move_NegativePosition_ReturnsBadRequest()
     {
-        var controller = new TasksController(new KanbanBoardRepository());
+        var controller = new TasksController(new FakeKanbanBoardRepository());
         var request = new MoveTaskRequestDto { ColumnId = 2, Position = -1 };
 
         var result = await controller.Move(1, 2, request);
@@ -91,7 +90,7 @@ public class TasksControllerTests
     [Fact]
     public async Task Move_UnknownTask_ReturnsNotFound()
     {
-        var controller = new TasksController(new KanbanBoardRepository());
+        var controller = new TasksController(new FakeKanbanBoardRepository());
         var request = new MoveTaskRequestDto { ColumnId = 2, Position = 0 };
 
         var unknownTask = await controller.Move(1, 99, request);
@@ -107,7 +106,7 @@ public class TasksControllerTests
     [Fact]
     public async Task Move_UnknownColumn_ReturnsNotFound()
     {
-        var controller = new TasksController(new KanbanBoardRepository());
+        var controller = new TasksController(new FakeKanbanBoardRepository());
         var request = new MoveTaskRequestDto { ColumnId = 99, Position = 0 };
 
         var result = await controller.Move(1, 2, request);

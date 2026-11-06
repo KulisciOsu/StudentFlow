@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using StudentFlow.Api.Controllers;
-using StudentFlow.Data.Kanban;
 
 namespace StudentFlow.Api.Tests;
 
@@ -15,7 +14,7 @@ public class ColumnsControllerTests
     [Fact]
     public async Task Get_ExistingProject_ReturnsProjectColumnsInOrder()
     {
-        var controller = new ColumnsController(new KanbanBoardRepository());
+        var controller = new ColumnsController(new FakeKanbanBoardRepository());
 
         var result = await controller.Get(1);
 
@@ -30,7 +29,7 @@ public class ColumnsControllerTests
     [Fact]
     public async Task Get_UnknownProject_ReturnsNotFound()
     {
-        var controller = new ColumnsController(new KanbanBoardRepository());
+        var controller = new ColumnsController(new FakeKanbanBoardRepository());
 
         var result = await controller.Get(99);
 

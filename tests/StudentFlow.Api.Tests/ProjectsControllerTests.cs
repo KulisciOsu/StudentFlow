@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using StudentFlow.Api.Controllers;
-using StudentFlow.Data.Kanban;
 
 namespace StudentFlow.Api.Tests;
 
@@ -15,7 +14,7 @@ public class ProjectsControllerTests
     [Fact]
     public async Task Get_ExistingProject_ReturnsProject()
     {
-        var controller = new ProjectsController(new KanbanBoardRepository());
+        var controller = new ProjectsController(new FakeKanbanBoardRepository());
 
         var result = await controller.Get(1);
 
@@ -29,7 +28,7 @@ public class ProjectsControllerTests
     [Fact]
     public async Task Get_UnknownProject_ReturnsNotFound()
     {
-        var controller = new ProjectsController(new KanbanBoardRepository());
+        var controller = new ProjectsController(new FakeKanbanBoardRepository());
 
         var result = await controller.Get(99);
 

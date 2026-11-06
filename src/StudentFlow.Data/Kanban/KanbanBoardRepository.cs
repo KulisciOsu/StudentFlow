@@ -1,125 +1,261 @@
+using Dapper;
+using Npgsql;
 using StudentFlow.Core.Kanban;
 
 namespace StudentFlow.Data.Kanban;
 
 /// <summary>
-/// Přístup k datům nástěnky. Data jsou zatím v paměti serveru, v KAN-98 se napojí na databázi přes Dapper.
+/// Přístup k datům nástěnky v databázi PostgreSQL přes Dapper.
 /// </summary>
 public class KanbanBoardRepository : IKanbanBoardRepository
 {
-    private readonly object _lock = new();
+    private const string TaskSelect = """
+        SELECT task.task_id AS Id,
+               task.project_id AS ProjectId,
+               task.column_id AS ColumnId,
+               task.position AS Position,
+               task.title AS Title,
+               task.priority AS Priority,
+               app_user.display_name AS Assignee,
+               task.due_date AS DueDate
+        FROM task
+        JOIN app_user ON app_user.user_id = task.assignee_id
+        """;
 
-    private readonly List<KanbanProjectDto> _projects =
-    [
-        new KanbanProjectDto { Id = 1, Name = "Rezervační systém knihovny", TeamName = "Tým Sova", DueDate = new DateOnly(2027, 1, 15) },
-        new KanbanProjectDto { Id = 2, Name = "Evidence praxí", TeamName = "Tým Liška", DueDate = null },
-    ];
+    private readonly NpgsqlDataSource _dataSource;
 
-    private readonly List<KanbanBoardColumnDto> _columns =
-    [
-        new KanbanBoardColumnDto { Id = 1, ProjectId = 1, Title = "K řešení", IsDone = false },
-        new KanbanBoardColumnDto { Id = 2, ProjectId = 1, Title = "Rozpracováno", IsDone = false },
-        new KanbanBoardColumnDto { Id = 3, ProjectId = 1, Title = "Ke kontrole", IsDone = false },
-        new KanbanBoardColumnDto { Id = 4, ProjectId = 1, Title = "Hotovo", IsDone = true },
-        new KanbanBoardColumnDto { Id = 5, ProjectId = 2, Title = "K řešení", IsDone = false },
-    ];
-
-    private List<KanbanBoardTaskDto> _tasks =
-    [
-        CreateTask(1, 1, 1, 0, "Testovací scénáře přihlášení", "medium", "Lucie Černá", new DateOnly(2026, 11, 12)),
-        CreateTask(2, 1, 1, 1, "Formulář rezervace", "high", "Tomáš Dvořák", new DateOnly(2026, 11, 20)),
-        CreateTask(3, 1, 1, 2, "Export výpůjček do CSV", "low", "Martin Kučera", new DateOnly(2026, 12, 4)),
-        CreateTask(4, 1, 2, 0, "Návrh databázového modelu", "high", "Jan Novák", new DateOnly(2026, 10, 22)),
-        CreateTask(5, 1, 2, 1, "API pro výpůjčky", "medium", "Martin Kučera", new DateOnly(2026, 11, 5)),
-        CreateTask(6, 1, 2, 2, "Wireframy obrazovek", "medium", "Petra Svobodová", new DateOnly(2026, 11, 9)),
-        CreateTask(7, 1, 3, 0, "Diagram případů užití", "medium", "Lucie Černá", new DateOnly(2026, 11, 6)),
-        CreateTask(8, 1, 4, 0, "Vize projektu", null, "Petra Svobodová", new DateOnly(2026, 10, 10)),
-        CreateTask(9, 1, 4, 1, "Popis problému", null, "Jan Novák", new DateOnly(2026, 10, 12)),
-        CreateTask(10, 1, 4, 2, "Risk-list", null, "Lucie Černá", new DateOnly(2026, 10, 15)),
-        CreateTask(11, 2, 5, 0, "Analýza požadavků", "medium", "Karel Malý", null),
-    ];
-
-    /// <inheritdoc />
-    public Task<KanbanProjectDto?> GetProjectAsync(int projectId)
+    /// <summary>
+    /// Vytvoří repozitář nástěnky.
+    /// </summary>
+    /// <param name="dataSource">Zdroj připojení k databázi.</param>
+    public KanbanBoardRepository(NpgsqlDataSource dataSource)
     {
-        var project = _projects.FirstOrDefault(item => item.Id == projectId);
-
-        return Task.FromResult(project);
+        _dataSource = dataSource;
     }
 
     /// <inheritdoc />
-    public Task<List<KanbanBoardColumnDto>> GetColumnsAsync(int projectId)
+    public async Task<KanbanProjectDto?> GetProjectAsync(int projectId)
     {
-        var columns = _columns
-            .Where(item => item.ProjectId == projectId)
+        const string sql = """
+            SELECT project_id AS Id,
+                   name AS Name,
+                   team_name AS TeamName,
+                   due_date AS DueDate
+            FROM project
+            WHERE project_id = @ProjectId
+            """;
+
+        await using var connection = await _dataSource.OpenConnectionAsync();
+        var row = await connection.QuerySingleOrDefaultAsync<ProjectRow>(sql, new { ProjectId = projectId });
+
+        if (row is null)
+        {
+            return null;
+        }
+
+        return new KanbanProjectDto
+        {
+            Id = row.Id,
+            Name = row.Name,
+            TeamName = row.TeamName,
+            DueDate = ToDateOnly(row.DueDate),
+        };
+    }
+
+    /// <inheritdoc />
+    public async Task<List<KanbanBoardColumnDto>> GetColumnsAsync(int projectId)
+    {
+        const string sql = """
+            SELECT column_id AS Id,
+                   project_id AS ProjectId,
+                   title AS Title,
+                   is_done AS IsDone
+            FROM board_column
+            WHERE project_id = @ProjectId
+            ORDER BY position
+            """;
+
+        await using var connection = await _dataSource.OpenConnectionAsync();
+        var rows = await connection.QueryAsync<ColumnRow>(sql, new { ProjectId = projectId });
+
+        return rows.Select(ToColumn).ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<KanbanBoardColumnDto?> GetColumnAsync(int columnId)
+    {
+        const string sql = """
+            SELECT column_id AS Id,
+                   project_id AS ProjectId,
+                   title AS Title,
+                   is_done AS IsDone
+            FROM board_column
+            WHERE column_id = @ColumnId
+            """;
+
+        await using var connection = await _dataSource.OpenConnectionAsync();
+        var row = await connection.QuerySingleOrDefaultAsync<ColumnRow>(sql, new { ColumnId = columnId });
+
+        if (row is null)
+        {
+            return null;
+        }
+
+        return ToColumn(row);
+    }
+
+    /// <inheritdoc />
+    public async Task<List<KanbanBoardTaskDto>> GetTasksAsync(int projectId)
+    {
+        const string sql = TaskSelect + """
+
+            WHERE task.project_id = @ProjectId
+            ORDER BY task.column_id, task.position
+            """;
+
+        await using var connection = await _dataSource.OpenConnectionAsync();
+        var rows = await connection.QueryAsync<TaskRow>(sql, new { ProjectId = projectId });
+
+        return rows.Select(ToTask).ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<KanbanBoardTaskDto?> GetTaskAsync(int taskId)
+    {
+        const string sql = TaskSelect + """
+
+            WHERE task.task_id = @TaskId
+            """;
+
+        await using var connection = await _dataSource.OpenConnectionAsync();
+        var row = await connection.QuerySingleOrDefaultAsync<TaskRow>(sql, new { TaskId = taskId });
+
+        if (row is null)
+        {
+            return null;
+        }
+
+        return ToTask(row);
+    }
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// Všechny změny se uloží v jedné transakci. Jedinečnost pozic se kontroluje až při potvrzení,
+    /// takže úkoly lze přeskládat v libovolném pořadí. Při chybě se neuloží nic.
+    /// </remarks>
+    public async Task SaveTasksAsync(int projectId, List<KanbanBoardTaskDto> tasks)
+    {
+        const string sql = """
+            UPDATE task
+            SET column_id = @ColumnId,
+                position = @Position
+            WHERE task_id = @Id
+              AND project_id = @ProjectId
+            """;
+
+        var parameters = tasks
+            .Select(task => new { task.Id, task.ColumnId, task.Position, ProjectId = projectId })
             .ToList();
 
-        return Task.FromResult(columns);
-    }
+        await using var connection = await _dataSource.OpenConnectionAsync();
+        await using var transaction = await connection.BeginTransactionAsync();
 
-    /// <inheritdoc />
-    public Task<KanbanBoardColumnDto?> GetColumnAsync(int columnId)
-    {
-        var column = _columns.FirstOrDefault(item => item.Id == columnId);
-
-        return Task.FromResult(column);
-    }
-
-    /// <inheritdoc />
-    public Task<List<KanbanBoardTaskDto>> GetTasksAsync(int projectId)
-    {
-        lock (_lock)
-        {
-            var tasks = _tasks
-                .Where(item => item.ProjectId == projectId)
-                .ToList();
-
-            return Task.FromResult(tasks);
-        }
-    }
-
-    /// <inheritdoc />
-    public Task<KanbanBoardTaskDto?> GetTaskAsync(int taskId)
-    {
-        lock (_lock)
-        {
-            var task = _tasks.FirstOrDefault(item => item.Id == taskId);
-
-            return Task.FromResult(task);
-        }
-    }
-
-    /// <inheritdoc />
-    public Task SaveTasksAsync(int projectId, List<KanbanBoardTaskDto> tasks)
-    {
-        lock (_lock)
-        {
-            var otherProjects = _tasks
-                .Where(item => item.ProjectId != projectId)
-                .ToList();
-
-            otherProjects.AddRange(tasks);
-            _tasks = otherProjects;
-        }
-
-        return Task.CompletedTask;
+        await connection.ExecuteAsync(sql, parameters, transaction);
+        await transaction.CommitAsync();
     }
 
     /// <summary>
-    /// Vytvoří úkol pro výchozí data.
+    /// Převede datum z databáze na DateOnly.
     /// </summary>
-    private static KanbanBoardTaskDto CreateTask(int id, int projectId, int columnId, int position, string title, string? priority, string assignee, DateOnly? dueDate)
+    private static DateOnly? ToDateOnly(DateTime? value)
+    {
+        if (value is null)
+        {
+            return null;
+        }
+
+        return DateOnly.FromDateTime(value.Value);
+    }
+
+    /// <summary>
+    /// Převede řádek sloupce na DTO.
+    /// </summary>
+    private static KanbanBoardColumnDto ToColumn(ColumnRow row)
+    {
+        return new KanbanBoardColumnDto
+        {
+            Id = row.Id,
+            ProjectId = row.ProjectId,
+            Title = row.Title,
+            IsDone = row.IsDone,
+        };
+    }
+
+    /// <summary>
+    /// Převede řádek úkolu na DTO.
+    /// </summary>
+    private static KanbanBoardTaskDto ToTask(TaskRow row)
     {
         return new KanbanBoardTaskDto
         {
-            Id = id,
-            ProjectId = projectId,
-            ColumnId = columnId,
-            Position = position,
-            Title = title,
-            Priority = priority,
-            Assignee = assignee,
-            DueDate = dueDate,
+            Id = row.Id,
+            ProjectId = row.ProjectId,
+            ColumnId = row.ColumnId,
+            Position = row.Position,
+            Title = row.Title,
+            Priority = row.Priority,
+            Assignee = row.Assignee,
+            DueDate = ToDateOnly(row.DueDate),
         };
+    }
+
+    /// <summary>
+    /// Řádek tabulky project.
+    /// </summary>
+    private sealed class ProjectRow
+    {
+        public int Id { get; set; }
+
+        public string Name { get; set; } = string.Empty;
+
+        public string TeamName { get; set; } = string.Empty;
+
+        public DateTime? DueDate { get; set; }
+    }
+
+    /// <summary>
+    /// Řádek tabulky board_column.
+    /// </summary>
+    private sealed class ColumnRow
+    {
+        public int Id { get; set; }
+
+        public int ProjectId { get; set; }
+
+        public string Title { get; set; } = string.Empty;
+
+        public bool IsDone { get; set; }
+    }
+
+    /// <summary>
+    /// Řádek tabulky task se jménem řešitele.
+    /// </summary>
+    private sealed class TaskRow
+    {
+        public int Id { get; set; }
+
+        public int ProjectId { get; set; }
+
+        public int ColumnId { get; set; }
+
+        public int Position { get; set; }
+
+        public string Title { get; set; } = string.Empty;
+
+        public string? Priority { get; set; }
+
+        public string Assignee { get; set; } = string.Empty;
+
+        public DateTime? DueDate { get; set; }
     }
 }
