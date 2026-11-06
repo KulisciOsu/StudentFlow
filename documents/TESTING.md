@@ -78,6 +78,26 @@ a HTML reporty a při selhání browser testu také screenshot a trace. Opaková
 selhaných testů je vypnuté, aby nespolehlivý první běh nezakrylo opakování.
 Samostatný databázový job používá PostgreSQL 17, spouští databázové i HTTP
 integrační testy a ukládá TRX výsledky. E2E job má vlastní službu PostgreSQL 17.
+
+E2E v GitHub Actions běží v oficiálním image
+`mcr.microsoft.com/playwright:v1.64.1-noble`, který obsahuje Chromium, Firefox,
+WebKit a jejich systémové knihovny. Krok `playwright install --with-deps` se
+v CI nespouští, aby instalace balíčků přes apt nespotřebovala limit jobu.
+Node.js 22 a .NET 10 připravují obvyklé setup actions uvnitř kontejneru;
+`npm ci`, příprava HTTPS a obnovení API závislostí probíhají nadále při běhu jobu.
+
+Po `npm ci` workflow porovná verzi instalovaného `@playwright/test` s metadaty
+skutečného image v `/ms-playwright/.docker-info`. Při aktualizaci Playwrightu
+je nutné upravit `package-lock.json` a tag image ve workflow současně;
+nesoulad ukončí job ještě před spuštěním aplikace. Job a PostgreSQL sdílejí
+Docker síť, takže testovací URL používá hostitele `postgres:5432`.
+API, Vite a prohlížeče jsou ve stejném kontejneru a nadále používají `localhost`.
+Volba `--ipc=host` poskytuje Chromiu sdílenou paměť hostitele. Reporty,
+screenshoty a traces se ukládají jako artefakt `e2e-results` i při chybě testů.
+Stažení image i npm a .NET závislostí stále vyžaduje dostupnou síť.
+API dostává při ukončení Playwrightu `SIGTERM` s limitem 10 sekund,
+aby spouštěč mohl ukončit .NET proces a odstranit izolovanou testovací databázi.
+
 Nastavení ochrany větve nebylo ověřeno; samotný workflow sloučení neblokuje.
 
 ## Spuštění existujících testů
