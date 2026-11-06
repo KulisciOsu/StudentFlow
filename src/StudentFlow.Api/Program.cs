@@ -2,6 +2,7 @@ using Npgsql;
 using StudentFlow.Core.Authentication;
 using StudentFlow.Data.Authentication;
 using StudentFlow.Api.Authentication;
+using StudentFlow.Api.Development;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,8 @@ builder.Services.AddScoped<IUserAccountStore, PostgresUserAccountStore>();
 builder.Services.AddScoped<IUserSessionStore, PostgresUserSessionStore>();
 
 var app = builder.Build();
+
+await DevelopmentAccountSeeder.SeedAsync(app.Services);
 
 if (app.Environment.IsDevelopment())
 {
