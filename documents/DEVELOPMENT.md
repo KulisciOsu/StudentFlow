@@ -70,9 +70,9 @@ origin připravený pro zabezpečené cookies. Kontrola `/api/health` ověřuje 
 API; dostupnost databáze ověřuje Compose healthcheck, nikoli tento endpoint.
 
 Registrace a login již vyžadují funkční databázi po migraci V003. Úvodní
-adresa přesměruje na přihlášení; po loginu člen pokračuje na `/projects`
-a vyučující na `/teaching`. Tyto vstupní obrazovky zatím neobsahují projektový
-dashboard. Ukázkové API sloupců a úkolů je také chráněné session.
+adresa přesměruje na přihlášení; po loginu člen pokračuje na dashboard `/projects`
+a vyučující na `/teaching`. Dashboard zatím používá ukázková data projektů
+a úkolů. Ukázkové API sloupců a úkolů je také chráněné session.
 
 Pro důvěru vývojovému certifikátu lze podle platformy použít:
 
@@ -95,6 +95,38 @@ docker compose stop
 
 Samotné API lze spustit pomocí `node scripts/dev.mjs api`. Pro frontend
 samostatně slouží `npm --prefix src/studentflow.client run dev`.
+
+## Testovací účty pro lokální vývoj
+
+Vývojový seed umí při startu API založit účet člena (`STUDENT`) a vyučujícího
+(`TEACHER`). Přihlašovací údaje nastavte ve vlastním lokálním `.env`, který Git
+ignoruje. Jejich aktuální hodnoty najdete pouze v tomto souboru; projekt
+neobsahuje výchozí e-maily ani heslo. Názvy proměnných uvádí také `.env.example`:
+
+| Proměnná | Význam |
+| --- | --- |
+| `DevelopmentSeed__MemberEmail` | Vlastní e-mail účtu člena. |
+| `DevelopmentSeed__TeacherEmail` | Vlastní, odlišný e-mail účtu vyučujícího. |
+| `DevelopmentSeed__Password` | Heslo pro oba nově vytvářené účty, 15 až 128 znaků Unicode; mezery jsou jeho součástí. |
+| `DevelopmentSeed__Enabled` | Nastavte `true` až po vyplnění všech přihlašovacích údajů. |
+
+Nejdříve musí běžet databáze s provedenými migracemi V001–V003. Potom spusťte
+`node scripts/dev.mjs`, který předá `.env` aplikaci. Při samostatném spuštění
+přes `dotnet run` předejte stejné hodnoty jako proměnné prostředí.
+
+Seed je standardně vypnutý. V prostředí `Production` ani `Testing` se účty
+nezakládají, ani při ručním povolení konfigurace. Pro vypnutí při vývoji nastavte
+`DevelopmentSeed__Enabled=false`. Chybějící nebo neplatné údaje při povoleném
+seedu zastaví start API před vytvořením účtů.
+
+Účty vytváří API přes stejné hashování a datové operace jako registrace.
+Do databáze ukládá hash s vlastní náhodnou solí pro každý účet. Opakovaný start
+nevytváří duplicity. Existující účet podle e-mailu zůstane zachovaný včetně
+hesla, jména, typu a aktivity. Změna konfigurace nepřepisuje ani nepřejmenovává
+existující účty; doplní pouze chybějící účty podle nových e-mailů.
+
+Odstranění údajů ze současných souborů je neodstraňuje z historie Gitu.
+Přepnutí prostředí na `Production` již založené testovací účty neodstraní.
 
 ## Vlastní vývojová PostgreSQL bez Dockeru
 
