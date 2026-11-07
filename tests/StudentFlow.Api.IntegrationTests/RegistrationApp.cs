@@ -58,12 +58,33 @@ internal sealed class RegistrationApp : IAsyncDisposable
     { BaseAddress = new Uri("https://localhost"), AllowAutoRedirect = false, HandleCookies = cookies });
 
     /// <summary>Připraví testovací API s vlastní databází, nastavitelnými limity a volitelným integračním vzorem.</summary>
-    public static async Task<RegistrationApp> CreateAsync(int permitLimit = 100, bool failWrites = false, int loginPermitLimit = 100, bool includeHandoffExample = false)
+    
+    public static async Task<RegistrationApp> CreateAsync(
+        int permitLimit = 100,
+        bool failWrites = false,
+        int loginPermitLimit = 100,
+        bool includeHandoffExample = false,
+        bool dashboard = false)
     {
-        var database = await PostgresTestDatabase.CreateAsync();
-        try { return new(database, permitLimit, failWrites, loginPermitLimit, includeHandoffExample); }
-        catch { await database.DisposeAsync(); throw; }
+        var database = await PostgresTestDatabase.CreateAsync(
+            dashboard: dashboard);
+
+        try
+        {
+            return new(
+                database,
+                permitLimit,
+                failWrites,
+                loginPermitLimit,
+                includeHandoffExample);
+        }
+        catch
+        {
+            await database.DisposeAsync();
+            throw;
+        }
     }
+
 
     public async Task<HttpResponseMessage> SetCsrfAsync()
         => await SetCsrfAsync(Client);

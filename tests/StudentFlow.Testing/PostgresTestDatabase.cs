@@ -20,7 +20,9 @@ public sealed class PostgresTestDatabase : IAsyncDisposable
 
     /// <summary>Vytvoří náhodně pojmenovanou databázi ze STUDENTFLOW_TEST_DATABASE a aplikuje migrace.</summary>
     /// <param name="legacy">Ponechá stav po V002 pro testy přechodu na autentizační schéma V003.</param>
-    public static async Task<PostgresTestDatabase> CreateAsync(bool legacy = false)
+    public static async Task<PostgresTestDatabase> CreateAsync(
+    bool legacy = false,
+    bool dashboard = false)
     {
         var connectionString = Environment.GetEnvironmentVariable("STUDENTFLOW_TEST_DATABASE")
             ?? throw new InvalidOperationException("Set STUDENTFLOW_TEST_DATABASE to a dedicated PostgreSQL 17 server with CREATEDB permission. These tests never use the application's connection string.");
@@ -36,9 +38,20 @@ public sealed class PostgresTestDatabase : IAsyncDisposable
         try
         {
             await database.ApplyMigrationAsync("V001__initial_schema.sql");
-            await database.ApplyMigrationAsync("V002__seed_roles.sql");
-            if (!legacy) await database.ApplyMigrationAsync("V003__authentication_foundation.sql");
-            return database;
+await database.ApplyMigrationAsync("V002__seed_roles.sql");
+
+if (!legacy)
+{
+    await database.ApplyMigrationAsync("V003__authentication_foundation.sql");
+
+    if (dashboard)
+    {
+        await database.ApplyMigrationAsync("V004__kanban_board.sql");
+        await database.ApplyMigrationAsync("V006__dashboard_membership.sql");
+    }
+}
+
+return database;
         }
         catch
         {

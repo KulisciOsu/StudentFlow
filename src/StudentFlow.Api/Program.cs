@@ -1,6 +1,8 @@
 using Npgsql;
 using StudentFlow.Core.Authentication;
 using StudentFlow.Data.Authentication;
+using StudentFlow.Core.Dashboard;
+using StudentFlow.Data.Dashboard;
 using StudentFlow.Api.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +15,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddSingleton(_ => NpgsqlDataSource.Create(connectionString));
 builder.Services.AddScoped<IUserAccountStore, PostgresUserAccountStore>();
 builder.Services.AddScoped<IUserSessionStore, PostgresUserSessionStore>();
+builder.Services.AddScoped<IDashboardRepository, PostgresDashboardRepository>();
 
 var app = builder.Build();
 
