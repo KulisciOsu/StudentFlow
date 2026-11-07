@@ -1,8 +1,5 @@
 .app {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: calc(100svh - 3rem);
+  width: min(100%, 72rem);
   padding: clamp(1.5rem, 5vw, 3rem);
   border: 1px solid #dce3ed;
   border-radius: 1rem;
