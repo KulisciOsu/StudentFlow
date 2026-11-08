@@ -30,6 +30,8 @@ export default defineConfig({
       ignoreHTTPSErrors: true,
       reuseExistingServer: false,
       timeout: 90_000,
+      // SIGTERM dovolí e2e-api.mjs dokončit finally a odstranit jeho izolovanou databázi před koncem jobu.
+      gracefulShutdown: { signal: 'SIGTERM', timeout: 10_000 },
     },
     {
       command: 'npm run dev',

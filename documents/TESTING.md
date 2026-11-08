@@ -13,7 +13,7 @@ zavedené části od těch, které je potřeba implementovat.
 | --- | --- | --- | --- |
 | Jednotkové backendové | Doménová pravidla, validace a výpočty bez infrastruktury. | C#, xUnit | Tři testovací projekty; dva testy controllerů a dva prázdné testy. Doménová logika zatím chybí. |
 | Jednotkové a komponentové frontendové | Validace a zpracování odpovědí API. | TypeScript, Vitest | 28 testů registrace, loginu, obnovy identity, logoutu a pravidel navigace. Komponentové testy a `moveTask` zatím chybí. |
-| Integrační API | HTTP routování, stavové kódy, serializace, validace a autentizace. | xUnit, WebApplicationFactory, PostgreSQL 17 | 57 testů registrace, loginu, session, hashování, CSRF, limitů, chybových odpovědí a chráněného integračního vzoru přes skutečnou pipeline. |
+| Integrační API | HTTP routování, stavové kódy, serializace, validace a autentizace. | xUnit, WebApplicationFactory, PostgreSQL 17 | 79 testů registrace, loginu, session, hashování, CSRF, limitů, vývojového seedu a chráněného integračního vzoru přes skutečnou pipeline. |
 | Integrační databázové | Dotazy, zápisy, omezení a migrace na stejném databázovém systému jako produkce. | xUnit, Npgsql, skutečná PostgreSQL 17 | 30 testů v `StudentFlow.Data.IntegrationTests`: migrace, účty, normalizace, transakce, souběhy a session včetně rollbacku rehashe. Testcontainers zatím není zaveden. |
 | E2E | Kritické uživatelské průchody přes prohlížeč, frontend a API. | TypeScript, Playwright | 28 scénářů v Chromium, Firefox a WebKit (84 testů): HTTPS, registrace obou typů, login, refresh, role, logout a replay cookie, více karet, výpadky, klávesnice, mobil a tablet s dotykovým ovládáním. |
 | Frontendová integrace | Propojení dashboardu a formuláře projektu s routováním a stavem identity. | TypeScript, Playwright, řízené odpovědi API | 8 scénářů v `project-creation-integration.spec.ts`: anonymní přístup, čekání a výpadek ověření, omezení vyučujícího, filtry dashboardu, oba vstupy do založení projektu a průchod člena na mobilu, tabletu a desktopu. |
@@ -78,6 +78,29 @@ a HTML reporty a při selhání browser testu také screenshot a trace. Opaková
 selhaných testů je vypnuté, aby nespolehlivý první běh nezakrylo opakování.
 Samostatný databázový job používá PostgreSQL 17, spouští databázové i HTTP
 integrační testy a ukládá TRX výsledky. E2E job má vlastní službu PostgreSQL 17.
+
+E2E v GitHub Actions běží v oficiálním image
+`mcr.microsoft.com/playwright:v1.64.1-noble`, který obsahuje Chromium, Firefox,
+WebKit a jejich systémové knihovny. Krok `playwright install --with-deps` se
+v CI nespouští, aby instalace balíčků přes apt nespotřebovala limit jobu.
+Node.js 22 a .NET 10 připravují obvyklé setup actions uvnitř kontejneru;
+`npm ci`, příprava HTTPS a obnovení API závislostí probíhají nadále při běhu jobu.
+E2E job nastavuje `HOME=/root`, protože procesy v kontejneru běží jako `root`.
+Výchozí `/github/home` v GitHub Actions patří jinému uživateli a Firefox
+kvůli odlišnému vlastníkovi domovského adresáře odmítá nastartovat.
+
+Po `npm ci` workflow porovná verzi instalovaného `@playwright/test` s metadaty
+skutečného image v `/ms-playwright/.docker-info`. Při aktualizaci Playwrightu
+je nutné upravit `package-lock.json` a tag image ve workflow současně;
+nesoulad ukončí job ještě před spuštěním aplikace. Job a PostgreSQL sdílejí
+Docker síť, takže testovací URL používá hostitele `postgres:5432`.
+API, Vite a prohlížeče jsou ve stejném kontejneru a nadále používají `localhost`.
+Volba `--ipc=host` poskytuje Chromiu sdílenou paměť hostitele. Reporty,
+screenshoty a traces se ukládají jako artefakt `e2e-results` i při chybě testů.
+Stažení image i npm a .NET závislostí stále vyžaduje dostupnou síť.
+API dostává při ukončení Playwrightu `SIGTERM` s limitem 10 sekund,
+aby spouštěč mohl ukončit .NET proces a odstranit izolovanou testovací databázi.
+
 Nastavení ochrany větve nebylo ověřeno; samotný workflow sloučení neblokuje.
 
 ## Spuštění existujících testů
@@ -213,6 +236,19 @@ pro registraci a login bez `Content-Length`. Ověřuje přijetí 16 384 bajtů
 a odmítnutí 16 385 bajtů bez zápisu. Test nedostupné databáze v
 `RegistrationTests` zachytává také výstup loggerů a odmítá únik hesla nebo
 citlivého obsahu vnitřní výjimky.
+
+`DevelopmentAccountSeedTests` ověřuje vytvoření účtů člena i vyučujícího
+při vývojovém startu včetně přihlášení a odhlášení, opakované i souběžné spuštění
+bez duplicit a zachování existujícího hesla, typu, jména a aktivity. Ověřuje
+také doplnění chybějícího účtu při existenci druhého, vlastní heslo z konfigurace
+včetně mezer, různé hashe obou účtů, zachování hesla po změně konfigurace
+a odmítnutí chybějícího či neplatného hesla nebo e-mailu před zápisem. Shodné
+e-maily obou typů se odmítají. Testy si generují vlastní náhodné údaje, předávají
+je konfigurací před startem API a nečtou lokální `.env`. Bez vlastní konfigurace
+je seed standardně vypnutý. Seed se nesmí provést v prostředí
+`Production` ani `Testing`, i kdyby byl v konfiguraci povolený; ve vývoji lze
+seeding vypnout. E2E spouštěč jej vypíná, aby si automatické testy zakládaly
+pouze vlastní účty.
 
 ## Nejbližší implementační kroky
 

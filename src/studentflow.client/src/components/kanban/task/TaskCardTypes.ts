@@ -8,4 +8,9 @@ export interface TaskCardProps {
   /// Data úkolu.
   /// </summary>
   task: Task
+
+  /// <summary>
+  /// Určuje, zda je úkol ve sloupci hotových úkolů.
+  /// </summary>
+  isDone: boolean
 }

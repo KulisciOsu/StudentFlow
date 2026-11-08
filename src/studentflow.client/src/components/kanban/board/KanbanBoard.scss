@@ -1,20 +1,19 @@
 .kanban-board {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   min-width: 0;
-}
-
-.kanban-board h2 {
-  margin: 0 0 1rem;
-  font-size: 1.25rem;
 }
 
 .kanban-columns {
   display: flex;
+  flex: 1;
   gap: 0.75rem;
   overflow-x: auto;
   padding-bottom: 0.5rem;
 }
 
-.kanban-board-hint {
+.kanban-board-message {
   margin: 0 0 1rem;
   color: #626f86;
   font-size: 0.875rem;

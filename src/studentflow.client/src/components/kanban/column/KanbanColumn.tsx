@@ -17,7 +17,10 @@ export function KanbanColumn({ column, tasks }: KanbanColumnProps) {
       aria-labelledby={`column-${column.id}`}
     >
       <header className="kanban-column-header">
-        <h3 id={`column-${column.id}`}>{column.title}</h3>
+        <h3 id={`column-${column.id}`}>
+          {column.title}
+          <span className="kanban-column-count">{tasks.length}</span>
+        </h3>
       </header>
       <SortableContext
         items={tasks.map((task) => `task-${task.id}`)}
@@ -26,11 +29,12 @@ export function KanbanColumn({ column, tasks }: KanbanColumnProps) {
         <ul className="kanban-column-tasks">
           {tasks.map((task) => (
             <li key={task.id}>
-              <TaskCard task={task} />
+              <TaskCard task={task} isDone={column.isDone} />
             </li>
           ))}
         </ul>
       </SortableContext>
+      {tasks.length === 0 && <p className="kanban-column-empty">Žádné úkoly</p>}
     </section>
   )
 }

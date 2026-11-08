@@ -11,4 +11,9 @@ export interface Column {
   /// Název sloupce.
   /// </summary>
   title: string
+
+  /// <summary>
+  /// Určuje, zda sloupec obsahuje dokončené úkoly.
+  /// </summary>
+  isDone: boolean
 }
