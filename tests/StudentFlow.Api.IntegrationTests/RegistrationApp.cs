@@ -1,4 +1,4 @@
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Collections.Concurrent;
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
@@ -64,6 +64,7 @@ internal sealed class RegistrationApp : IAsyncDisposable
     { BaseAddress = new Uri("https://localhost"), AllowAutoRedirect = false, HandleCookies = cookies });
 
     /// <summary>Připraví testovací API s vlastní databází, nastavitelnými limity a volitelným integračním vzorem.</summary>
+
     /// <param name="permitLimit">Limit registračních požadavků pro testovací IP.</param>
     /// <param name="failWrites">Zda má datová služba simulovat nedostupnost při registraci.</param>
     /// <param name="loginPermitLimit">Limit přihlašovacích požadavků pro testovací IP.</param>
@@ -71,16 +72,41 @@ internal sealed class RegistrationApp : IAsyncDisposable
     /// <param name="environment">Prostředí hostitele API.</param>
     /// <param name="seedEnabled">Volitelné přepsání přepínače vývojového seedu.</param>
     /// <param name="seedConfiguration">Vlastní testovací konfigurace seedu načtená před spuštěním API.</param>
+    /// <param name="dashboard">Zda aplikovat také databázové migrace dashboardu.</param>
     /// <returns>Testovací aplikaci s vlastní databází a klientem.</returns>
-    public static async Task<RegistrationApp> CreateAsync(int permitLimit = 100, bool failWrites = false, int loginPermitLimit = 100,
-        bool includeHandoffExample = false, string environment = "Testing", bool? seedEnabled = null,
-        IReadOnlyDictionary<string, string?>? seedConfiguration = null)
+    public static async Task<RegistrationApp> CreateAsync(
+        int permitLimit = 100,
+        bool failWrites = false,
+        int loginPermitLimit = 100,
+        bool includeHandoffExample = false,
+        string environment = "Testing",
+        bool? seedEnabled = null,
+        IReadOnlyDictionary<string, string?>? seedConfiguration = null,
+        bool dashboard = false)
     {
-        var database = await PostgresTestDatabase.CreateAsync();
-        try { return new(database, permitLimit, failWrites, loginPermitLimit, includeHandoffExample, environment, seedEnabled, seedConfiguration); }
-        catch { await database.DisposeAsync(); throw; }
+        var database = await PostgresTestDatabase.CreateAsync(
+            dashboard: dashboard);
+
+        try
+        {
+            return new RegistrationApp(
+                database,
+                permitLimit,
+                failWrites,
+                loginPermitLimit,
+                includeHandoffExample,
+                environment,
+                seedEnabled,
+                seedConfiguration);
+        }
+        catch
+        {
+            await database.DisposeAsync();
+            throw;
+        }
     }
 
+    
     public async Task<HttpResponseMessage> SetCsrfAsync()
         => await SetCsrfAsync(Client);
 

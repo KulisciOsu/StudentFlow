@@ -1,63 +1,71 @@
 
+using System.Globalization;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StudentFlow.Api.Models;
+using StudentFlow.Core.Dashboard;
 
 namespace StudentFlow.Api.Controllers;
 
 /// <summary>
-/// API pro úvodní dashboard přihlášeného uživatele.
+/// API pro dashboard přihlášeného uživatele.
 /// </summary>
 [ApiController]
 [Authorize]
 [Route("api/dashboard")]
-public sealed class DashboardController : ControllerBase
+public sealed class DashboardController(
+    IDashboardRepository repository) : ControllerBase
 {
-    /// <summary>
-    /// Vrací přehled projektů a úkolů pro dashboard.
-    /// Zatím používá ukázková data bez databázového napojení.
-    /// </summary>
-    /// <returns>Data úvodního dashboardu.</returns>
     [HttpGet]
     [ProducesResponseType(typeof(DashboardDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public ActionResult<DashboardDto> Get()
+    public async Task<ActionResult<DashboardDto>> Get(
+        CancellationToken cancellationToken)
     {
-        var dashboard = new DashboardDto
-        {
-            Projects =
-            [
-                new DashboardProjectDto
-                {
-                    Id = 1,
-                    Name = "Rezervační systém knihovny",
-                    Team = "Tým Sova",
-                    MembersCount = 5,
-                    Role = "Vedoucí",
-                    Completed = 3,
-                    Total = 10,
-                    OpenTasks = 1,
-                    OverdueTasks = 0,
-                    Milestone = "Inception, 31. 10.",
-                    Members = ["PS", "JN", "TD", "LČ", "MK"]
-                }
-            ],
-            Tasks =
-            [
-                new DashboardTaskDto
-                {
-                    Id = 1,
-                    Name = "Wireframy obrazovek",
-                    Project = "Rezervační systém knihovny",
-                    Deadline = "30. 10.",
-                    Priority = "Střední",
-                    Status = "Rozpracováno",
-                    Overdue = false,
-                    Completed = false
-                }
-            ]
-        };
+        var userIdValue = User.FindFirstValue(
+            ClaimTypes.NameIdentifier);
 
-        return Ok(dashboard);
+        if (!long.TryParse(
+            userIdValue,
+            NumberStyles.None,
+            CultureInfo.InvariantCulture,
+            out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var data = await repository.GetDashboardAsync(
+            userId, cancellationToken);
+
+        return Ok(new DashboardDto
+        {
+            Projects = data.Projects.Select(p => new DashboardProjectDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Team = p.Team,
+                MembersCount = p.MembersCount,
+                Role = p.Role,
+                Completed = p.Completed,
+                Total = p.Total,
+                OpenTasks = p.OpenTasks,
+                OverdueTasks = p.OverdueTasks,
+                Milestone = p.Milestone,
+                Members = p.Members
+            }).ToList(),
+
+            Tasks = data.Tasks.Select(t => new DashboardTaskDto
+            {
+                Id = t.Id,
+                Name = t.Name,
+                Project = t.Project,
+                Deadline = t.Deadline,
+                Priority = t.Priority,
+                Status = t.Status,
+                Overdue = t.Overdue,
+                Completed = t.Completed
+            }).ToList()
+        });
     }
 }
