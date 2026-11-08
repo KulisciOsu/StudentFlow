@@ -107,6 +107,12 @@ jobs:
     needs: [backend, database, frontend]
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    container:
+      # Prohlížeče i systémové knihovny jsou hotové; CI nemusí opakovaně instalovat balíčky přes apt.
+      # Při aktualizaci Playwrightu změňte současně tento tag a package-lock.json.
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      # Chromium potřebuje dostatek sdílené paměti i při běhu uvnitř job kontejneru.
+      options: --ipc=host
     services:
       postgres:
         image: postgres:17
@@ -114,18 +120,23 @@ jobs:
           POSTGRES_USER: studentflow
           POSTGRES_DB: postgres
           POSTGRES_PASSWORD: studentflow-ci-only
-        ports:
-          - 5432:5432
+        # Job a PostgreSQL sdílejí Docker síť; službu není potřeba publikovat na hostiteli.
         options: >-
           --health-cmd "pg_isready -U studentflow -d postgres"
           --health-interval 5s --health-timeout 3s --health-retries 12
     env:
-      STUDENTFLOW_E2E_DATABASE_URL: postgresql://studentflow:studentflow-ci-only@127.0.0.1:5432/postgres
+      # Firefox vyžaduje domovský adresář vlastněný uživatelem procesu; kontejner běží jako root.
+      HOME: /root
+      # Uvnitř job kontejneru je databáze dostupná pod názvem služby, nikoliv přes localhost.
+      STUDENTFLOW_E2E_DATABASE_URL: postgresql://studentflow:studentflow-ci-only@postgres:5432/postgres
     defaults:
       run:
         working-directory: src/studentflow.client
+        # Kontejner má jinak jako výchozí shell sh; kroky zachovávají Bash používaný na runneru.
+        shell: bash
     steps:
       - uses: actions/checkout@v4
+      # Nástroje aplikace mají vlastní verze nezávislé na Node.js předinstalovaném v image.
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
@@ -135,12 +146,24 @@ jobs:
         with:
           dotnet-version: '10.0.x'
       - run: npm ci
+      - name: Verify Playwright image version
+        # Metadata pocházejí ze skutečně spuštěného oficiálního image, nikoliv z druhé kopie čísla verze.
+        # Nesoulad odhalíme před startem API a testů s jasným návodem na aktualizaci tagu.
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          const image = JSON.parse(readFileSync('/ms-playwright/.docker-info', 'utf8'));
+          const installed = JSON.parse(readFileSync('node_modules/@playwright/test/package.json', 'utf8')).version;
+          if (image.driverVersion !== installed) {
+            throw new Error(`Playwright image ${image.driverVersion} does not match installed package ${installed}. Update the container image tag together with package-lock.json.`);
+          }
+          console.log(`Playwright ${installed}: container image and installed package match.`);
+          NODE
       - name: Prepare HTTPS and local configuration
         run: node ../../scripts/dev.mjs setup
       - name: Restore API
         run: dotnet restore ../StudentFlow.Api/StudentFlow.Api.csproj
-      - name: Install browsers
-        run: npx playwright install --with-deps
+      # Použije prohlížeče z image; API, Vite a testy běží společně přes vývojové HTTPS.
       - name: Test against real API through Vite proxy
         run: npm run test:e2e
       - name: Upload browser reports and failure diagnostics

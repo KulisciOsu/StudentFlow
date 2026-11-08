@@ -45,7 +45,8 @@ try {
     if (!stopping) {
       api = spawn(process.execPath, [join(root, 'scripts/dev.mjs'), 'api'], {
         cwd: root, stdio: 'inherit', env: { ...process.env, ConnectionStrings__DefaultConnection: backendConnection,
-          Auth__RegistrationRateLimit__PermitLimit: '200', Auth__LoginRateLimit__PermitLimit: '200' },
+          Auth__RegistrationRateLimit__PermitLimit: '200', Auth__LoginRateLimit__PermitLimit: '200',
+          DevelopmentSeed__Enabled: 'false' },
       })
       const code = await new Promise((resolveExit, reject) => {
         api.on('error', reject)

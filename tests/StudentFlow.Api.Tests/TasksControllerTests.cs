@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Mvc;
 using StudentFlow.Api.Controllers;
+using StudentFlow.Api.Models;
 
 namespace StudentFlow.Api.Tests;
 
@@ -8,30 +10,107 @@ namespace StudentFlow.Api.Tests;
 public class TasksControllerTests
 {
     /// <summary>
-    /// Ověří výchozí úkoly a jejich sloupec.
+    /// Ověří, že se vrátí jen úkoly daného projektu.
     /// </summary>
     [Fact]
-    public void Get_ReturnsDefaultTasksInFirstColumn()
+    public async Task Get_ExistingProject_ReturnsProjectTasksOnly()
     {
-        var controller = new TasksController();
+        var controller = new TasksController(new FakeKanbanBoardRepository());
 
-        var tasks = controller.Get();
+        var result = await controller.Get(1);
 
-        Assert.Collection(
-            tasks,
-            task =>
-            {
-                Assert.Equal(1, task.Id);
-                Assert.Equal("Připravit návrh nástěnky", task.Title);
-                Assert.Equal(1, task.ColumnId);
-                Assert.Equal(0, task.Position);
-            },
-            task =>
-            {
-                Assert.Equal(2, task.Id);
-                Assert.Equal("Ověřit přesouvání úkolů", task.Title);
-                Assert.Equal(1, task.ColumnId);
-                Assert.Equal(1, task.Position);
-            });
+        Assert.NotNull(result.Value);
+        Assert.Equal(10, result.Value.Count);
+        Assert.All(result.Value, task => Assert.Equal(1, task.ProjectId));
+    }
+
+    /// <summary>
+    /// Ověří, že neexistující projekt vrátí 404.
+    /// </summary>
+    [Fact]
+    public async Task Get_UnknownProject_ReturnsNotFound()
+    {
+        var controller = new TasksController(new FakeKanbanBoardRepository());
+
+        var result = await controller.Get(99);
+
+        Assert.IsType<NotFoundResult>(result.Result);
+    }
+
+    /// <summary>
+    /// Ověří, že platný přesun se uloží.
+    /// </summary>
+    [Fact]
+    public async Task Move_ValidRequest_SavesNewPosition()
+    {
+        var repository = new FakeKanbanBoardRepository();
+        var controller = new TasksController(repository);
+        var request = new MoveTaskRequestDto { ColumnId = 3, Position = 0 };
+
+        var result = await controller.Move(1, 2, request);
+        var task = await repository.GetTaskAsync(2);
+
+        Assert.IsType<NoContentResult>(result);
+        Assert.NotNull(task);
+        Assert.Equal(3, task.ColumnId);
+        Assert.Equal(0, task.Position);
+    }
+
+    /// <summary>
+    /// Ověří, že přesun do sloupce jiného projektu vrátí 400.
+    /// </summary>
+    [Fact]
+    public async Task Move_ColumnFromOtherProject_ReturnsBadRequest()
+    {
+        var controller = new TasksController(new FakeKanbanBoardRepository());
+        var request = new MoveTaskRequestDto { ColumnId = 5, Position = 0 };
+
+        var result = await controller.Move(1, 2, request);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+
+    /// <summary>
+    /// Ověří, že záporná pozice vrátí 400.
+    /// </summary>
+    [Fact]
+    public async Task Move_NegativePosition_ReturnsBadRequest()
+    {
+        var controller = new TasksController(new FakeKanbanBoardRepository());
+        var request = new MoveTaskRequestDto { ColumnId = 2, Position = -1 };
+
+        var result = await controller.Move(1, 2, request);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+
+    /// <summary>
+    /// Ověří, že neexistující úkol nebo úkol jiného projektu vrátí 404.
+    /// </summary>
+    [Fact]
+    public async Task Move_UnknownTask_ReturnsNotFound()
+    {
+        var controller = new TasksController(new FakeKanbanBoardRepository());
+        var request = new MoveTaskRequestDto { ColumnId = 2, Position = 0 };
+
+        var unknownTask = await controller.Move(1, 99, request);
+        var otherProjectTask = await controller.Move(1, 11, request);
+
+        Assert.IsType<NotFoundObjectResult>(unknownTask);
+        Assert.IsType<NotFoundObjectResult>(otherProjectTask);
+    }
+
+    /// <summary>
+    /// Ověří, že neexistující sloupec vrátí 404.
+    /// </summary>
+    [Fact]
+    public async Task Move_UnknownColumn_ReturnsNotFound()
+    {
+        var controller = new TasksController(new FakeKanbanBoardRepository());
+        var request = new MoveTaskRequestDto { ColumnId = 99, Position = 0 };
+
+        var result = await controller.Move(1, 2, request);
+
+        Assert.IsType<NotFoundObjectResult>(result);
     }
 }
