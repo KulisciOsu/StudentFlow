@@ -1,4 +1,4 @@
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Collections.Concurrent;
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
