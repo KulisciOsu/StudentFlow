@@ -16,11 +16,17 @@
 }
 
 .kanban-column-header h3 {
+  display: flex;
+  gap: 0.375rem;
   margin: 0;
   color: #44546f;
   font-size: 0.875rem;
   font-weight: 600;
   line-height: 1.5;
+}
+
+.kanban-column-count {
+  font-weight: 400;
 }
 
 .kanban-column-tasks {
@@ -30,4 +36,14 @@
   margin: 0;
   padding: 0 0.5rem 0.5rem;
   list-style: none;
+}
+
+.kanban-column-empty {
+  margin: 0 0.5rem;
+  padding: 1rem;
+  border: 1px dashed #c1c7d0;
+  border-radius: 0.375rem;
+  color: #626f86;
+  font-size: 0.8125rem;
+  text-align: center;
 }

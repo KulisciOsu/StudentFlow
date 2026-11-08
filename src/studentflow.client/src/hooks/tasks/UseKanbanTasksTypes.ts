@@ -21,11 +21,46 @@ export interface KanbanTasksState {
 }
 
 /// <summary>
+/// Přesun úkolu, který se nepodařilo uložit.
+/// </summary>
+export interface FailedTaskMove {
+  /// <summary>
+  /// Úkol v původním stavu před přesunem.
+  /// </summary>
+  task: Task
+
+  /// <summary>
+  /// Cílový sloupec.
+  /// </summary>
+  columnId: number
+
+  /// <summary>
+  /// Cílová pozice.
+  /// </summary>
+  position: number
+}
+
+/// <summary>
 /// Data a operace úkolů nástěnky.
 /// </summary>
 export interface KanbanTasksResult extends KanbanTasksState {
   /// <summary>
-  /// Přesune úkol na danou pozici.
+  /// Poslední neúspěšný přesun, nebo null.
   /// </summary>
-  moveTask: (taskId: number, columnId: number, position: number) => void
+  moveError: FailedTaskMove | null
+
+  /// <summary>
+  /// Přesune úkol a uloží změnu.
+  /// </summary>
+  moveTask: (taskId: number, columnId: number, position: number) => Promise<void>
+
+  /// <summary>
+  /// Zopakuje neúspěšný přesun.
+  /// </summary>
+  retryMove: () => void
+
+  /// <summary>
+  /// Skryje hlášku o neúspěšném přesunu.
+  /// </summary>
+  dismissMoveError: () => void
 }

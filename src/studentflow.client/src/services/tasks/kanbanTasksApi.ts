@@ -1,4 +1,5 @@
 import type { Task } from '../../models/tasks/TaskTypes'
+import { kanbanConfig } from '../../components/kanban/kanbanConfig'
 
 /// <summary>
 /// Ověří data úkolu.
@@ -18,13 +19,19 @@ function isTask(value: unknown): value is Task {
     && typeof value.position === 'number'
     && Number.isInteger(value.position)
     && value.position >= 0
+    && 'priority' in value
+    && (value.priority === null || ['low', 'medium', 'high'].includes(value.priority as string))
+    && 'assignee' in value
+    && typeof value.assignee === 'string'
+    && 'dueDate' in value
+    && (value.dueDate === null || typeof value.dueDate === 'string')
 }
 
 /// <summary>
 /// Načte úkoly nástěnky z API.
 /// </summary>
 export async function getTasks(signal?: AbortSignal): Promise<Task[]> {
-  const response = await fetch('/api/tasks', { signal })
+  const response = await fetch(`/api/projects/${kanbanConfig.projectId}/tasks`, { signal })
 
   if (!response.ok) {
     throw new Error('Nepodařilo se načíst úkoly.')
@@ -37,4 +44,19 @@ export async function getTasks(signal?: AbortSignal): Promise<Task[]> {
   }
 
   return tasks
+}
+
+/// <summary>
+/// Uloží nový sloupec a pozici úkolu.
+/// </summary>
+export async function saveTaskMove(taskId: number, columnId: number, position: number): Promise<void> {
+  const response = await fetch(`/api/projects/${kanbanConfig.projectId}/tasks/${taskId}/position`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ columnId, position }),
+  })
+
+  if (!response.ok) {
+    throw new Error('Nepodařilo se uložit přesun úkolu.')
+  }
 }
