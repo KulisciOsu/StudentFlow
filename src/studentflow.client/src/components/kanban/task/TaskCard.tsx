@@ -1,13 +1,15 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { isOverdue } from '../../../utils/tasks/taskDisplay'
 import { kanbanConfig } from '../kanbanConfig'
+import { TaskCardContent } from './TaskCardContent'
 import type { TaskCardProps } from './TaskCardTypes'
 import './TaskCard.scss'
 
 /// <summary>
 /// Zobrazuje kartu úkolu.
 /// </summary>
-export function TaskCard({ task }: TaskCardProps) {
+export function TaskCard({ task, isDone }: TaskCardProps) {
   const {
     listeners, setNodeRef,
     transform, transition, isDragging,
@@ -16,15 +18,19 @@ export function TaskCard({ task }: TaskCardProps) {
     transition: kanbanConfig.animation,
   })
 
+  const classNames = ['task-card']
+  if (isDragging) classNames.push('task-card--dragging')
+  if (isDone) classNames.push('task-card--done')
+  else if (isOverdue(task.dueDate)) classNames.push('task-card--overdue')
+
   return (
     <article
       ref={setNodeRef}
-      className={`task-card${isDragging ? ' task-card--dragging' : ''}`}
+      className={classNames.join(' ')}
       style={{ transform: isDragging ? undefined : CSS.Transform.toString(transform), transition }}
       {...listeners}
-      aria-labelledby={`task-${task.id}`}
     >
-      <h4 id={`task-${task.id}`}>{task.title}</h4>
+      <TaskCardContent task={task} isDone={isDone} />
     </article>
   )
 }

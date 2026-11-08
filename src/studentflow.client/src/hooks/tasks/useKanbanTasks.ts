@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { getTasks } from '../../services/tasks/kanbanTasksApi'
-import type { KanbanTasksResult, KanbanTasksState } from './UseKanbanTasksTypes'
+import { getTasks, saveTaskMove } from '../../services/tasks/kanbanTasksApi'
+import type { FailedTaskMove, KanbanTasksResult, KanbanTasksState } from './UseKanbanTasksTypes'
 import { moveTask as moveTaskInBoard } from '../../utils/tasks/moveTask'
 
 /// <summary>
@@ -11,6 +11,7 @@ export function useKanbanTasks(): KanbanTasksResult {
     tasks: [],
     status: 'loading',
   })
+  const [moveError, setMoveError] = useState<FailedTaskMove | null>(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -41,14 +42,41 @@ export function useKanbanTasks(): KanbanTasksResult {
   }, [])
 
   /// <summary>
-  /// Aktualizuje sloupec a pozici úkolu.
+  /// Přesune úkol a uloží změnu. Při chybě vrátí úkol na původní místo.
   /// </summary>
-  function moveTask(taskId: number, columnId: number, position: number) {
+  async function moveTask(taskId: number, columnId: number, position: number) {
+    const original = state.tasks.find((task) => task.id === taskId)
+    if (!original || (original.columnId === columnId && original.position === position)) return
+
+    setMoveError(null)
     setState((current) => ({
       ...current,
       tasks: moveTaskInBoard(current.tasks, taskId, columnId, position),
     }))
+
+    try {
+      await saveTaskMove(taskId, columnId, position)
+    } catch {
+      setState((current) => ({
+        ...current,
+        tasks: moveTaskInBoard(current.tasks, taskId, original.columnId, original.position),
+      }))
+      setMoveError({ task: original, columnId, position })
+    }
   }
 
-  return { ...state, moveTask }
+  /// <summary>
+  /// Zopakuje neúspěšný přesun.
+  /// </summary>
+  function retryMove() {
+    if (moveError) void moveTask(moveError.task.id, moveError.columnId, moveError.position)
+  }
+
+  return {
+    ...state,
+    moveError,
+    moveTask,
+    retryMove,
+    dismissMoveError: () => setMoveError(null),
+  }
 }
