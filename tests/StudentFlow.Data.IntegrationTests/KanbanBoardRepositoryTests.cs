@@ -1,3 +1,4 @@
+
 using Npgsql;
 using StudentFlow.Core.Kanban;
 using StudentFlow.Data.Kanban;
@@ -5,12 +6,12 @@ using StudentFlow.Data.Kanban;
 namespace StudentFlow.Data.IntegrationTests;
 
 /// <summary>
-/// Testy repozitáře nástěnky proti PostgreSQL s migracemi V004 a V005.
+/// Testy repozitáře nástěnky proti PostgreSQL s migracemi V004 až V007.
 /// </summary>
 public class KanbanBoardRepositoryTests
 {
     /// <summary>
-    /// Ověří načtení ukázkového projektu, sloupců v pořadí a úkolů se jménem řešitele.
+    /// Ověří načtení ukázkového projektu, popisu, sloupců a úkolů.
     /// </summary>
     [Fact]
     public async Task Get_SeededProject_ReturnsBoard()
@@ -25,8 +26,11 @@ public class KanbanBoardRepositoryTests
 
         Assert.NotNull(project);
         Assert.Equal("Rezervační systém knihovny", project.Name);
+        Assert.Equal(string.Empty, project.Description);
         Assert.Equal(new DateOnly(2027, 1, 15), project.DueDate);
-        Assert.Equal(new[] { "K řešení", "Rozpracováno", "Ke kontrole", "Hotovo" }, columns.Select(column => column.Title));
+        Assert.Equal(
+            new[] { "K řešení", "Rozpracováno", "Ke kontrole", "Hotovo" },
+            columns.Select(column => column.Title));
         Assert.Equal(10, tasks.Count);
         Assert.NotNull(task);
         Assert.Equal("Tomáš Dvořák", task.Assignee);
@@ -109,6 +113,7 @@ public class KanbanBoardRepositoryTests
         {
             await database.ApplyMigrationAsync("V004__kanban_board.sql");
             await database.ApplyMigrationAsync("V005__seed_kanban_demo.sql");
+            await database.ApplyMigrationAsync("V007__project_description.sql");
 
             return database;
         }
