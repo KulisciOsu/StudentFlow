@@ -1,3 +1,4 @@
+
 // @vitest-environment jsdom
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -9,6 +10,8 @@ vi.mock('../../services/tasks/kanbanTasksApi', () => ({
   getTasks: vi.fn(),
   saveTaskMove: vi.fn(),
 }))
+
+const projectId = 1
 
 const tasks: Task[] = [
   { id: 1, title: 'První', columnId: 1, position: 0, priority: null, assignee: 'Jan Novák', dueDate: null },
@@ -26,7 +29,7 @@ function columnOf(list: Task[], id: number) {
 /// Vykreslí hook a počká na načtení úkolů.
 /// </summary>
 async function renderTasks() {
-  const view = renderHook(() => useKanbanTasks())
+  const view = renderHook(() => useKanbanTasks(projectId))
   await waitFor(() => expect(view.result.current.status).toBe('ready'))
   return view
 }
@@ -37,16 +40,17 @@ beforeEach(() => {
 })
 
 describe('useKanbanTasks', () => {
-  it('načte úkoly', async () => {
+  it('načte úkoly konkrétního projektu', async () => {
     const { result } = await renderTasks()
 
+    expect(getTasks).toHaveBeenCalledWith(projectId, expect.any(AbortSignal))
     expect(result.current.tasks).toEqual(tasks)
   })
 
   it('při chybě načtení nastaví stav error', async () => {
     vi.mocked(getTasks).mockRejectedValue(new Error('chyba'))
 
-    const { result } = renderHook(() => useKanbanTasks())
+    const { result } = renderHook(() => useKanbanTasks(projectId))
 
     await waitFor(() => expect(result.current.status).toBe('error'))
   })
@@ -56,7 +60,7 @@ describe('useKanbanTasks', () => {
 
     await act(() => result.current.moveTask(1, 2, 0))
 
-    expect(saveTaskMove).toHaveBeenCalledWith(1, 2, 0)
+    expect(saveTaskMove).toHaveBeenCalledWith(projectId, 1, 2, 0)
     expect(columnOf(result.current.tasks, 1)).toBe(2)
     expect(result.current.moveError).toBeNull()
   })
@@ -68,7 +72,11 @@ describe('useKanbanTasks', () => {
     await act(() => result.current.moveTask(1, 2, 0))
 
     expect(columnOf(result.current.tasks, 1)).toBe(1)
-    expect(result.current.moveError).toMatchObject({ task: { id: 1, columnId: 1 }, columnId: 2, position: 0 })
+    expect(result.current.moveError).toMatchObject({
+      task: { id: 1, columnId: 1 },
+      columnId: 2,
+      position: 0,
+    })
 
     await act(async () => result.current.retryMove())
 

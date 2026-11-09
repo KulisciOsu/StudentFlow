@@ -1,9 +1,8 @@
 import type { Task } from '../../models/tasks/TaskTypes'
-import { kanbanConfig } from '../../components/kanban/kanbanConfig'
 
-/// <summary>
-/// Ověří data úkolu.
-/// </summary>
+/**
+ * Ověří data úkolu.
+ */
 function isTask(value: unknown): value is Task {
   return typeof value === 'object'
     && value !== null
@@ -27,11 +26,17 @@ function isTask(value: unknown): value is Task {
     && (value.dueDate === null || typeof value.dueDate === 'string')
 }
 
-/// <summary>
-/// Načte úkoly nástěnky z API.
-/// </summary>
-export async function getTasks(signal?: AbortSignal): Promise<Task[]> {
-  const response = await fetch(`/api/projects/${kanbanConfig.projectId}/tasks`, { signal })
+/**
+ * Načte úkoly nástěnky podle ID projektu.
+ */
+export async function getTasks(
+  projectId: number,
+  signal?: AbortSignal,
+): Promise<Task[]> {
+  const response = await fetch(`/api/projects/${projectId}/tasks`, {
+    signal,
+    credentials: 'same-origin',
+  })
 
   if (!response.ok) {
     throw new Error('Nepodařilo se načíst úkoly.')
@@ -46,15 +51,24 @@ export async function getTasks(signal?: AbortSignal): Promise<Task[]> {
   return tasks
 }
 
-/// <summary>
-/// Uloží nový sloupec a pozici úkolu.
-/// </summary>
-export async function saveTaskMove(taskId: number, columnId: number, position: number): Promise<void> {
-  const response = await fetch(`/api/projects/${kanbanConfig.projectId}/tasks/${taskId}/position`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ columnId, position }),
-  })
+/**
+ * Uloží nový sloupec a pozici úkolu v konkrétním projektu.
+ */
+export async function saveTaskMove(
+  projectId: number,
+  taskId: number,
+  columnId: number,
+  position: number,
+): Promise<void> {
+  const response = await fetch(
+    `/api/projects/${projectId}/tasks/${taskId}/position`,
+    {
+      method: 'PUT',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ columnId, position }),
+    },
+  )
 
   if (!response.ok) {
     throw new Error('Nepodařilo se uložit přesun úkolu.')
