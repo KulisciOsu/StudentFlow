@@ -15,6 +15,11 @@ export interface BoardFiltersProps {
   assignees: string[]
 
   /// <summary>
+  /// Určuje, zda zobrazit filtr „Jen moje úkoly“.
+  /// </summary>
+  showOnlyMine: boolean
+
+  /// <summary>
   /// Změní filtry.
   /// </summary>
   onChange: (filters: TaskFilters) => void

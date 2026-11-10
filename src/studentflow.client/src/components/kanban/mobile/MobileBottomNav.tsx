@@ -1,3 +1,4 @@
+import type { MobileBottomNavProps } from './MobileBottomNavTypes'
 import './MobileBottomNav.scss'
 
 /// <summary>
@@ -13,14 +14,16 @@ const items = [
 /// <summary>
 /// Zobrazuje spodní navigaci a tlačítko pro nový úkol na mobilu. Tlačítka zatím nemají funkci.
 /// </summary>
-export function MobileBottomNav() {
+export function MobileBottomNav({ showNewTask }: MobileBottomNavProps) {
   return (
     <>
-      <button type="button" className="mobile-fab" aria-label="Nový úkol">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-          <path d="M12 5v14M5 12h14" />
-        </svg>
-      </button>
+      {showNewTask && (
+        <button type="button" className="mobile-fab" aria-label="Nový úkol">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </button>
+      )}
       <nav className="mobile-bottom-nav" aria-label="Hlavní navigace">
         {items.map((item) => (
           <button

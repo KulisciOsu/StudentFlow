@@ -41,4 +41,14 @@ export interface Task {
   /// Termín ve formátu RRRR-MM-DD, pokud je stanoven.
   /// </summary>
   dueDate: string | null
+
+  /// <summary>
+  /// Určuje, zda je úkol přiřazený přihlášenému uživateli.
+  /// </summary>
+  isMine: boolean
+
+  /// <summary>
+  /// Určuje, zda může přihlášený uživatel úkol přesunout.
+  /// </summary>
+  canMove: boolean
 }

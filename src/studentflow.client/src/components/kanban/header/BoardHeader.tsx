@@ -10,6 +10,9 @@ export function BoardHeader({ project }: BoardHeaderProps) {
     <header className="board-header">
       <p className="board-header-project">{project.name} · {project.teamName}</p>
       <h2 id="kanban-board-title">Nástěnka</h2>
+      {project.isReadOnly && (
+        <p className="board-header-readonly">Jen pro čtení</p>
+      )}
       {project.dueDate && (
         <p className="board-header-due">Odevzdání {formatDate(project.dueDate)}</p>
       )}
