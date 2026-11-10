@@ -37,7 +37,7 @@ try {
     if (client.connectionParameters.database !== databaseName) throw new Error('E2E připojení musí směřovat do izolované databáze.')
     await client.connect()
     const directory = join(root, 'database/migrations')
-    for (const file of (await readdir(directory)).filter(name => /^V\d+__.*\.sql$/.test(name)).sort())
+    for (const file of (await readdir(directory)).filter(name => /^V\d+(_\d+)?__.*\.sql$/.test(name)).sort())
       await client.query(await readFile(join(directory, file), 'utf8'))
     const params = client.connectionParameters
     const quote = value => `"${String(value).replaceAll('"', '""')}"`

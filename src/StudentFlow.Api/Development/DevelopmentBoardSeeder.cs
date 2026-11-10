@@ -7,7 +7,7 @@ namespace StudentFlow.Api.Development;
 /// Zapojí vývojové účty člena a vedoucího do ukázkového projektu nástěnky, aby šla vyzkoušet oprávnění.
 /// </summary>
 /// <remarks>
-/// Člen převezme úkoly Jana Nováka a vedoucí úkoly i vedení Petry Svobodové z ukázkových dat V005 a V007.
+/// Člen převezme úkoly Jana Nováka a vedoucí úkoly i vedení Petry Svobodové z ukázkových dat (V005 a migrace se členy demo projektu).
 /// Bez tabulek nástěnky nebo bez ukázkového projektu nic nedělá. Opakované spuštění nic nezdvojí.
 /// </remarks>
 public static class DevelopmentBoardSeeder

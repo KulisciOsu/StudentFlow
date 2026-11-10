@@ -24,7 +24,7 @@ public class DevelopmentBoardSeedTests
         };
         await using var app = await RegistrationApp.CreateAsync(environment: "Development", seedEnabled: true, seedConfiguration: settings, dashboard: true);
         await app.Database.ApplyMigrationAsync("V005__seed_kanban_demo.sql");
-        await app.Database.ApplyMigrationAsync("V007__seed_kanban_demo_members.sql");
+        await app.Database.ApplyMigrationAsync("V20261110_1832__seed_kanban_demo_members.sql");
 
         await DevelopmentAccountSeeder.SeedAsync(app.Services);
         await DevelopmentAccountSeeder.SeedAsync(app.Services);

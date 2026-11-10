@@ -115,7 +115,7 @@ Nejdříve musí běžet databáze s provedenými migracemi V001–V003. Potom s
 `node scripts/dev.mjs`, který předá `.env` aplikaci. Při samostatném spuštění
 přes `dotnet run` předejte stejné hodnoty jako proměnné prostředí.
 
-Pokud databáze obsahuje ukázkovou nástěnku (migrace V004–V007), seed přidá člena
+Pokud databáze obsahuje ukázkovou nástěnku (migrace nástěnky a ukázkových dat), seed přidá člena
 a vedoucího do ukázkového projektu „Rezervační systém knihovny“. Člen převezme
 úkoly Jana Nováka, vedoucí úkoly Petry Svobodové a vedení projektu. Vyučující
 vidí všechny nástěnky jen pro čtení.

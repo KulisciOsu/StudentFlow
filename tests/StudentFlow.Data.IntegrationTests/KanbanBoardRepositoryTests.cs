@@ -5,7 +5,7 @@ using StudentFlow.Data.Kanban;
 namespace StudentFlow.Data.IntegrationTests;
 
 /// <summary>
-/// Testy repozitáře nástěnky proti PostgreSQL s migracemi V004 až V007.
+/// Testy repozitáře nástěnky proti PostgreSQL s migracemi nástěnky a ukázkovými daty.
 /// </summary>
 public class KanbanBoardRepositoryTests
 {
@@ -129,7 +129,7 @@ public class KanbanBoardRepositoryTests
             await database.ApplyMigrationAsync("V004__kanban_board.sql");
             await database.ApplyMigrationAsync("V005__seed_kanban_demo.sql");
             await database.ApplyMigrationAsync("V006__dashboard_membership.sql");
-            await database.ApplyMigrationAsync("V007__seed_kanban_demo_members.sql");
+            await database.ApplyMigrationAsync("V20261110_1832__seed_kanban_demo_members.sql");
 
             return database;
         }
