@@ -19,12 +19,12 @@ export const kanbanConfig = {
     /// <summary>
     /// Délka animace v milisekundách.
     /// </summary>
-    duration: 500,
+    duration: 200,
 
     /// <summary>
     /// Průběh animace.
     /// </summary>
-    easing: 'ease-in-out',
+    easing: 'ease',
   },
 
   /// <summary>

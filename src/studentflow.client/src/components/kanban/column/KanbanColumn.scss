@@ -1,6 +1,7 @@
 .kanban-column {
   flex: 1 0 16rem;
-  min-height: 22rem;
+  // Vysoké sloupce se při přesunu karet nezvětšují ani nezmenšují.
+  min-height: max(24rem, calc(100svh - 30rem));
   border: 1px solid #e6e9ef;
   border-radius: 0.5rem;
   background: #f4f5f7;
