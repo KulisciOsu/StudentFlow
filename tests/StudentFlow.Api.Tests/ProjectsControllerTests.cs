@@ -14,7 +14,7 @@ public class ProjectsControllerTests
     [Fact]
     public async Task Get_ExistingProject_ReturnsProject()
     {
-        var controller = new ProjectsController(new FakeKanbanBoardRepository());
+        var controller = TestUsers.SignIn(new ProjectsController(new FakeKanbanBoardRepository()), TestUsers.Leader);
 
         var result = await controller.Get(1);
 
@@ -28,10 +28,39 @@ public class ProjectsControllerTests
     [Fact]
     public async Task Get_UnknownProject_ReturnsNotFound()
     {
-        var controller = new ProjectsController(new FakeKanbanBoardRepository());
+        var controller = TestUsers.SignIn(new ProjectsController(new FakeKanbanBoardRepository()), TestUsers.Leader);
 
         var result = await controller.Get(99);
 
         Assert.IsType<NotFoundResult>(result.Result);
+    }
+
+    /// <summary>
+    /// Ověří, že uživatel mimo projekt dostane 403.
+    /// </summary>
+    [Fact]
+    public async Task Get_Outsider_ReturnsForbidden()
+    {
+        var controller = TestUsers.SignIn(new ProjectsController(new FakeKanbanBoardRepository()), TestUsers.Outsider);
+
+        var result = await controller.Get(1);
+
+        Assert.IsType<ForbidResult>(result.Result);
+    }
+
+    /// <summary>
+    /// Ověří, že vyučující má nástěnku jen pro čtení a člen ne.
+    /// </summary>
+    [Fact]
+    public async Task Get_TeacherAndMember_ReturnsReadOnlyFlag()
+    {
+        var teacher = TestUsers.SignIn(new ProjectsController(new FakeKanbanBoardRepository()), TestUsers.Teacher);
+        var member = TestUsers.SignIn(new ProjectsController(new FakeKanbanBoardRepository()), TestUsers.Member);
+
+        var teacherResult = await teacher.Get(1);
+        var memberResult = await member.Get(1);
+
+        Assert.True(teacherResult.Value!.IsReadOnly);
+        Assert.False(memberResult.Value!.IsReadOnly);
     }
 }
