@@ -121,6 +121,16 @@ export function KanbanBoard() {
     if (target) void moveTask(target.task.id, target.columnId, target.position)
   }
 
+  if (projectStatus === 'forbidden') {
+    return (
+      <section className="kanban-board">
+        <p role="alert" className="kanban-board-message">
+          Do tohoto projektu nemáte přístup.
+        </p>
+      </section>
+    )
+  }
+
   if (hasError) {
     return (
       <section className="kanban-board">
@@ -142,7 +152,12 @@ export function KanbanBoard() {
   return (
     <section className="kanban-board" aria-labelledby="kanban-board-title">
       <BoardHeader project={project} />
-      <BoardFilters filters={filters} assignees={assignees} onChange={setFilters} />
+      <BoardFilters
+        filters={filters}
+        assignees={assignees}
+        showOnlyMine={!project.isReadOnly}
+        onChange={setFilters}
+      />
       {tasks.length === 0 && (
         <p className="kanban-board-message">Na nástěnce zatím nejsou žádné úkoly.</p>
       )}
@@ -153,6 +168,7 @@ export function KanbanBoard() {
         <MobileBoard
           columns={columns}
           tasks={tasks.filter((task) => visibleTaskIds.has(task.id))}
+          isReadOnly={project.isReadOnly}
           onMoveTask={(taskId, columnId) => void moveTask(
             taskId, columnId, tasks.filter((task) => task.columnId === columnId).length,
           )}

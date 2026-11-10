@@ -107,12 +107,18 @@ neobsahuje výchozí e-maily ani heslo. Názvy proměnných uvádí také `.env.
 | --- | --- |
 | `DevelopmentSeed__MemberEmail` | Vlastní e-mail účtu člena. |
 | `DevelopmentSeed__TeacherEmail` | Vlastní, odlišný e-mail účtu vyučujícího. |
-| `DevelopmentSeed__Password` | Heslo pro oba nově vytvářené účty, 15 až 128 znaků Unicode; mezery jsou jeho součástí. |
+| `DevelopmentSeed__LeaderEmail` | Volitelný, odlišný e-mail účtu vedoucího (typ `STUDENT`). |
+| `DevelopmentSeed__Password` | Heslo pro všechny nově vytvářené účty, 15 až 128 znaků Unicode; mezery jsou jeho součástí. |
 | `DevelopmentSeed__Enabled` | Nastavte `true` až po vyplnění všech přihlašovacích údajů. |
 
 Nejdříve musí běžet databáze s provedenými migracemi V001–V003. Potom spusťte
 `node scripts/dev.mjs`, který předá `.env` aplikaci. Při samostatném spuštění
 přes `dotnet run` předejte stejné hodnoty jako proměnné prostředí.
+
+Pokud databáze obsahuje ukázkovou nástěnku (migrace nástěnky a ukázkových dat), seed přidá člena
+a vedoucího do ukázkového projektu „Rezervační systém knihovny“. Člen převezme
+úkoly Jana Nováka, vedoucí úkoly Petry Svobodové a vedení projektu. Vyučující
+vidí všechny nástěnky jen pro čtení.
 
 Seed je standardně vypnutý. V prostředí `Production` ani `Testing` se účty
 nezakládají, ani při ručním povolení konfigurace. Pro vypnutí při vývoji nastavte

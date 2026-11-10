@@ -25,7 +25,7 @@ public class ColumnsController : ControllerBase
     /// Vrací sloupce nástěnky projektu.
     /// </summary>
     /// <param name="projectId">Identifikátor projektu.</param>
-    /// <returns>Seznam sloupců, nebo 404, pokud projekt neexistuje.</returns>
+    /// <returns>Seznam sloupců, 404 pokud projekt neexistuje, nebo 403 pokud k němu uživatel nemá přístup.</returns>
     [HttpGet]
     public async Task<ActionResult<List<KanbanBoardColumnDto>>> Get(int projectId)
     {
@@ -34,6 +34,13 @@ public class ColumnsController : ControllerBase
         if (project is null)
         {
             return NotFound();
+        }
+
+        var role = await BoardAccess.GetRoleAsync(_repository, User, projectId);
+
+        if (!BoardPermissions.CanView(role))
+        {
+            return Forbid();
         }
 
         return await _repository.GetColumnsAsync(projectId);

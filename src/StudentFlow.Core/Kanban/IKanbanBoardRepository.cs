@@ -41,6 +41,14 @@ public interface IKanbanBoardRepository
     Task<KanbanBoardTaskDto?> GetTaskAsync(int taskId);
 
     /// <summary>
+    /// Vrátí členství uživatele v projektu.
+    /// </summary>
+    /// <param name="projectId">Identifikátor projektu.</param>
+    /// <param name="userId">Identifikátor uživatele.</param>
+    /// <returns>True pro vedoucího, false pro člena, null pokud uživatel není členem.</returns>
+    Task<bool?> GetMembershipAsync(int projectId, long userId);
+
+    /// <summary>
     /// Uloží sloupce a pozice úkolů projektu.
     /// </summary>
     /// <param name="projectId">Identifikátor projektu.</param>
