@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Npgsql;
 using StudentFlow.Api.Authentication;
 using StudentFlow.Core.Authentication;
 
@@ -36,11 +37,14 @@ public static class DevelopmentAccountSeeder
 
         var memberEmail = configuration["DevelopmentSeed:MemberEmail"]?.Trim() ?? "";
         var teacherEmail = configuration["DevelopmentSeed:TeacherEmail"]?.Trim() ?? "";
-        var seedAccounts = new[]
+        var leaderEmail = configuration["DevelopmentSeed:LeaderEmail"]?.Trim() ?? "";
+        var seedAccounts = new List<(string DisplayName, string Email, AccountType AccountType)>
         {
             (DisplayName: "Testovací člen", Email: memberEmail, AccountType: AccountType.Member),
             (DisplayName: "Testovací vyučující", Email: teacherEmail, AccountType: AccountType.Teacher)
         };
+        // Vedoucí je volitelný člen, kterého seed nástěnky nastaví jako vedoucího ukázkového projektu.
+        if (leaderEmail.Length != 0) seedAccounts.Add((DisplayName: "Testovací vedoucí", Email: leaderEmail, AccountType: AccountType.Member));
         foreach (var account in seedAccounts)
         {
             var errors = new Dictionary<string, string[]>();
@@ -50,6 +54,8 @@ public static class DevelopmentAccountSeeder
         }
         if (string.Equals(memberEmail, teacherEmail, StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("DevelopmentSeed:MemberEmail and DevelopmentSeed:TeacherEmail must be different.");
+        if (seedAccounts.Select(account => account.Email.ToUpperInvariant()).Distinct().Count() != seedAccounts.Count)
+            throw new InvalidOperationException("DevelopmentSeed:LeaderEmail must be different from the member and teacher emails.");
 
         await using var scope = services.CreateAsyncScope();
         var accounts = scope.ServiceProvider.GetRequiredService<IUserAccountStore>();
@@ -64,5 +70,7 @@ public static class DevelopmentAccountSeeder
                 services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(DevelopmentAccountSeeder))
                     .LogInformation("Vytvořen vývojový účet {Email} typu {AccountType}.", account.Email, AccountTypeCodes.ToCode(account.AccountType));
         }
+
+        await DevelopmentBoardSeeder.SeedAsync(scope.ServiceProvider.GetRequiredService<NpgsqlDataSource>(), memberEmail, leaderEmail, cancellationToken);
     }
 }
