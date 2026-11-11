@@ -48,9 +48,7 @@ public class KanbanBoardRepository : IKanbanBoardRepository
             """;
 
         await using var connection = await _dataSource.OpenConnectionAsync();
-        var row = await connection.QuerySingleOrDefaultAsync<ProjectRow>(
-            sql,
-            new { ProjectId = projectId });
+        var row = await connection.QuerySingleOrDefaultAsync<ProjectRow>(sql, new { ProjectId = projectId });
 
         if (row is null)
         {
@@ -81,9 +79,7 @@ public class KanbanBoardRepository : IKanbanBoardRepository
             """;
 
         await using var connection = await _dataSource.OpenConnectionAsync();
-        var rows = await connection.QueryAsync<ColumnRow>(
-            sql,
-            new { ProjectId = projectId });
+        var rows = await connection.QueryAsync<ColumnRow>(sql, new { ProjectId = projectId });
 
         return rows.Select(ToColumn).ToList();
     }
@@ -101,9 +97,7 @@ public class KanbanBoardRepository : IKanbanBoardRepository
             """;
 
         await using var connection = await _dataSource.OpenConnectionAsync();
-        var row = await connection.QuerySingleOrDefaultAsync<ColumnRow>(
-            sql,
-            new { ColumnId = columnId });
+        var row = await connection.QuerySingleOrDefaultAsync<ColumnRow>(sql, new { ColumnId = columnId });
 
         if (row is null)
         {
@@ -123,9 +117,7 @@ public class KanbanBoardRepository : IKanbanBoardRepository
             """;
 
         await using var connection = await _dataSource.OpenConnectionAsync();
-        var rows = await connection.QueryAsync<TaskRow>(
-            sql,
-            new { ProjectId = projectId });
+        var rows = await connection.QueryAsync<TaskRow>(sql, new { ProjectId = projectId });
 
         return rows.Select(ToTask).ToList();
     }
@@ -139,9 +131,7 @@ public class KanbanBoardRepository : IKanbanBoardRepository
             """;
 
         await using var connection = await _dataSource.OpenConnectionAsync();
-        var row = await connection.QuerySingleOrDefaultAsync<TaskRow>(
-            sql,
-            new { TaskId = taskId });
+        var row = await connection.QuerySingleOrDefaultAsync<TaskRow>(sql, new { TaskId = taskId });
 
         if (row is null)
         {
@@ -167,13 +157,7 @@ public class KanbanBoardRepository : IKanbanBoardRepository
             """;
 
         var parameters = tasks
-            .Select(task => new
-            {
-                task.Id,
-                task.ColumnId,
-                task.Position,
-                ProjectId = projectId
-            })
+            .Select(task => new { task.Id, task.ColumnId, task.Position, ProjectId = projectId })
             .ToList();
 
         await using var connection = await _dataSource.OpenConnectionAsync();

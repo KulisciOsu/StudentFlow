@@ -21,6 +21,8 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Vytvoří controller projektů.
     /// </summary>
+    /// <param name="kanbanRepository">Repozitář pro načítání projektů nástěnky.</param>
+    /// <param name="projectCreationRepository">Repozitář pro vytváření projektů.</param>
     public ProjectsController(
         IKanbanBoardRepository kanbanRepository,
         IProjectCreationRepository projectCreationRepository)
@@ -32,6 +34,8 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Vrací projekt nástěnky.
     /// </summary>
+    /// <param name="projectId">Identifikátor projektu.</param>
+    /// <returns>Projekt nástěnky, nebo odpověď 404, pokud projekt neexistuje.</returns>
     [HttpGet("{projectId:int}")]
     public async Task<ActionResult<KanbanProjectDto>> Get(int projectId)
     {
@@ -48,27 +52,43 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Založí nový projekt a nastaví přihlášeného uživatele jako vedoucího.
     /// </summary>
+    /// <param name="command">Údaje potřebné k vytvoření projektu.</param>
+    /// <param name="cancellationToken">Token pro zrušení požadavku.</param>
+    /// <returns>Vytvořený projekt, nebo validační či autorizační chybu.</returns>
     [Authorize]
     [HttpPost]
     public async Task<ActionResult<CreatedProject>> Create(
         [FromBody] CreateProjectCommand command,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(command.Name) || command.Name.Length > 200)
+        if (command is null)
+        {
+            ModelState.AddModelError(
+                nameof(command),
+                "Tělo požadavku je povinné.");
+
+            return ValidationProblem(ModelState);
+        }
+
+        if (command.Name is null ||
+            string.IsNullOrWhiteSpace(command.Name) ||
+            command.Name.Length > 200)
         {
             ModelState.AddModelError(
                 nameof(command.Name),
                 "Název projektu je povinný a může mít maximálně 200 znaků.");
         }
 
-        if (command.Description.Length > 1000)
+        if (command.Description is null || command.Description.Length > 1000)
         {
             ModelState.AddModelError(
                 nameof(command.Description),
                 "Popis projektu může mít maximálně 1 000 znaků.");
         }
 
-        if (string.IsNullOrWhiteSpace(command.TeamName) || command.TeamName.Length > 120)
+        if (command.TeamName is null ||
+            string.IsNullOrWhiteSpace(command.TeamName) ||
+            command.TeamName.Length > 120)
         {
             ModelState.AddModelError(
                 nameof(command.TeamName),
