@@ -16,6 +16,6 @@ export type FormErrors = Partial<Record<keyof FormValues, string>>
 /** Zapojení formuláře do navigace a rozvržení aplikace. */
 export type CreateProjectPageProps = {
   onBack: () => void
-  /** Použije sekci uvnitř aplikace a vynechá samostatnou ukázkovou hlavičku účtu. */
+  onCreated: (projectId: number) => void
   embedded?: boolean
 }

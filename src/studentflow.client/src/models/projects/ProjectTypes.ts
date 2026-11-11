@@ -13,6 +13,11 @@ export interface Project {
   name: string
 
   /// <summary>
+  /// Popis projektu.
+  /// </summary>
+  description: string
+
+  /// <summary>
   /// Název týmu.
   /// </summary>
   teamName: string

@@ -1,3 +1,4 @@
+
 using Dapper;
 using Npgsql;
 using StudentFlow.Core.Kanban;
@@ -39,6 +40,7 @@ public class KanbanBoardRepository : IKanbanBoardRepository
         const string sql = """
             SELECT project_id AS Id,
                    name AS Name,
+                   description AS Description,
                    team_name AS TeamName,
                    due_date AS DueDate
             FROM project
@@ -57,6 +59,7 @@ public class KanbanBoardRepository : IKanbanBoardRepository
         {
             Id = row.Id,
             Name = row.Name,
+            Description = row.Description,
             TeamName = row.TeamName,
             DueDate = ToDateOnly(row.DueDate),
         };
@@ -217,6 +220,8 @@ public class KanbanBoardRepository : IKanbanBoardRepository
         public int Id { get; set; }
 
         public string Name { get; set; } = string.Empty;
+
+        public string Description { get; set; } = string.Empty;
 
         public string TeamName { get; set; } = string.Empty;
 

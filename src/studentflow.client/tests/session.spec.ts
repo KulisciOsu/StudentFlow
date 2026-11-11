@@ -27,11 +27,22 @@ for (const [type, home] of [['STUDENT', '/projects'], ['TEACHER', '/teaching']] 
     const email = await createAccount(request, type)
     await fillLogin(page, email)
     if (type === 'TEACHER') await page.getByRole('checkbox', { name: /^Zůstat přihlášen/ }).check()
+
+    const loginResponsePromise = page.waitForResponse(response =>
+      response.url().endsWith('/api/auth/login')
+    )
+
     await page.getByLabel('Heslo', { exact: true }).press('Enter')
+
+    const loginResponse = await loginResponsePromise
+    expect(loginResponse.ok()).toBe(true)
+    const setCookieHeader = await loginResponse.headerValue('set-cookie') ?? ''
+    expect(setCookieHeader).toMatch(/(?:^|;\s*)samesite=lax(?:;|$)/i)
+
     await expect(page).toHaveURL(home)
     await expect(page.getByText('Testovací uživatel', { exact: true })).toBeVisible()
     const cookie = (await page.context().cookies()).find(item => item.name === cookieName)!
-    expect(cookie.httpOnly).toBe(true); expect(cookie.secure).toBe(true); expect(cookie.sameSite).toBe('Lax')
+    expect(cookie.httpOnly).toBe(true); expect(cookie.secure).toBe(true)
     expect(type === 'TEACHER' ? cookie.expires > Date.now() / 1000 + 29 * 86400 : cookie.expires === -1).toBe(true)
     await page.reload(); await expect(page).toHaveURL(home)
     await expect(page.getByText('Testovací uživatel', { exact: true })).toBeVisible()
