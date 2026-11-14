@@ -39,6 +39,49 @@ public sealed class ProjectMembersController(ProjectMemberService service) : Con
     }
 
     /// <summary>
+    /// Přidá registrovaného aktivního studenta podle e-mailu jako běžného člena; smí pouze vedoucí týmu.
+    /// </summary>
+    /// <remarks>Stejně jako registrace vyžaduje CSRF token a JSON tělo do 16 KiB bez neznámých polí.</remarks>
+    /// <param name="projectId">Identifikátor projektu.</param>
+    /// <param name="request">E-mail přidávaného studenta.</param>
+    /// <param name="cancellationToken">Token pro zrušení požadavku.</param>
+    /// <returns>201 s novým členem, nebo chyba podle pravidel členství.</returns>
+    [HttpPost]
+    [RequestSizeLimit(AuthErrorMiddleware.MaxAuthBytes)]
+    [ServiceFilter(typeof(CsrfValidationFilter))]
+    [ServiceFilter(typeof(AuthBodyLimitFilter))]
+    [ProducesResponseType(typeof(ProjectMemberAddedDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status415UnsupportedMediaType)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> Add(int projectId, AddProjectMemberRequest request, CancellationToken cancellationToken)
+    {
+        var result = await service.AddByEmailAsync(projectId, CallerId(), request.Email, cancellationToken);
+        return result.Status switch
+        {
+            AddMemberStatus.Added when result.Member is { } member =>
+                StatusCode(StatusCodes.Status201Created, new ProjectMemberAddedDto(ProjectMemberDto.From(member))),
+            AddMemberStatus.InvalidEmail => ApiProblems.Result(HttpContext, StatusCodes.Status400BadRequest,
+                "VALIDATION_FAILED", "Neplatné vstupní údaje", "Opravte označená pole.",
+                new Dictionary<string, string[]> { ["email"] = [AccountEmailRules.InvalidMessage] }),
+            AddMemberStatus.ProjectNotFound => ProjectNotFound(),
+            AddMemberStatus.NotLeader => LeaderRequired(),
+            AddMemberStatus.AccountNotFound => ApiProblems.Result(HttpContext, StatusCodes.Status422UnprocessableEntity,
+                "ACCOUNT_NOT_FOUND", "Účet nenalezen", "Účet s tímto e-mailem v StudentFlow neexistuje."),
+            AddMemberStatus.AccountNotStudent => ApiProblems.Result(HttpContext, StatusCodes.Status422UnprocessableEntity,
+                "ACCOUNT_NOT_STUDENT", "Účet nelze přidat", "Do týmu lze přidat jen účet studenta."),
+            AddMemberStatus.AlreadyMember => ApiProblems.Result(HttpContext, StatusCodes.Status409Conflict,
+                "MEMBER_ALREADY_EXISTS", "Člen již existuje", "Tento uživatel už je členem týmu."),
+            _ => throw new InvalidOperationException($"Unexpected add member result {result.Status}.")
+        };
+    }
+
+    /// <summary>
     /// ID přihlášeného uživatele ze serverem ověřené session; ID zaslané klientem se nikdy nepoužívá.
     /// </summary>
     private long CallerId() => (HttpContext.Features.Get<SessionIdentity>()
@@ -49,4 +92,10 @@ public sealed class ProjectMembersController(ProjectMemberService service) : Con
     /// </summary>
     private ObjectResult ProjectNotFound() => ApiProblems.Result(HttpContext, StatusCodes.Status404NotFound,
         "PROJECT_NOT_FOUND", "Projekt nenalezen", "Projekt neexistuje nebo k němu nemáte přístup.");
+
+    /// <summary>
+    /// Odpověď pro člena projektu, který není vedoucím a chce měnit členy.
+    /// </summary>
+    private ObjectResult LeaderRequired() => ApiProblems.Result(HttpContext, StatusCodes.Status403Forbidden,
+        "PROJECT_LEADER_REQUIRED", "Nedostatečné oprávnění", "Členy projektu může spravovat jen vedoucí týmu.");
 }
