@@ -91,10 +91,10 @@ akce v `AuthController` pomocí `[ServiceFilter(typeof(CsrfValidationFilter))]`.
 Filtr používá `IAntiforgery.ValidateRequestAsync` a sjednocuje chybu tokenu.
 Samotný `[Authorize]` CSRF neověřuje. Vzorové GET endpointy data nemění.
 
-`authPost` opakuje zápis pouze jednou po explicitním
-`403` s kódem `CSRF_INVALID`. Jiný `403`, výpadek sítě ani neurčitý výsledek
-zápisu neopakuje. Při `PUT`, `PATCH` či `DELETE` zachovejte stejná pravidla
-v jejich klientovi; současný helper podporuje jen `POST`.
+Sdílený `csrfRequest` (`src/services/http/csrfRequest.ts`) opakuje zápis pouze
+jednou po explicitním `403` s kódem `CSRF_INVALID`. Jiný `403`, výpadek sítě ani
+neurčitý výsledek zápisu neopakuje. Podporuje `POST`, `PUT`, `PATCH` i `DELETE`;
+`authPost` je jeho obal pro `POST`, který chybu tokenu vrací jako `AuthFailure`.
 
 | Odpověď | Reakce nové funkce |
 | --- | --- |
