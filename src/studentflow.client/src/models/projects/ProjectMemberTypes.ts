@@ -23,9 +23,9 @@ export interface ProjectMember {
   isLeader: boolean
 
   /// <summary>
-  /// Okamžik přidání do projektu ve formátu ISO 8601.
+  /// Okamžik vstupu do projektu ve formátu ISO 8601 (sloupec joined_at).
   /// </summary>
-  addedAt: string
+  joinedAt: string
 }
 
 /// <summary>

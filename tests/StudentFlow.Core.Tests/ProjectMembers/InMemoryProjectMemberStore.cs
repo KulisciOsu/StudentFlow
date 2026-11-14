@@ -8,7 +8,7 @@ namespace StudentFlow.Core.Tests.ProjectMembers;
 /// </summary>
 internal sealed class InMemoryProjectMemberStore : IProjectMemberStore
 {
-    private static readonly DateTimeOffset AddedAt = new(2026, 11, 7, 12, 0, 0, TimeSpan.Zero);
+    private static readonly DateTimeOffset JoinedAt = new(2026, 11, 7, 12, 0, 0, TimeSpan.Zero);
     private readonly List<UserIdentity> accounts = [];
     private readonly Dictionary<(int ProjectId, long UserId), ProjectMember> members = [];
 
@@ -39,7 +39,7 @@ internal sealed class InMemoryProjectMemberStore : IProjectMemberStore
     public void AddMembership(int projectId, long userId, bool isLeader)
     {
         var account = accounts.Single(a => a.Id == userId);
-        members[(projectId, userId)] = new(userId, account.DisplayName, account.Email, isLeader, AddedAt);
+        members[(projectId, userId)] = new(userId, account.DisplayName, account.Email, isLeader, JoinedAt);
     }
 
     /// <summary>

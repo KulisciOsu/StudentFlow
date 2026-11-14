@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { addProjectMember, getProjectMembers, ProjectMembersFailure, removeProjectMember } from './projectMembersApi'
 
-const petra = { userId: '1', displayName: 'Petra Svobodová', email: 'petra@example.test', isLeader: true, addedAt: '2026-11-07T12:00:00Z' }
-const jan = { userId: '2', displayName: 'Jan Novák', email: 'jan@example.test', isLeader: false, addedAt: '2026-11-07T12:30:00Z' }
+const petra = { userId: '1', displayName: 'Petra Svobodová', email: 'petra@example.test', isLeader: true, joinedAt: '2026-11-07T12:00:00Z' }
+const jan = { userId: '2', displayName: 'Jan Novák', email: 'jan@example.test', isLeader: false, joinedAt: '2026-11-07T12:30:00Z' }
 const json = (value: unknown, status = 200) =>
   new Response(JSON.stringify(value), { status, headers: { 'Content-Type': 'application/json' } })
 const csrf = () => json({ token: 'token-1', headerName: 'X-CSRF-TOKEN' })
@@ -24,7 +24,7 @@ describe('getProjectMembers', () => {
     ['a numeric user id', { teamName: 'Tým Sova', members: [{ ...jan, userId: 2 }] }],
     ['an empty user id', { teamName: 'Tým Sova', members: [{ ...jan, userId: '' }] }],
     ['a missing leader flag', { teamName: 'Tým Sova', members: [{ ...jan, isLeader: undefined }] }],
-    ['an unreadable date', { teamName: 'Tým Sova', members: [{ ...jan, addedAt: 'včera' }] }],
+    ['an unreadable date', { teamName: 'Tým Sova', members: [{ ...jan, joinedAt: 'včera' }] }],
     ['a missing team name', { members: [petra] }],
     ['members that are not a list', { teamName: 'Tým Sova', members: petra }],
   ])('rejects a response with %s', async (_, body) => {

@@ -101,7 +101,7 @@ function isProjectMember(value: unknown): value is ProjectMember {
     && typeof value.displayName === 'string' && value.displayName.trim().length > 0
     && typeof value.email === 'string' && value.email.length > 0
     && typeof value.isLeader === 'boolean'
-    && typeof value.addedAt === 'string' && Number.isFinite(Date.parse(value.addedAt))
+    && typeof value.joinedAt === 'string' && Number.isFinite(Date.parse(value.joinedAt))
 }
 
 /// <summary>
