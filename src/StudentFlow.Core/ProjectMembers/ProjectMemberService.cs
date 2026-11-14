@@ -1,4 +1,3 @@
-using System.Net.Mail;
 using StudentFlow.Core.Authentication;
 
 namespace StudentFlow.Core.ProjectMembers;
@@ -24,7 +23,7 @@ public sealed class ProjectMemberService(IProjectMemberStore store)
         CancellationToken cancellationToken = default)
     {
         var trimmedEmail = email?.Trim() ?? "";
-        if (!IsValidEmail(trimmedEmail)) return new(AddMemberStatus.InvalidEmail, null);
+        if (!AccountEmailRules.IsValid(trimmedEmail)) return new(AddMemberStatus.InvalidEmail, null);
 
         var caller = await store.FindMemberAsync(projectId, callerUserId, cancellationToken);
         if (caller is null) return new(AddMemberStatus.ProjectNotFound, null);
@@ -56,12 +55,4 @@ public sealed class ProjectMemberService(IProjectMemberStore store)
             ? RemoveMemberStatus.Removed
             : RemoveMemberStatus.MemberNotFound;
     }
-
-    /// <summary>Stejná pravidla formátu jako registrace: 3 až 320 znaků, bez mezer a s právě jedním zavináčem.</summary>
-    private static bool IsValidEmail(string email) =>
-        email.EnumerateRunes().Count() is >= 3 and <= 320
-        && !email.Any(char.IsWhiteSpace)
-        && email.Count(c => c == '@') == 1
-        && MailAddress.TryCreate(email, out var address)
-        && address.Address == email;
 }
