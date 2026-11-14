@@ -11,6 +11,7 @@ internal sealed class InMemoryProjectMemberStore : IProjectMemberStore
     private static readonly DateTimeOffset JoinedAt = new(2026, 11, 7, 12, 0, 0, TimeSpan.Zero);
     private readonly List<UserIdentity> accounts = [];
     private readonly Dictionary<(int ProjectId, long UserId), ProjectMember> members = [];
+    private readonly Dictionary<int, string> teamNames = [];
 
     /// <summary>
     /// Počet volání rozhraní úložiště; příprava testovacích dat se nezapočítává.
@@ -32,6 +33,11 @@ internal sealed class InMemoryProjectMemberStore : IProjectMemberStore
     /// </summary>
     public void AddAccount(long id, string displayName, string email, AccountType type, bool isActive = true) =>
         accounts.Add(new(id, displayName, email, type, isActive));
+
+    /// <summary>
+    /// Připraví projekt s názvem týmu.
+    /// </summary>
+    public void AddProject(int projectId, string teamName) => teamNames[projectId] = teamName;
 
     /// <summary>
     /// Připraví členství existujícího účtu v projektu.
@@ -63,6 +69,13 @@ internal sealed class InMemoryProjectMemberStore : IProjectMemberStore
     {
         CallCount++;
         return Task.FromResult(members.GetValueOrDefault((projectId, userId)));
+    }
+
+    /// <inheritdoc />
+    public Task<string?> FindTeamNameAsync(int projectId, CancellationToken cancellationToken = default)
+    {
+        CallCount++;
+        return Task.FromResult(teamNames.GetValueOrDefault(projectId));
     }
 
     /// <inheritdoc />

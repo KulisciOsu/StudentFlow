@@ -9,8 +9,8 @@ public enum ListMembersStatus
     ProjectNotFound
 }
 
-/// <summary>Seznam členů projektu; při ProjectNotFound je prázdný.</summary>
-public sealed record ListMembersResult(ListMembersStatus Status, IReadOnlyList<ProjectMember> Members);
+/// <summary>Název týmu a seznam členů projektu; při ProjectNotFound je název null a seznam prázdný.</summary>
+public sealed record ListMembersResult(ListMembersStatus Status, string? TeamName, IReadOnlyList<ProjectMember> Members);
 
 /// <summary>Výsledek přidání člena podle e-mailu.</summary>
 public enum AddMemberStatus

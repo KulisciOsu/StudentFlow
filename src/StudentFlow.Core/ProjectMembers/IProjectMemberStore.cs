@@ -9,6 +9,9 @@ public interface IProjectMemberStore
     /// <summary>Vrátí členství uživatele v projektu, nebo null, pokud projekt neexistuje či uživatel není jeho členem.</summary>
     Task<ProjectMember?> FindMemberAsync(int projectId, long userId, CancellationToken cancellationToken = default);
 
+    /// <summary>Vrátí název týmu projektu, nebo null, pokud projekt neexistuje.</summary>
+    Task<string?> FindTeamNameAsync(int projectId, CancellationToken cancellationToken = default);
+
     /// <summary>Vrátí aktuální členy projektu: nejprve vedoucího, potom ostatní podle jména.</summary>
     Task<IReadOnlyList<ProjectMember>> ListAsync(int projectId, CancellationToken cancellationToken = default);
 

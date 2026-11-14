@@ -32,34 +32,52 @@ public class ProjectMemberServiceTests
         store.AddAccount(TeacherId, "Eva Horáková", "eva@example.test", AccountType.Teacher);
         store.AddAccount(InactiveId, "Martin Král", "martin@example.test", AccountType.Member, isActive: false);
         store.AddAccount(CandidateId, "Tomáš Dvořák", "tomas@example.test", AccountType.Member);
+        store.AddProject(ProjectId, "Tým Sova");
         store.AddMembership(ProjectId, LeaderId, isLeader: true);
         store.AddMembership(ProjectId, MemberId, isLeader: false);
         service = new ProjectMemberService(store);
     }
 
     /// <summary>
-    /// Seznam smí číst každý aktuální člen, vedoucí i běžný člen.
+    /// Seznam i název týmu smí číst každý aktuální člen, vedoucí i běžný člen.
     /// </summary>
     [Theory]
     [InlineData(LeaderId)]
     [InlineData(MemberId)]
-    public async Task List_AnyCurrentMember_ReturnsAllMembers(long callerId)
+    public async Task List_AnyCurrentMember_ReturnsTeamNameAndAllMembers(long callerId)
     {
         var result = await service.ListAsync(ProjectId, callerId);
 
         Assert.Equal(ListMembersStatus.Listed, result.Status);
+        Assert.Equal("Tým Sova", result.TeamName);
         Assert.Equal(new[] { LeaderId, MemberId }, result.Members.Select(member => member.UserId));
     }
 
     /// <summary>
-    /// Nečlen existujícího projektu dostane stejný výsledek jako u neexistujícího projektu.
+    /// Nečlen existujícího projektu dostane stejný výsledek jako u neexistujícího projektu, bez názvu týmu i členů.
     /// </summary>
     [Theory]
     [InlineData(ProjectId, OutsiderId)]
     [InlineData(MissingProjectId, LeaderId)]
-    public async Task List_NonMemberOrMissingProject_ReturnsProjectNotFoundWithoutMembers(int projectId, long callerId)
+    public async Task List_NonMemberOrMissingProject_ReturnsProjectNotFoundWithoutData(int projectId, long callerId)
     {
         var result = await service.ListAsync(projectId, callerId);
+
+        Assert.Equal(ListMembersStatus.ProjectNotFound, result.Status);
+        Assert.Null(result.TeamName);
+        Assert.Empty(result.Members);
+    }
+
+    /// <summary>
+    /// Projekt smazaný mezi ověřením členství a načtením názvu týmu se chová jako neexistující.
+    /// </summary>
+    [Fact]
+    public async Task List_ProjectDeletedAfterMembershipCheck_ReturnsProjectNotFound()
+    {
+        const int deletedProjectId = 8;
+        store.AddMembership(deletedProjectId, LeaderId, isLeader: true);
+
+        var result = await service.ListAsync(deletedProjectId, LeaderId);
 
         Assert.Equal(ListMembersStatus.ProjectNotFound, result.Status);
         Assert.Empty(result.Members);

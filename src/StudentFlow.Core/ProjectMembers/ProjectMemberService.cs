@@ -9,12 +9,16 @@ namespace StudentFlow.Core.ProjectMembers;
 /// </remarks>
 public sealed class ProjectMemberService(IProjectMemberStore store)
 {
-    /// <summary>Vrátí členy projektu, pokud je volající jeho aktuálním členem; vedoucí i běžný člen mají přístup.</summary>
+    /// <summary>Vrátí název týmu a členy projektu, pokud je volající jeho aktuálním členem; vedoucí i běžný člen mají přístup.</summary>
     public async Task<ListMembersResult> ListAsync(int projectId, long callerUserId, CancellationToken cancellationToken = default)
     {
         if (await store.FindMemberAsync(projectId, callerUserId, cancellationToken) is null)
-            return new(ListMembersStatus.ProjectNotFound, []);
-        return new(ListMembersStatus.Listed, await store.ListAsync(projectId, cancellationToken));
+            return new(ListMembersStatus.ProjectNotFound, null, []);
+
+        // Projekt mohl být mezi dotazy smazán; pak se chová stejně jako neexistující.
+        var teamName = await store.FindTeamNameAsync(projectId, cancellationToken);
+        if (teamName is null) return new(ListMembersStatus.ProjectNotFound, null, []);
+        return new(ListMembersStatus.Listed, teamName, await store.ListAsync(projectId, cancellationToken));
     }
 
     /// <summary>Přidá aktivní účet typu STUDENT podle e-mailu jako běžného člena; smí pouze vedoucí projektu.</summary>
