@@ -20,7 +20,10 @@ public interface IProjectMemberStore
     Task<UserIdentity?> FindAccountByEmailAsync(string email, CancellationToken cancellationToken = default);
 
     /// <summary>Přidá účet jako běžného člena, pouze pokud je addedByUserId v okamžiku zápisu vedoucím projektu.</summary>
-    /// <returns>Added s novým členstvím; AlreadyMember při existujícím členství; NotLeader, pokud podmínka vedoucího již neplatí.</returns>
+    /// <returns>
+    /// Added s novým členstvím; AlreadyMember při existujícím členství; NotLeader, pokud podmínka vedoucího již neplatí;
+    /// AccountNotStudent, pokud zápis odmítne databázová kontrola typu účtu.
+    /// </returns>
     Task<AddMemberResult> AddAsync(int projectId, long userId, long addedByUserId, CancellationToken cancellationToken = default);
 
     /// <summary>Odebere běžného člena, pouze pokud je removedByUserId v okamžiku zápisu vedoucím projektu.</summary>
