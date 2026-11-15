@@ -279,6 +279,128 @@ public class ProjectMembersApiTests
     }
 
     /// <summary>
+    /// Vedoucí odebere Jana: Jan hned ztratí přístup, seznam ho neobsahuje a druhé odebrání skončí 404.
+    /// </summary>
+    [Fact]
+    public async Task Remove_LeaderRemovesMember_Returns204AndMemberLosesAccess()
+    {
+        await using var app = await CreateTeamAsync();
+        var petra = await SignInAsync(app, "petra@example.test");
+        var jan = await SignInAsync(app, "jan@example.test");
+        var janPath = await MemberPathAsync(app, "jan@example.test");
+
+        var response = await petra.DeleteAsync(janPath);
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        await AssertProblemAsync(await jan.GetAsync(MembersPath), HttpStatusCode.NotFound, "PROJECT_NOT_FOUND");
+        var list = await (await petra.GetAsync(MembersPath)).Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(new[] { "Petra Svobodová" },
+            list.GetProperty("members").EnumerateArray().Select(m => m.GetProperty("displayName").GetString()));
+        await AssertProblemAsync(await petra.DeleteAsync(janPath), HttpStatusCode.NotFound, "MEMBER_NOT_FOUND");
+    }
+
+    /// <summary>
+    /// Vedoucí nemůže odebrat sám sebe; projekt musí mít vždy vedoucího.
+    /// </summary>
+    [Fact]
+    public async Task Remove_Leader_Returns409AndLeaderStays()
+    {
+        await using var app = await CreateTeamAsync();
+        var petra = await SignInAsync(app, "petra@example.test");
+
+        var response = await petra.DeleteAsync(await MemberPathAsync(app, "petra@example.test"));
+
+        await AssertProblemAsync(response, HttpStatusCode.Conflict, "LEADER_CANNOT_BE_REMOVED");
+        Assert.True(await app.Database.ScalarAsync<bool>("""
+            SELECT is_leader FROM project_member JOIN app_user USING (user_id) WHERE email = 'petra@example.test'
+            """));
+    }
+
+    /// <summary>
+    /// Odebrání uživatele, který v týmu není, nebo neexistujícího ID skončí 404 MEMBER_NOT_FOUND.
+    /// </summary>
+    [Fact]
+    public async Task Remove_UserWhoIsNotMember_Returns404MemberNotFound()
+    {
+        await using var app = await CreateTeamAsync();
+        var petra = await SignInAsync(app, "petra@example.test");
+
+        var lucie = await petra.DeleteAsync(await MemberPathAsync(app, "lucie@example.test"));
+        var unknown = await petra.DeleteAsync($"{MembersPath}/987654321");
+
+        await AssertProblemAsync(lucie, HttpStatusCode.NotFound, "MEMBER_NOT_FOUND");
+        await AssertProblemAsync(unknown, HttpStatusCode.NotFound, "MEMBER_NOT_FOUND");
+        Assert.Equal(2L, await CountMembersAsync(app));
+    }
+
+    /// <summary>
+    /// Běžný člen nesmí odebrat vedoucí ani sám sebe.
+    /// </summary>
+    [Theory]
+    [InlineData("petra@example.test")]
+    [InlineData("jan@example.test")]
+    public async Task Remove_RegularMember_Returns403LeaderRequired(string targetEmail)
+    {
+        await using var app = await CreateTeamAsync();
+        var jan = await SignInAsync(app, "jan@example.test");
+
+        var response = await jan.DeleteAsync(await MemberPathAsync(app, targetEmail));
+
+        await AssertProblemAsync(response, HttpStatusCode.Forbidden, "PROJECT_LEADER_REQUIRED");
+        Assert.Equal(2L, await CountMembersAsync(app));
+    }
+
+    /// <summary>
+    /// Nečlen nikoho neodebere a dostane stejnou 404 jako u neexistujícího projektu.
+    /// </summary>
+    [Fact]
+    public async Task Remove_NonMember_Returns404SameAsMissingProject()
+    {
+        await using var app = await CreateTeamAsync();
+        var lucie = await SignInAsync(app, "lucie@example.test");
+        var janId = await UserIdAsync(app, "jan@example.test");
+
+        var foreign = await lucie.DeleteAsync($"{MembersPath}/{janId}");
+        var missing = await lucie.DeleteAsync($"{MissingProjectMembersPath}/{janId}");
+
+        await AssertProblemAsync(foreign, HttpStatusCode.NotFound, "PROJECT_NOT_FOUND");
+        await AssertProblemAsync(missing, HttpStatusCode.NotFound, "PROJECT_NOT_FOUND");
+        Assert.Equal(2L, await CountMembersAsync(app));
+    }
+
+    /// <summary>
+    /// Bez CSRF tokenu se nikdo neodebere, i když požadavek posílá přihlášená vedoucí.
+    /// </summary>
+    [Fact]
+    public async Task Remove_WithoutCsrfToken_Returns403CsrfInvalid()
+    {
+        await using var app = await CreateTeamAsync();
+        var petra = await SignInAsync(app, "petra@example.test");
+        petra.DefaultRequestHeaders.Remove("X-CSRF-TOKEN");
+
+        var response = await petra.DeleteAsync(await MemberPathAsync(app, "jan@example.test"));
+
+        await AssertProblemAsync(response, HttpStatusCode.Forbidden, "CSRF_INVALID");
+        Assert.Equal(2L, await CountMembersAsync(app));
+    }
+
+    /// <summary>
+    /// Nepřihlášený uživatel nikoho neodebere.
+    /// </summary>
+    [Fact]
+    public async Task Remove_Anonymous_Returns401()
+    {
+        await using var app = await CreateTeamAsync();
+        var anonymous = app.CreateClient();
+        await RegistrationApp.SetCsrfAsync(anonymous);
+
+        var response = await anonymous.DeleteAsync(await MemberPathAsync(app, "jan@example.test"));
+
+        await AssertProblemAsync(response, HttpStatusCode.Unauthorized, "UNAUTHENTICATED");
+        Assert.Equal(2L, await CountMembersAsync(app));
+    }
+
+    /// <summary>
     /// Připraví API s migracemi, účty Petry, Jana, Lucie a Evy a projektem „Tým Sova“ s Petrou jako vedoucí a Janem jako členem.
     /// </summary>
     private static async Task<RegistrationApp> CreateTeamAsync()
@@ -354,6 +476,18 @@ public class ProjectMembersApiTests
         Assert.Equal(code, problem.GetProperty("code").GetString());
         return problem;
     }
+
+    /// <summary>
+    /// ID účtu podle e-mailu.
+    /// </summary>
+    private static Task<long> UserIdAsync(RegistrationApp app, string email) =>
+        app.Database.ScalarAsync<long>($"SELECT user_id FROM app_user WHERE email = '{email}'");
+
+    /// <summary>
+    /// Adresa člena v testovacím projektu podle e-mailu jeho účtu.
+    /// </summary>
+    private static async Task<string> MemberPathAsync(RegistrationApp app, string email) =>
+        $"{MembersPath}/{await UserIdAsync(app, email)}";
 
     /// <summary>
     /// Počet všech členství v databázi; tým má na začátku dva členy.
