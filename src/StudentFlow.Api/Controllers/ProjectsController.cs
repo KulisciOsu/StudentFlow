@@ -25,7 +25,7 @@ public class ProjectsController : ControllerBase
     /// Vrací projekt nástěnky.
     /// </summary>
     /// <param name="projectId">Identifikátor projektu.</param>
-    /// <returns>Projekt, nebo 404, pokud neexistuje.</returns>
+    /// <returns>Projekt, 404 pokud neexistuje, nebo 403 pokud k němu uživatel nemá přístup.</returns>
     [HttpGet("{projectId:int}")]
     public async Task<ActionResult<KanbanProjectDto>> Get(int projectId)
     {
@@ -35,6 +35,15 @@ public class ProjectsController : ControllerBase
         {
             return NotFound();
         }
+
+        var role = await BoardAccess.GetRoleAsync(_repository, User, projectId);
+
+        if (!BoardPermissions.CanView(role))
+        {
+            return Forbid();
+        }
+
+        project.IsReadOnly = BoardPermissions.IsReadOnly(role);
 
         return project;
     }

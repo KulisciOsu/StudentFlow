@@ -14,7 +14,7 @@ public class ColumnsControllerTests
     [Fact]
     public async Task Get_ExistingProject_ReturnsProjectColumnsInOrder()
     {
-        var controller = new ColumnsController(new FakeKanbanBoardRepository());
+        var controller = TestUsers.SignIn(new ColumnsController(new FakeKanbanBoardRepository()), TestUsers.Leader);
 
         var result = await controller.Get(1);
 
@@ -29,10 +29,23 @@ public class ColumnsControllerTests
     [Fact]
     public async Task Get_UnknownProject_ReturnsNotFound()
     {
-        var controller = new ColumnsController(new FakeKanbanBoardRepository());
+        var controller = TestUsers.SignIn(new ColumnsController(new FakeKanbanBoardRepository()), TestUsers.Leader);
 
         var result = await controller.Get(99);
 
         Assert.IsType<NotFoundResult>(result.Result);
+    }
+
+    /// <summary>
+    /// Ověří, že uživatel mimo projekt dostane 403.
+    /// </summary>
+    [Fact]
+    public async Task Get_Outsider_ReturnsForbidden()
+    {
+        var controller = TestUsers.SignIn(new ColumnsController(new FakeKanbanBoardRepository()), TestUsers.Outsider);
+
+        var result = await controller.Get(1);
+
+        Assert.IsType<ForbidResult>(result.Result);
     }
 }

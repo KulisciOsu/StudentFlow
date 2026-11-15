@@ -25,6 +25,10 @@ function isTask(value: unknown): value is Task {
     && typeof value.assignee === 'string'
     && 'dueDate' in value
     && (value.dueDate === null || typeof value.dueDate === 'string')
+    && 'isMine' in value
+    && typeof value.isMine === 'boolean'
+    && 'canMove' in value
+    && typeof value.canMove === 'boolean'
 }
 
 /// <summary>

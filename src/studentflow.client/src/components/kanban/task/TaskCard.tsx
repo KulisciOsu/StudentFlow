@@ -16,10 +16,12 @@ export function TaskCard({ task, isDone }: TaskCardProps) {
   } = useSortable({
     id: `task-${task.id}`,
     transition: kanbanConfig.animation,
+    disabled: !task.canMove,
   })
 
   const classNames = ['task-card']
   if (isDragging) classNames.push('task-card--dragging')
+  if (!task.canMove) classNames.push('task-card--locked')
   if (isDone) classNames.push('task-card--done')
   else if (isOverdue(task.dueDate)) classNames.push('task-card--overdue')
 

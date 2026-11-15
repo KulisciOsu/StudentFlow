@@ -97,3 +97,16 @@ docker compose stop
 ```
 
 Data zůstávají uložená v Docker volume.
+
+## 5. Nové migrace
+
+Nové migrace pojmenujte časovým razítkem vytvoření, ne dalším pořadovým číslem:
+
+```
+VRRRRMMDD_HHMM__popis.sql
+```
+
+například `V20261110_1832__seed_kanban_demo_members.sql`. Dvě větve tak téměř nikdy
+nevytvoří migraci se stejnou verzí. Starší migrace V001–V007 zůstávají beze změny
+a řadí se před migrace s časovým razítkem. Test `MigrationFileTests` v CI zastaví
+PR s neplatným názvem nebo duplicitní verzí.

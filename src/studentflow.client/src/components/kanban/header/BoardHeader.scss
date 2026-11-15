@@ -7,6 +7,17 @@
   }
 }
 
+.board-header-readonly {
+  display: inline-block;
+  margin: 0.25rem 0;
+  padding: 0.125rem 0.5rem;
+  border: 1px solid #c1c7d0;
+  border-radius: 999px;
+  color: #44546f;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
 .board-header-project,
 .board-header-due {
   margin: 0;

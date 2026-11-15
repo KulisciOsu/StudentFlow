@@ -15,6 +15,18 @@ function isProject(value: unknown): value is Project {
     && typeof value.teamName === 'string'
     && 'dueDate' in value
     && (value.dueDate === null || typeof value.dueDate === 'string')
+    && 'isReadOnly' in value
+    && typeof value.isReadOnly === 'boolean'
+}
+
+/// <summary>
+/// Chyba, když přihlášený uživatel nemá k projektu přístup.
+/// </summary>
+export class ProjectForbiddenError extends Error {
+  constructor() {
+    super('Do projektu nemáte přístup.')
+    this.name = 'ProjectForbiddenError'
+  }
 }
 
 /// <summary>
@@ -22,6 +34,10 @@ function isProject(value: unknown): value is Project {
 /// </summary>
 export async function getProject(signal?: AbortSignal): Promise<Project> {
   const response = await fetch(`/api/projects/${kanbanConfig.projectId}`, { signal })
+
+  if (response.status === 403) {
+    throw new ProjectForbiddenError()
+  }
 
   if (!response.ok) {
     throw new Error('Nepodařilo se načíst projekt.')

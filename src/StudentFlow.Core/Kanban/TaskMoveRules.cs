@@ -113,6 +113,7 @@ public static class TaskMoveRules
             Title = task.Title,
             Priority = task.Priority,
             Assignee = task.Assignee,
+            AssigneeId = task.AssigneeId,
             DueDate = task.DueDate,
         };
     }
