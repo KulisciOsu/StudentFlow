@@ -82,6 +82,39 @@ public sealed class ProjectMembersController(ProjectMemberService service) : Con
     }
 
     /// <summary>
+    /// Odebere běžného člena z projektu; smí pouze vedoucí týmu a vedoucího odebrat nelze.
+    /// </summary>
+    /// <remarks>
+    /// Vyžaduje CSRF token. Odebraný člen ztrácí přístup okamžitě; jeho úkoly a další příspěvky zůstávají beze změny.
+    /// </remarks>
+    /// <param name="projectId">Identifikátor projektu.</param>
+    /// <param name="userId">Identifikátor odebíraného uživatele.</param>
+    /// <param name="cancellationToken">Token pro zrušení požadavku.</param>
+    /// <returns>204 po odebrání, nebo chyba podle pravidel členství.</returns>
+    [HttpDelete("{userId:long}")]
+    [ServiceFilter(typeof(CsrfValidationFilter))]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Remove(int projectId, long userId, CancellationToken cancellationToken)
+    {
+        var status = await service.RemoveAsync(projectId, CallerId(), userId, cancellationToken);
+        return status switch
+        {
+            RemoveMemberStatus.Removed => NoContent(),
+            RemoveMemberStatus.ProjectNotFound => ProjectNotFound(),
+            RemoveMemberStatus.NotLeader => LeaderRequired(),
+            RemoveMemberStatus.MemberNotFound => ApiProblems.Result(HttpContext, StatusCodes.Status404NotFound,
+                "MEMBER_NOT_FOUND", "Člen nenalezen", "Tento uživatel není členem projektu."),
+            RemoveMemberStatus.LeaderCannotBeRemoved => ApiProblems.Result(HttpContext, StatusCodes.Status409Conflict,
+                "LEADER_CANNOT_BE_REMOVED", "Vedoucího nelze odebrat", "Vedoucího týmu nelze z projektu odebrat."),
+            _ => throw new InvalidOperationException($"Unexpected remove member result {status}.")
+        };
+    }
+
+    /// <summary>
     /// ID přihlášeného uživatele ze serverem ověřené session; ID zaslané klientem se nikdy nepoužívá.
     /// </summary>
     private long CallerId() => (HttpContext.Features.Get<SessionIdentity>()
