@@ -10,6 +10,8 @@ using StudentFlow.Core.Kanban;
 using StudentFlow.Data.Kanban;
 using StudentFlow.Core.Projects;
 using StudentFlow.Data.Projects;
+using StudentFlow.Core.ProjectMembers;
+using StudentFlow.Data.ProjectMembers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +28,8 @@ builder.Services.AddScoped<IUserSessionStore, PostgresUserSessionStore>();
 builder.Services.AddScoped<IDashboardRepository, PostgresDashboardRepository>();
 builder.Services.AddScoped<IKanbanBoardRepository, KanbanBoardRepository>();
 builder.Services.AddScoped<IProjectCreationRepository, PostgresProjectCreationRepository>();
+builder.Services.AddScoped<IProjectMemberStore, PostgresProjectMemberStore>();
+builder.Services.AddScoped<ProjectMemberService>();
 
 var app = builder.Build();
 

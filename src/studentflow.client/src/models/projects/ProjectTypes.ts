@@ -1,3 +1,4 @@
+
 /// <summary>
 /// Projekt nástěnky.
 /// </summary>
@@ -26,4 +27,9 @@ export interface Project {
   /// Termín odevzdání ve formátu RRRR-MM-DD, pokud je stanoven.
   /// </summary>
   dueDate: string | null
+
+  /// <summary>
+  /// Určuje, zda má přihlášený uživatel nástěnku jen pro čtení.
+  /// </summary>
+  isReadOnly: boolean
 }

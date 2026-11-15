@@ -41,6 +41,21 @@ public class KanbanBoardTaskDto
     public required string Assignee { get; init; }
 
     /// <summary>
+    /// Identifikátor řešitele.
+    /// </summary>
+    public long AssigneeId { get; init; }
+
+    /// <summary>
+    /// Zda je úkol přiřazený přihlášenému uživateli. Doplňuje API.
+    /// </summary>
+    public bool IsMine { get; set; }
+
+    /// <summary>
+    /// Zda může přihlášený uživatel úkol přesunout. Doplňuje API.
+    /// </summary>
+    public bool CanMove { get; set; }
+
+    /// <summary>
     /// Termín, pokud je stanoven.
     /// </summary>
     public DateOnly? DueDate { get; init; }

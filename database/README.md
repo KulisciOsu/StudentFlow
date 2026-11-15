@@ -45,6 +45,10 @@ inicializované automaticky znovu nespouštějte V001.
 V003 přidává normalizované unikátní e-maily, právě jeden typ účtu a schéma
 session. [Pravidla, diagnostika a datové operace](AUTHENTICATION.md).
 
+`V20261114_2156__project_member_management.sql` doplňuje k členství v projektu
+sloupec `added_by` a pravidlo, že členem může být jen účet typu STUDENT.
+[Pravidla členství a SQL pro ruční vyzkoušení](../documents/ELABORATION/projects/MEMBERS.md).
+
 Migrace zakládají číselník rolí. Po zapnutí vývojového seedu se účty člena a
 vyučujícího vytvářejí při startu API v prostředí `Development`, také na již
 inicializované databázi. [Nastavení vlastních přihlašovacích údajů a vypnutí
@@ -97,3 +101,16 @@ docker compose stop
 ```
 
 Data zůstávají uložená v Docker volume.
+
+## 5. Nové migrace
+
+Nové migrace pojmenujte časovým razítkem vytvoření, ne dalším pořadovým číslem:
+
+```
+VRRRRMMDD_HHMM__popis.sql
+```
+
+například `V20261110_1832__seed_kanban_demo_members.sql`. Dvě větve tak téměř nikdy
+nevytvoří migraci se stejnou verzí. Starší migrace V001–V007 zůstávají beze změny
+a řadí se před migrace s časovým razítkem. Test `MigrationFileTests` v CI zastaví
+PR s neplatným názvem nebo duplicitní verzí.

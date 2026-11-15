@@ -9,7 +9,7 @@ import './MobileBoard.scss'
 /// <summary>
 /// Zobrazuje nástěnku na mobilu: sloupce v záložkách a přesun tlačítkem.
 /// </summary>
-export function MobileBoard({ columns, tasks, onMoveTask }: MobileBoardProps) {
+export function MobileBoard({ columns, tasks, isReadOnly, onMoveTask }: MobileBoardProps) {
   const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null)
   const activeColumn = columns.find((column) => column.id === selectedColumnId) ?? columns[0]
   const columnTasks = tasks
@@ -46,28 +46,30 @@ export function MobileBoard({ columns, tasks, onMoveTask }: MobileBoardProps) {
             <li key={task.id}>
               <article className={classNames.join(' ')}>
                 <TaskCardContent task={task} isDone={activeColumn.isDone} />
-                <label className="mobile-board-move">
-                  <span>Přesunout</span>
-                  <select
-                    value=""
-                    aria-label={`Přesunout úkol ${task.title}`}
-                    onChange={(event) => onMoveTask(task.id, Number(event.target.value))}
-                  >
-                    <option value="" disabled>Přesunout do…</option>
-                    {columns
-                      .filter((column) => column.id !== task.columnId)
-                      .map((column) => (
-                        <option key={column.id} value={column.id}>{column.title}</option>
-                      ))}
-                  </select>
-                </label>
+                {task.canMove && (
+                  <label className="mobile-board-move">
+                    <span>Přesunout</span>
+                    <select
+                      value=""
+                      aria-label={`Přesunout úkol ${task.title}`}
+                      onChange={(event) => onMoveTask(task.id, Number(event.target.value))}
+                    >
+                      <option value="" disabled>Přesunout do…</option>
+                      {columns
+                        .filter((column) => column.id !== task.columnId)
+                        .map((column) => (
+                          <option key={column.id} value={column.id}>{column.title}</option>
+                        ))}
+                    </select>
+                  </label>
+                )}
               </article>
             </li>
           )
         })}
       </ul>
       {columnTasks.length === 0 && <p className="mobile-board-empty">Žádné úkoly</p>}
-      <MobileBottomNav />
+      <MobileBottomNav showNewTask={!isReadOnly} />
     </div>
   )
 }

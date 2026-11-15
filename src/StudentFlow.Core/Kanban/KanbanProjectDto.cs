@@ -30,4 +30,9 @@ public class KanbanProjectDto
     /// Termín odevzdání, pokud je stanoven.
     /// </summary>
     public DateOnly? DueDate { get; init; }
+
+    /// <summary>
+    /// Zda má přihlášený uživatel nástěnku jen pro čtení. Doplňuje API.
+    /// </summary>
+    public bool IsReadOnly { get; set; }
 }

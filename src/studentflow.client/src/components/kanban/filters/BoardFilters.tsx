@@ -6,7 +6,7 @@ import './BoardFilters.scss'
 /// <summary>
 /// Zobrazuje hledání a filtry úkolů.
 /// </summary>
-export function BoardFilters({ filters, assignees, onChange }: BoardFiltersProps) {
+export function BoardFilters({ filters, assignees, showOnlyMine, onChange }: BoardFiltersProps) {
   return (
     <div className="board-filters">
       <input
@@ -39,6 +39,16 @@ export function BoardFilters({ filters, assignees, onChange }: BoardFiltersProps
           <option key={priority} value={priority}>{priorityLabels[priority]}</option>
         ))}
       </select>
+      {showOnlyMine && (
+        <label className="board-filters-mine">
+          <input
+            type="checkbox"
+            checked={filters.onlyMine}
+            onChange={(event) => onChange({ ...filters, onlyMine: event.target.checked })}
+          />
+          Jen moje úkoly
+        </label>
+      )}
     </div>
   )
 }

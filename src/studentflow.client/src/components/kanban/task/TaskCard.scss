@@ -32,6 +32,11 @@
     opacity: 0.3;
   }
 
+  &--locked,
+  &--locked:active {
+    cursor: default;
+  }
+
   &--overlay {
     box-shadow: 0 8px 24px rgb(9 30 66 / 20%);
     cursor: grabbing;

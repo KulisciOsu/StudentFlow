@@ -6,7 +6,7 @@ using StudentFlow.Data.Kanban;
 namespace StudentFlow.Data.IntegrationTests;
 
 /// <summary>
-/// Testy repozitáře nástěnky proti PostgreSQL s migracemi V004 až V007.
+/// Testy repozitáře nástěnky proti PostgreSQL s migracemi nástěnky a ukázkovými daty.
 /// </summary>
 public class KanbanBoardRepositoryTests
 {
@@ -36,6 +36,25 @@ public class KanbanBoardRepositoryTests
         Assert.Equal("Tomáš Dvořák", task.Assignee);
         Assert.Null(await repository.GetProjectAsync(99));
         Assert.Null(await repository.GetTaskAsync(99));
+    }
+
+    /// <summary>
+    /// Ověří načtení řešitele úkolu a členství v ukázkovém projektu.
+    /// </summary>
+    [Fact]
+    public async Task GetMembership_SeededMembers_ReturnsLeaderAndMember()
+    {
+        await using var database = await CreateDatabaseAsync();
+        var repository = new KanbanBoardRepository(database.DataSource);
+        var task = await repository.GetTaskAsync(2);
+        var leader = await repository.GetTaskAsync(6);
+
+        Assert.NotNull(task);
+        Assert.NotNull(leader);
+        Assert.False(await repository.GetMembershipAsync(1, task.AssigneeId));
+        Assert.True(await repository.GetMembershipAsync(1, leader.AssigneeId));
+        Assert.Null(await repository.GetMembershipAsync(1, 999));
+        Assert.Null(await repository.GetMembershipAsync(99, task.AssigneeId));
     }
 
     /// <summary>
@@ -103,7 +122,7 @@ public class KanbanBoardRepositoryTests
     }
 
     /// <summary>
-    /// Vytvoří testovací databázi s tabulkami a ukázkovými daty nástěnky.
+    /// Vytvoří testovací databázi s tabulkami, ukázkovými daty nástěnky a členy projektu.
     /// </summary>
     private static async Task<PostgresTestDatabase> CreateDatabaseAsync()
     {
@@ -114,6 +133,8 @@ public class KanbanBoardRepositoryTests
             await database.ApplyMigrationAsync("V004__kanban_board.sql");
             await database.ApplyMigrationAsync("V005__seed_kanban_demo.sql");
             await database.ApplyMigrationAsync("V007__project_description.sql");
+            await database.ApplyMigrationAsync("V006__dashboard_membership.sql");
+            await database.ApplyMigrationAsync("V20261110_1832__seed_kanban_demo_members.sql");
 
             return database;
         }
@@ -138,6 +159,7 @@ public class KanbanBoardRepositoryTests
             Title = task.Title,
             Priority = task.Priority,
             Assignee = task.Assignee,
+            AssigneeId = task.AssigneeId,
             DueDate = task.DueDate,
         };
     }

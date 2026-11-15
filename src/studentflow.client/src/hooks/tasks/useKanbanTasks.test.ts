@@ -14,8 +14,8 @@ vi.mock('../../services/tasks/kanbanTasksApi', () => ({
 const projectId = 1
 
 const tasks: Task[] = [
-  { id: 1, title: 'První', columnId: 1, position: 0, priority: null, assignee: 'Jan Novák', dueDate: null },
-  { id: 2, title: 'Druhý', columnId: 2, position: 0, priority: null, assignee: 'Jan Novák', dueDate: null },
+  { id: 1, title: 'První', columnId: 1, position: 0, priority: null, assignee: 'Jan Novák', dueDate: null, isMine: true, canMove: true },
+  { id: 2, title: 'Druhý', columnId: 2, position: 0, priority: null, assignee: 'Jan Novák', dueDate: null, isMine: true, canMove: true },
 ]
 
 /// <summary>

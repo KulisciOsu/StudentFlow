@@ -196,6 +196,16 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
     }
   }
 
+  if (projectStatus === 'forbidden') {
+    return (
+      <section className="kanban-board">
+        <p role="alert" className="kanban-board-message">
+          Do tohoto projektu nemáte přístup.
+        </p>
+      </section>
+    )
+  }
+
   if (hasError) {
     return (
       <section className="kanban-board">
@@ -223,13 +233,12 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
       aria-labelledby="kanban-board-title"
     >
       <BoardHeader project={project} />
-
       <BoardFilters
         filters={filters}
         assignees={assignees}
+        showOnlyMine={!project.isReadOnly}
         onChange={setFilters}
       />
-
       {tasks.length === 0 && (
         <p className="kanban-board-message">
           Na nástěnce zatím nejsou žádné úkoly.
@@ -246,13 +255,10 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
         <MobileBoard
           columns={columns}
           tasks={tasks.filter((task) => visibleTaskIds.has(task.id))}
-          onMoveTask={(taskId, columnId) =>
-            void moveTask(
-              taskId,
-              columnId,
-              tasks.filter((task) => task.columnId === columnId).length,
-            )
-          }
+          isReadOnly={project.isReadOnly}
+          onMoveTask={(taskId, columnId) => void moveTask(
+            taskId, columnId, tasks.filter((task) => task.columnId === columnId).length,
+          )}
         />
       ) : (
         <DndContext

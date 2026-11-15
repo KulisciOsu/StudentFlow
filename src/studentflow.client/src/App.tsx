@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useState } from 'react'
 import { RegistrationPage } from './auth/RegistrationPage'
 import { LoginPage } from './auth/LoginPage'
@@ -7,6 +8,7 @@ import { homeFor } from './auth/types'
 import { CreateProjectPage } from './components/projects/create/CreateProjectPage'
 import { Dashboard } from './components/dashboard/Dashboard'
 import { KanbanBoard } from './components/kanban/board/KanbanBoard'
+import { ProjectSettingsPage } from './components/projects/settings/ProjectSettingsPage'
 import './App.scss'
 
 type Route = { path: string; email?: string; notice?: string }
@@ -117,6 +119,7 @@ function App() {
     const boardMatch = route.path.match(/^\/board\/(\d+)$/)
     const projectId = boardMatch ? Number(boardMatch[1]) : null
     const creatingProject = route.path === '/projects/new'
+    const settingsMatch = route.path.match(/^\/projects\/(\d{1,9})\/settings$/)
 
     const wrongType =
       ((route.path === '/projects' || route.path === '/teaching')
@@ -153,6 +156,12 @@ function App() {
               embedded
               onBack={() => navigate(home)}
               onCreated={(id) => navigate(`/board/${id}`)}
+            />
+          ) : settingsMatch ? (
+            <ProjectSettingsPage
+              key={settingsMatch[1]}
+              projectId={Number(settingsMatch[1])}
+              currentUserId={user.id}
             />
           ) : projectId !== null
             && Number.isSafeInteger(projectId)

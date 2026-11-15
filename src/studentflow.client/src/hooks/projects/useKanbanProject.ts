@@ -1,5 +1,9 @@
+
 import { useEffect, useState } from 'react'
-import { getProject } from '../../services/projects/kanbanProjectApi'
+import {
+  getProject,
+  ProjectForbiddenError,
+} from '../../services/projects/kanbanProjectApi'
 import type { KanbanProjectState } from './UseKanbanProjectTypes'
 
 /**
@@ -25,9 +29,12 @@ export function useKanbanProject(projectId: number): KanbanProjectState {
         if (!disposed) {
           setState({ project, status: 'ready' })
         }
-      } catch {
+      } catch (error) {
+        const status =
+          error instanceof ProjectForbiddenError ? 'forbidden' : 'error'
+
         if (!disposed) {
-          setState({ project: null, status: 'error' })
+          setState({ project: null, status })
         }
       } finally {
         window.clearTimeout(timeoutId)

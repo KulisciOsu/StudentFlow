@@ -6,7 +6,7 @@ import { moveTask } from './moveTask'
 /// Vytvoří testovací úkol.
 /// </summary>
 function task(id: number, columnId: number, position: number): Task {
-  return { id, title: `Úkol ${id}`, columnId, position, priority: null, assignee: 'Jan Novák', dueDate: null }
+  return { id, title: `Úkol ${id}`, columnId, position, priority: null, assignee: 'Jan Novák', dueDate: null, isMine: true, canMove: true }
 }
 
 const tasks = [task(1, 1, 0), task(2, 1, 1), task(3, 1, 2), task(4, 2, 0)]

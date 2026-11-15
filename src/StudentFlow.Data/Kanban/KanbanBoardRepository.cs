@@ -18,6 +18,7 @@ public class KanbanBoardRepository : IKanbanBoardRepository
                task.title AS Title,
                task.priority AS Priority,
                app_user.display_name AS Assignee,
+               task.assignee_id AS AssigneeId,
                task.due_date AS DueDate
         FROM task
         JOIN app_user ON app_user.user_id = task.assignee_id
@@ -142,6 +143,21 @@ public class KanbanBoardRepository : IKanbanBoardRepository
     }
 
     /// <inheritdoc />
+    public async Task<bool?> GetMembershipAsync(int projectId, long userId)
+    {
+        const string sql = """
+            SELECT is_leader
+            FROM project_member
+            WHERE project_id = @ProjectId
+              AND user_id = @UserId
+            """;
+
+        await using var connection = await _dataSource.OpenConnectionAsync();
+
+        return await connection.QuerySingleOrDefaultAsync<bool?>(sql, new { ProjectId = projectId, UserId = userId });
+    }
+
+    /// <inheritdoc />
     /// <remarks>
     /// Všechny změny se uloží v jedné transakci. Jedinečnost pozic se kontroluje až při potvrzení,
     /// takže úkoly lze přeskládat v libovolném pořadí. Při chybě se neuloží nic.
@@ -208,6 +224,7 @@ public class KanbanBoardRepository : IKanbanBoardRepository
             Title = row.Title,
             Priority = row.Priority,
             Assignee = row.Assignee,
+            AssigneeId = row.AssigneeId,
             DueDate = ToDateOnly(row.DueDate),
         };
     }
@@ -260,6 +277,8 @@ public class KanbanBoardRepository : IKanbanBoardRepository
         public string? Priority { get; set; }
 
         public string Assignee { get; set; } = string.Empty;
+
+        public long AssigneeId { get; set; }
 
         public DateTime? DueDate { get; set; }
     }
