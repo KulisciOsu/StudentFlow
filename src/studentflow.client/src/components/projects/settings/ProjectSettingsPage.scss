@@ -1,0 +1,35 @@
+.project-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.project-settings__title {
+  margin: 0;
+}
+
+.project-settings__status {
+  margin: 0;
+  color: #626f86;
+}
+
+.project-settings__notice {
+  max-width: 44rem;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border: 1px solid #dedede;
+  border-radius: 8px;
+
+  p {
+    margin: 0 0 0.5rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.project-settings__notice-title {
+  font-weight: 700;
+}

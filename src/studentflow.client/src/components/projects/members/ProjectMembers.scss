@@ -1,0 +1,104 @@
+.project-members {
+  max-width: 44rem;
+  padding: 1.25rem;
+  background: #fff;
+  border: 1px solid #dedede;
+  border-radius: 8px;
+}
+
+.project-members__header {
+  margin-bottom: 1rem;
+}
+
+.project-members__title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.project-members__count {
+  min-width: 1.5rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  background: #e6e9ef;
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
+.project-members__team {
+  margin: 0.25rem 0 0;
+  color: #626f86;
+  font-size: 0.875rem;
+}
+
+.project-members__empty {
+  margin: 0;
+  color: #626f86;
+}
+
+.project-members__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.project-members__row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid #ececec;
+
+  &:first-child {
+    border-top: 0;
+  }
+}
+
+.project-members__avatar {
+  display: inline-grid;
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border-radius: 50%;
+  background: #e6e9ef;
+  color: #292929;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.project-members__person {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.project-members__name {
+  font-weight: 600;
+}
+
+.project-members__email {
+  overflow: hidden;
+  color: #626f86;
+  font-size: 0.875rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.project-members__badge {
+  flex: none;
+  padding: 0.125rem 0.625rem;
+  border: 1px solid #bdbdbd;
+  border-radius: 999px;
+  color: #444;
+  font-size: 0.8125rem;
+}
+
+.project-members__badge--leader {
+  border-color: #292929;
+  background: #292929;
+  color: #fff;
+}
