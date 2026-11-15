@@ -26,7 +26,7 @@ public class TasksController : ControllerBase
     /// Vrací úkoly nástěnky projektu.
     /// </summary>
     /// <param name="projectId">Identifikátor projektu.</param>
-    /// <returns>Seznam úkolů, nebo 404, pokud projekt neexistuje.</returns>
+    /// <returns>Seznam úkolů, 404 pokud projekt neexistuje, nebo 403 pokud k němu uživatel nemá přístup.</returns>
     [HttpGet]
     public async Task<ActionResult<List<KanbanBoardTaskDto>>> Get(int projectId)
     {
@@ -37,7 +37,23 @@ public class TasksController : ControllerBase
             return NotFound();
         }
 
-        return await _repository.GetTasksAsync(projectId);
+        var role = await BoardAccess.GetRoleAsync(_repository, User, projectId);
+
+        if (!BoardPermissions.CanView(role))
+        {
+            return Forbid();
+        }
+
+        var userId = BoardAccess.GetUserId(User);
+        var tasks = await _repository.GetTasksAsync(projectId);
+
+        foreach (var task in tasks)
+        {
+            task.IsMine = task.AssigneeId == userId;
+            task.CanMove = BoardPermissions.CanMove(role, userId, task);
+        }
+
+        return tasks;
     }
 
     /// <summary>
@@ -46,10 +62,17 @@ public class TasksController : ControllerBase
     /// <param name="projectId">Identifikátor projektu.</param>
     /// <param name="taskId">Identifikátor úkolu.</param>
     /// <param name="request">Cílový sloupec a pozice.</param>
-    /// <returns>204 při úspěchu, 400 při neplatném přesunu, 404 pokud úkol nebo sloupec neexistuje.</returns>
+    /// <returns>204 při úspěchu, 400 při neplatném přesunu, 403 bez oprávnění, 404 pokud úkol nebo sloupec neexistuje.</returns>
     [HttpPut("{taskId:int}/position")]
     public async Task<IActionResult> Move(int projectId, int taskId, MoveTaskRequestDto request)
     {
+        var role = await BoardAccess.GetRoleAsync(_repository, User, projectId);
+
+        if (!BoardPermissions.CanView(role))
+        {
+            return Forbid();
+        }
+
         var task = await _repository.GetTaskAsync(taskId);
         var column = await _repository.GetColumnAsync(request.ColumnId);
         var error = TaskMoveRules.Validate(projectId, task, column, request.Position);
@@ -72,6 +95,11 @@ public class TasksController : ControllerBase
         if (error == MoveTaskErrorEnum.InvalidPosition)
         {
             return BadRequest(CreateProblem(StatusCodes.Status400BadRequest, "Pozice nesmí být záporná."));
+        }
+
+        if (!BoardPermissions.CanMove(role, BoardAccess.GetUserId(User), task!))
+        {
+            return Forbid();
         }
 
         var tasks = await _repository.GetTasksAsync(projectId);

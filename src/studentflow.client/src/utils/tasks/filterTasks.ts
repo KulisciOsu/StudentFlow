@@ -18,12 +18,17 @@ export interface TaskFilters {
   /// Priorita, nebo null pro všechny.
   /// </summary>
   priority: TaskPriority | null
+
+  /// <summary>
+  /// Zobrazit jen úkoly přihlášeného uživatele.
+  /// </summary>
+  onlyMine: boolean
 }
 
 /// <summary>
 /// Filtry bez omezení.
 /// </summary>
-export const emptyTaskFilters: TaskFilters = { query: '', assignee: '', priority: null }
+export const emptyTaskFilters: TaskFilters = { query: '', assignee: '', priority: null, onlyMine: false }
 
 /// <summary>
 /// Převede text na malá písmena bez diakritiky.
@@ -40,5 +45,6 @@ export function filterTasks(tasks: Task[], filters: TaskFilters): Task[] {
 
   return tasks.filter((task) => (!query || normalize(task.title).includes(query))
     && (!filters.assignee || task.assignee === filters.assignee)
-    && (!filters.priority || task.priority === filters.priority))
+    && (!filters.priority || task.priority === filters.priority)
+    && (!filters.onlyMine || task.isMine))
 }
