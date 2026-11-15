@@ -5,7 +5,7 @@ import './ProjectMembers.scss'
 /// <summary>
 /// Sekce „Členové týmu“ podle wireframu nastavení projektu: počet členů, název týmu a řádek pro každého člena.
 /// </summary>
-export function ProjectMembers({ teamName, members, currentUserId }: ProjectMembersProps) {
+export function ProjectMembers({ teamName, members, currentUserId, children }: ProjectMembersProps) {
   return (
     <section className="project-members" aria-labelledby="project-members-title">
       <header className="project-members__header">
@@ -35,6 +35,7 @@ export function ProjectMembers({ teamName, members, currentUserId }: ProjectMemb
             ))}
           </ul>
         )}
+      {children}
     </section>
   )
 }

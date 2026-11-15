@@ -7,6 +7,7 @@ import type { ProjectMembers } from '../../../models/projects/ProjectMemberTypes
 import { ProjectSettingsPage } from './ProjectSettingsPage'
 
 vi.mock('../../../hooks/projects/useProjectMembers', () => ({ useProjectMembers: vi.fn() }))
+vi.mock('../../../auth/AuthContext', () => ({ useAuth: () => ({ refresh: vi.fn() }) }))
 
 const team: ProjectMembers = {
   teamName: 'Tým Sova',
@@ -51,6 +52,7 @@ describe('ProjectSettingsPage', () => {
     expect(within(rows[1]).getByText('Jan Novák')).toBeTruthy()
     expect(within(rows[1]).getByText('Člen')).toBeTruthy()
     expect(screen.queryByRole('alert')).toBeNull()
+    expect(screen.getByRole('form', { name: 'Přidat člena' })).toBeTruthy()
   })
 
   it('tells a regular member that only the leader may change settings and hides the list', () => {
@@ -59,6 +61,7 @@ describe('ProjectSettingsPage', () => {
     expect(screen.getByRole('alert').textContent).toContain('Nemáte oprávnění')
     expect(screen.queryByRole('list')).toBeNull()
     expect(screen.queryByText('jan@example.test')).toBeNull()
+    expect(screen.queryByRole('form')).toBeNull()
   })
 
   it('shows a missing or foreign project without a retry button', () => {

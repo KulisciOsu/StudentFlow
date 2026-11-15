@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import type { ProjectMember } from '../../../models/projects/ProjectMemberTypes'
 
 /// <summary>
@@ -18,4 +19,9 @@ export interface ProjectMembersProps {
   /// ID přihlášeného uživatele; jeho řádek dostane označení „(vy)“.
   /// </summary>
   currentUserId: string
+
+  /// <summary>
+  /// Obsah pod seznamem uvnitř sekce, například formulář „Přidat člena“.
+  /// </summary>
+  children?: ReactNode
 }
