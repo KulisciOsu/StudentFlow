@@ -6,6 +6,16 @@ import type { ProjectMember } from '../../../models/projects/ProjectMemberTypes'
 /// </summary>
 export interface ProjectMembersProps {
   /// <summary>
+  /// ID projektu, ze kterého tlačítka „Odebrat“ odebírají členy.
+  /// </summary>
+  projectId: number
+
+  /// <summary>
+  /// Zavolá se po pokusu o odebrání, aby stránka znovu načetla seznam ze serveru.
+  /// </summary>
+  onChanged: () => void
+
+  /// <summary>
   /// Název týmu zobrazený pod nadpisem.
   /// </summary>
   teamName: string

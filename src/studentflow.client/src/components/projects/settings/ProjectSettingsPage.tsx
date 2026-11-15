@@ -39,7 +39,13 @@ export function ProjectSettingsPage({ projectId, currentUserId }: ProjectSetting
       )
 
     return (
-      <ProjectMembers teamName={state.data.teamName} members={state.data.members} currentUserId={currentUserId}>
+      <ProjectMembers
+        projectId={projectId}
+        onChanged={reload}
+        teamName={state.data.teamName}
+        members={state.data.members}
+        currentUserId={currentUserId}
+      >
         <AddMemberForm projectId={projectId} onChanged={reload} />
       </ProjectMembers>
     )

@@ -46,6 +46,7 @@
 
 .project-members__row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 0;
@@ -71,7 +72,8 @@
 
 .project-members__person {
   display: flex;
-  flex: 1;
+  // Pod 10rem šířky se tlačítka zalomí na další řádek, aby jméno zůstalo čitelné.
+  flex: 1 1 10rem;
   flex-direction: column;
   min-width: 0;
 }
@@ -101,4 +103,50 @@
   border-color: #292929;
   background: #292929;
   color: #fff;
+}
+
+.project-members__confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.project-members__question {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.project-members__button {
+  flex: none;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid #bdbdbd;
+  border-radius: 6px;
+  background: #fff;
+  color: #292929;
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+}
+
+.project-members__button--danger {
+  border-color: #b42318;
+  background: #b42318;
+  color: #fff;
+}
+
+.project-members__error {
+  margin: 0.75rem 0 0;
+  color: #b42318;
+}
+
+.project-members__success {
+  margin: 0.75rem 0 0;
+  color: #1a7f37;
 }
