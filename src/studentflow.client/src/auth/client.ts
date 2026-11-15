@@ -1,3 +1,4 @@
+import { csrfRequest, CsrfTokenError } from '../services/http/csrfRequest'
 import { isRecord } from './types'
 
 /** Chyba použitelná ve formuláři; převádí odpověď API na zprávu, chyby polí a čekání na další pokus. */
@@ -18,30 +19,15 @@ export class AuthFailure extends Error {
 /**
  * Odešle POST se session cookie a čerstvým CSRF tokenem pro aktuální identitu.
  * Pouze po CSRF_INVALID obnoví token a požadavek jednou zopakuje; ostatní HTTP chyby vrátí volajícímu.
+ * Token a opakování zajišťuje sdílený csrfRequest; nezískaný token hlásí formulářům jako AuthFailure.
  */
 export async function authPost(path: string, body: unknown, signal?: AbortSignal): Promise<Response> {
-  async function csrf() {
-    const response = await fetch('/api/auth/csrf', { signal, credentials: 'same-origin', cache: 'no-store' })
-    if (!response.ok) throw new AuthFailure('Ověření požadavku se nepodařilo. Zkuste to znovu.')
-    const value: unknown = await response.json()
-    if (!isRecord(value) || typeof value.token !== 'string' || !value.token || value.headerName !== 'X-CSRF-TOKEN')
-      throw new AuthFailure('Ověření požadavku se nepodařilo. Zkuste to znovu.')
-    return value.token
+  try {
+    return await csrfRequest('POST', path, body, signal)
+  } catch (error) {
+    if (error instanceof CsrfTokenError) throw new AuthFailure(error.message)
+    throw error
   }
-  let token = await csrf()
-  for (let attempt = 0; attempt < 2; attempt++) {
-    const response = await fetch(path, {
-      method: 'POST', signal, credentials: 'same-origin', cache: 'no-store',
-      headers: { ...(body === undefined ? {} : { 'Content-Type': 'application/json' }), 'X-CSRF-TOKEN': token },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    })
-    if (response.status === 403 && attempt === 0) {
-      const problem: unknown = await response.clone().json().catch(() => null)
-      if (isRecord(problem) && problem.code === 'CSRF_INVALID') { token = await csrf(); continue }
-    }
-    return response
-  }
-  throw new AuthFailure('Ověření požadavku se nepodařilo. Zkuste to znovu.')
 }
 
 /** Převede známé HTTP chyby a Retry-After na zprávu pro UI; neznámé chyby použijí předaný fallback. */

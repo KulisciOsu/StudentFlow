@@ -7,6 +7,7 @@ import { homeFor } from './auth/types'
 import { CreateProjectPage } from './components/projects/create/CreateProjectPage'
 import { Dashboard } from './components/dashboard/Dashboard'
 import { KanbanBoard } from './components/kanban/board/KanbanBoard'
+import { ProjectSettingsPage } from './components/projects/settings/ProjectSettingsPage'
 import './App.scss'
 
 type Route = { path: string; email?: string; notice?: string }
@@ -56,6 +57,7 @@ function App() {
     if (route.path === '/' || route.path === '/login' || route.path === '/register') content = <Redirect to={home} navigate={navigate} />
     else {
       const creatingProject = route.path === '/projects/new'
+      const settingsMatch = route.path.match(/^\/projects\/(\d{1,9})\/settings$/)
       const wrongType = ((route.path === '/projects' || route.path === '/teaching') && route.path !== home)
         || (creatingProject && user.accountType !== 'STUDENT')
       content = <>
@@ -64,6 +66,7 @@ function App() {
           <a href={home} onClick={event => { event.preventDefault(); navigate(home) }}>Přejít na můj přehled</a></section>
           : creatingProject ? <CreateProjectPage embedded onBack={() => navigate(home)} />
             : route.path === '/board' ? <KanbanBoard />
+            : settingsMatch ? <ProjectSettingsPage key={settingsMatch[1]} projectId={Number(settingsMatch[1])} currentUserId={user.id} />
             : route.path === home ? user.accountType === 'STUDENT'
               ? <Dashboard embedded onCreateProject={() => navigate('/projects/new')} />
               : <section><h2>Přehled vyučujícího</h2><p>Zde budete mít přehled projektů, ke kterým dostanete přístup.</p></section>
