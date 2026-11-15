@@ -46,7 +46,7 @@ public class ProjectsController : ControllerBase
             return NotFound();
         }
 
-        var role = await BoardAccess.GetRoleAsync(_repository, User, projectId);
+        var role = await BoardAccess.GetRoleAsync(_kanbanRepository, User, projectId);
 
         if (!BoardPermissions.CanView(role))
         {

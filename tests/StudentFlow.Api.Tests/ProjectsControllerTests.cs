@@ -16,7 +16,9 @@ public class ProjectsControllerTests
     public async Task Get_ExistingProject_ReturnsProject()
     {
         var controller = TestUsers.SignIn(
-            new ProjectsController(new FakeKanbanBoardRepository()),
+            new ProjectsController(
+                new FakeKanbanBoardRepository(),
+                new FakeProjectCreationRepository()),
             TestUsers.Leader);
 
         var result = await controller.Get(1);
@@ -29,7 +31,9 @@ public class ProjectsControllerTests
     public async Task Get_UnknownProject_ReturnsNotFound()
     {
         var controller = TestUsers.SignIn(
-            new ProjectsController(new FakeKanbanBoardRepository()),
+            new ProjectsController(
+                new FakeKanbanBoardRepository(),
+                new FakeProjectCreationRepository()),
             TestUsers.Leader);
 
         var result = await controller.Get(99);
@@ -44,7 +48,9 @@ public class ProjectsControllerTests
     public async Task Get_Outsider_ReturnsForbidden()
     {
         var controller = TestUsers.SignIn(
-            new ProjectsController(new FakeKanbanBoardRepository()),
+            new ProjectsController(
+                new FakeKanbanBoardRepository(),
+                new FakeProjectCreationRepository()),
             TestUsers.Outsider);
 
         var result = await controller.Get(1);
@@ -59,11 +65,15 @@ public class ProjectsControllerTests
     public async Task Get_TeacherAndMember_ReturnsReadOnlyFlag()
     {
         var teacher = TestUsers.SignIn(
-            new ProjectsController(new FakeKanbanBoardRepository()),
+            new ProjectsController(
+                new FakeKanbanBoardRepository(),
+                new FakeProjectCreationRepository()),
             TestUsers.Teacher);
 
         var member = TestUsers.SignIn(
-            new ProjectsController(new FakeKanbanBoardRepository()),
+            new ProjectsController(
+                new FakeKanbanBoardRepository(),
+                new FakeProjectCreationRepository()),
             TestUsers.Member);
 
         var teacherResult = await teacher.Get(1);
