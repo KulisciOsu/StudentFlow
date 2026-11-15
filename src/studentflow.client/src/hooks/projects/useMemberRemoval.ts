@@ -3,35 +3,39 @@ import { useAuth } from '../../auth/AuthContext'
 import type { ProjectMember } from '../../models/projects/ProjectMemberTypes'
 import { CsrfTokenError } from '../../services/http/csrfRequest'
 import { ProjectMembersFailure, removeProjectMember } from '../../services/projects/projectMembersApi'
-import type { UseMemberRemovalResult } from './UseMemberRemovalTypes'
+import type { MemberNotice, UseMemberRemovalResult } from './UseMemberRemovalTypes'
 
 const connectionErrorMessage = 'Člena se nepodařilo odebrat. Zkontrolujte připojení a zkuste to znovu.'
 
 /// <summary>
 /// Odebírání členů s potvrzením v řádku: najednou je otevřené nejvýš jedno potvrzení a běží nejvýš jeden požadavek.
 /// </summary>
+/// <param name="projectId">Projekt, ze kterého se členové odebírají.</param>
+/// <param name="onChanged">Nechá stránku znovu načíst seznam ze serveru.</param>
+/// <param name="report">Předá sekci zprávu o výsledku; null zprávu o předchozí akci smaže.</param>
 /// <remarks>
 /// Po každém výsledku kromě 401 nechá seznam znovu načíst: i neúspěch může znamenat, že se tým mezitím změnil
 /// (člena odebral někdo jiný, uživatel přestal být vedoucím, nebo spojení spadlo až po odebrání).
 /// </remarks>
-export function useMemberRemoval(projectId: number, onChanged: () => void): UseMemberRemovalResult {
+export function useMemberRemoval(
+  projectId: number,
+  onChanged: () => void,
+  report: (notice: MemberNotice | null) => void,
+): UseMemberRemovalResult {
   const { refresh } = useAuth()
   const [confirmingUserId, setConfirmingUserId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
   const request = useRef<AbortController | null>(null)
 
   useEffect(() => () => request.current?.abort(), [])
 
   /// <summary>
-  /// Otevře potvrzení u člena a smaže zprávy z předchozího pokusu.
+  /// Otevře potvrzení u člena a smaže zprávu o předchozí akci.
   /// </summary>
   function ask(userId: string) {
     if (busy) return
     setConfirmingUserId(userId)
-    setError(null)
-    setSuccess(null)
+    report(null)
   }
 
   /// <summary>
@@ -42,7 +46,7 @@ export function useMemberRemoval(projectId: number, onChanged: () => void): UseM
   }
 
   /// <summary>
-  /// Odebere člena a podle výsledku ukáže zprávu a nechá seznam znovu načíst.
+  /// Odebere člena a podle výsledku ohlásí zprávu a nechá seznam znovu načíst.
   /// </summary>
   async function confirm(member: ProjectMember) {
     if (busy) return
@@ -52,7 +56,7 @@ export function useMemberRemoval(projectId: number, onChanged: () => void): UseM
     try {
       await removeProjectMember(projectId, member.userId, controller.signal)
       if (controller.signal.aborted) return
-      setSuccess(`${member.displayName} už není členem týmu.`)
+      report({ kind: 'success', text: `${member.displayName} už není členem týmu.` })
       onChanged()
     } catch (failure) {
       if (controller.signal.aborted) return
@@ -60,9 +64,10 @@ export function useMemberRemoval(projectId: number, onChanged: () => void): UseM
         await refresh()
         return
       }
-      setError(failure instanceof ProjectMembersFailure || failure instanceof CsrfTokenError
-        ? failure.message
-        : connectionErrorMessage)
+      report({
+        kind: 'error',
+        text: failure instanceof ProjectMembersFailure || failure instanceof CsrfTokenError ? failure.message : connectionErrorMessage,
+      })
       onChanged()
     } finally {
       if (!controller.signal.aborted) {
@@ -72,5 +77,5 @@ export function useMemberRemoval(projectId: number, onChanged: () => void): UseM
     }
   }
 
-  return { confirmingUserId, busy, error, success, ask, cancel, confirm }
+  return { confirmingUserId, busy, ask, cancel, confirm }
 }

@@ -1,5 +1,4 @@
 import { useProjectMembers } from '../../../hooks/projects/useProjectMembers'
-import { AddMemberForm } from '../members/AddMemberForm'
 import { ProjectMembers } from '../members/ProjectMembers'
 import type { ProjectSettingsPageProps } from './ProjectSettingsPageTypes'
 import './ProjectSettingsPage.scss'
@@ -45,9 +44,7 @@ export function ProjectSettingsPage({ projectId, currentUserId }: ProjectSetting
         teamName={state.data.teamName}
         members={state.data.members}
         currentUserId={currentUserId}
-      >
-        <AddMemberForm projectId={projectId} onChanged={reload} />
-      </ProjectMembers>
+      />
     )
   }
 

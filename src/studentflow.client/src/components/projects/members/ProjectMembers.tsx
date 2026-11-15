@@ -1,17 +1,23 @@
+import { useState } from 'react'
 import { useMemberRemoval } from '../../../hooks/projects/useMemberRemoval'
+import type { MemberNotice } from '../../../hooks/projects/UseMemberRemovalTypes'
 import { memberInitials } from '../../../utils/projects/memberInitials'
+import { AddMemberForm } from './AddMemberForm'
 import type { ProjectMembersProps } from './ProjectMembersTypes'
 import './ProjectMembers.scss'
 
 /// <summary>
-/// Sekce „Členové týmu“ podle wireframu nastavení projektu: počet členů, název týmu a řádek pro každého člena.
+/// Sekce „Členové týmu“ podle wireframu nastavení projektu: počet členů, název týmu, řádek pro každého člena
+/// a formulář „Přidat člena“.
 /// </summary>
 /// <remarks>
 /// U každého člena kromě vedoucího je tlačítko „Odebrat“ s potvrzením přímo v řádku.
-/// Zprávy o výsledku jsou pod seznamem, protože řádek odebraného člena po znovunačtení zmizí.
+/// Zpráva o výsledku poslední akce (přidání i odebrání) je jen jedna, pod seznamem: nová akce ji nahradí,
+/// takže se nikdy neukážou dvě odporující si zprávy. Pod seznamem je i proto, že řádek odebraného člena po znovunačtení zmizí.
 /// </remarks>
-export function ProjectMembers({ projectId, onChanged, teamName, members, currentUserId, children }: ProjectMembersProps) {
-  const removal = useMemberRemoval(projectId, onChanged)
+export function ProjectMembers({ projectId, onChanged, teamName, members, currentUserId }: ProjectMembersProps) {
+  const [notice, setNotice] = useState<MemberNotice | null>(null)
+  const removal = useMemberRemoval(projectId, onChanged, setNotice)
 
   return (
     <section className="project-members" aria-labelledby="project-members-title">
@@ -75,9 +81,14 @@ export function ProjectMembers({ projectId, onChanged, teamName, members, curren
             })}
           </ul>
         )}
-      {removal.error && <p className="project-members__error" role="alert">{removal.error}</p>}
-      {removal.success && <p className="project-members__success" role="status">{removal.success}</p>}
-      {children}
+      {notice?.kind === 'error' && <p className="project-members__error" role="alert">{notice.text}</p>}
+      {notice?.kind === 'success' && <p className="project-members__success" role="status">{notice.text}</p>}
+      <AddMemberForm
+        projectId={projectId}
+        onChanged={onChanged}
+        onSubmitStart={() => setNotice(null)}
+        onAdded={member => setNotice({ kind: 'success', text: `${member.displayName} je nyní členem týmu.` })}
+      />
     </section>
   )
 }

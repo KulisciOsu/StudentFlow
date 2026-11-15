@@ -17,12 +17,14 @@ const lucie: ProjectMember = {
   userId: '3', displayName: 'Lucie Černá', email: 'lucie@example.test', isLeader: false, joinedAt: '2026-11-15T10:00:00Z',
 }
 const onChanged = vi.fn()
+const onSubmitStart = vi.fn()
+const onAdded = vi.fn()
 
 /// <summary>
 /// Vykreslí formulář pro projekt 7 a vrátí jeho pole a tlačítko.
 /// </summary>
 function renderForm() {
-  render(<AddMemberForm projectId={7} onChanged={onChanged} />)
+  render(<AddMemberForm projectId={7} onChanged={onChanged} onSubmitStart={onSubmitStart} onAdded={onAdded} />)
   return {
     input: screen.getByRole<HTMLInputElement>('textbox', { name: 'E-mail registrovaného studenta' }),
     button: screen.getByRole<HTMLButtonElement>('button', { name: 'Přidat do týmu' }),
@@ -40,6 +42,8 @@ async function submit(input: HTMLInputElement, email: string) {
 beforeEach(() => {
   refresh.mockReset().mockResolvedValue(undefined)
   onChanged.mockReset()
+  onSubmitStart.mockReset()
+  onAdded.mockReset()
   vi.mocked(addProjectMember).mockReset()
 })
 afterEach(cleanup)
@@ -60,9 +64,10 @@ describe('AddMemberForm', () => {
 
     expect(screen.getByRole('alert').textContent).toBe('Zadejte e-mail studenta.')
     expect(addProjectMember).not.toHaveBeenCalled()
+    expect(onSubmitStart).toHaveBeenCalledTimes(1)
   })
 
-  it('disables the button while sending, then clears the field, confirms and reloads the list', async () => {
+  it('disables the button while sending, then clears the field, reports the new member and reloads the list', async () => {
     let resolve: (member: ProjectMember) => void = () => {}
     vi.mocked(addProjectMember).mockReturnValueOnce(new Promise(done => { resolve = done }))
     const { input, button } = renderForm()
@@ -76,7 +81,10 @@ describe('AddMemberForm', () => {
     await act(async () => resolve(lucie))
     expect(input.value).toBe('')
     expect(button.disabled).toBe(false)
-    expect(screen.getByRole('status').textContent).toBe('Lucie Černá je nyní členem týmu.')
+    expect(onSubmitStart).toHaveBeenCalledTimes(1)
+    expect(onAdded).toHaveBeenCalledWith(lucie)
+    // Potvrzení zobrazuje sekce členů, formulář sám žádnou zprávu o úspěchu nemá.
+    expect(screen.queryByRole('status')).toBeNull()
     expect(onChanged).toHaveBeenCalledTimes(1)
   })
 
@@ -94,6 +102,7 @@ describe('AddMemberForm', () => {
     expect(screen.getByRole('alert').textContent).toBe(message)
     expect(input.value).toBe('nikdo@example.test')
     expect(input.getAttribute('aria-invalid')).toBe('true')
+    expect(onAdded).not.toHaveBeenCalled()
     expect(onChanged).not.toHaveBeenCalled()
   })
 

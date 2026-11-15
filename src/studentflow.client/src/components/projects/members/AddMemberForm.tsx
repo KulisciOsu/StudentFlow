@@ -14,24 +14,26 @@ const inputErrorStatuses = [400, 409, 422]
 /// <summary>
 /// Formulář „Přidat člena“: vedoucí zadá e-mail registrovaného studenta.
 /// </summary>
-/// <remarks>Lokálně kontroluje jen prázdné pole; formát e-mailu a všechna pravidla ověřuje server.</remarks>
-export function AddMemberForm({ projectId, onChanged }: AddMemberFormProps) {
+/// <remarks>
+/// Lokálně kontroluje jen prázdné pole; formát e-mailu a všechna pravidla ověřuje server.
+/// Chybu k zadanému e-mailu ukazuje u pole, potvrzení úspěchu předá sekci členů přes onAdded.
+/// </remarks>
+export function AddMemberForm({ projectId, onChanged, onSubmitStart, onAdded }: AddMemberFormProps) {
   const { refresh } = useAuth()
   const [email, setEmail] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
   const request = useRef<AbortController | null>(null)
 
   useEffect(() => () => request.current?.abort(), [])
 
   /// <summary>
-  /// Odešle e-mail a podle výsledku vyčistí pole, ukáže zprávu a nechá seznam znovu načíst.
+  /// Odešle e-mail a podle výsledku vyčistí pole, ohlásí úspěch nebo ukáže chybu a nechá seznam znovu načíst.
   /// </summary>
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (busy) return
-    setSuccess(null)
+    onSubmitStart()
     if (email.trim().length === 0) {
       setError('Zadejte e-mail studenta.')
       return
@@ -45,7 +47,7 @@ export function AddMemberForm({ projectId, onChanged }: AddMemberFormProps) {
       const member = await addProjectMember(projectId, email, controller.signal)
       if (controller.signal.aborted) return
       setEmail('')
-      setSuccess(`${member.displayName} je nyní členem týmu.`)
+      onAdded(member)
       onChanged()
     } catch (failure) {
       if (controller.signal.aborted) return
@@ -84,7 +86,6 @@ export function AddMemberForm({ projectId, onChanged }: AddMemberFormProps) {
         </button>
       </div>
       {error && <p className="add-member-form__error" role="alert">{error}</p>}
-      {success && <p className="add-member-form__success" role="status">{success}</p>}
       <p id="add-member-help" className="add-member-form__help">
         Člen musí mít v StudentFlow účet. Odebraný člen ztratí přístup, jeho příspěvky zůstanou zachované.
       </p>

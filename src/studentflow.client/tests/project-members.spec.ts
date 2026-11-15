@@ -104,6 +104,8 @@ for (const [width, height] of [[390, 844], [820, 1180], [1280, 900]]) {
     await row.getByRole('button', { name: 'Odebrat', exact: true }).click()
     await confirmation.getByRole('button', { name: 'Odebrat', exact: true }).click()
     await expect(page.getByText(`${student.displayName} už není členem týmu.`)).toBeVisible()
+    // Vidět je jen zpráva o poslední akci, ne už i starší potvrzení přidání.
+    await expect(page.getByText(`${student.displayName} je nyní členem týmu.`)).toHaveCount(0)
     await expect(row).toHaveCount(0)
     await noHorizontalOverflow(page)
 

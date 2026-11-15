@@ -2,7 +2,7 @@
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ProjectMember } from '../../../models/projects/ProjectMemberTypes'
-import { ProjectMembersFailure, removeProjectMember } from '../../../services/projects/projectMembersApi'
+import { addProjectMember, ProjectMembersFailure, removeProjectMember } from '../../../services/projects/projectMembersApi'
 import { ProjectMembers } from './ProjectMembers'
 
 const { refresh } = vi.hoisted(() => ({ refresh: vi.fn() }))
@@ -10,6 +10,7 @@ const { refresh } = vi.hoisted(() => ({ refresh: vi.fn() }))
 vi.mock('../../../auth/AuthContext', () => ({ useAuth: () => ({ refresh }) }))
 vi.mock('../../../services/projects/projectMembersApi', async importOriginal => ({
   ...await importOriginal<typeof import('../../../services/projects/projectMembersApi')>(),
+  addProjectMember: vi.fn(),
   removeProjectMember: vi.fn(),
 }))
 
@@ -31,7 +32,7 @@ function renderMembers() {
 /// Vrátí řádek seznamu s daným jménem.
 /// </summary>
 function row(name: string): HTMLElement {
-  return screen.getByText(name, { exact: false }).closest('li')!
+  return screen.getAllByRole('listitem').find(item => item.textContent?.includes(name))!
 }
 
 /// <summary>
@@ -42,9 +43,19 @@ async function removeMember(name: string) {
   await act(async () => { fireEvent.click(within(row(name)).getByRole('button', { name: 'Odebrat' })) })
 }
 
+/// <summary>
+/// Vyplní e-mail ve formuláři „Přidat člena“ a odešle ho.
+/// </summary>
+async function addMember(email: string) {
+  const input = screen.getByRole<HTMLInputElement>('textbox', { name: 'E-mail registrovaného studenta' })
+  fireEvent.change(input, { target: { value: email } })
+  await act(async () => { fireEvent.submit(input.form!) })
+}
+
 beforeEach(() => {
   refresh.mockReset().mockResolvedValue(undefined)
   onChanged.mockReset()
+  vi.mocked(addProjectMember).mockReset()
   vi.mocked(removeProjectMember).mockReset()
 })
 afterEach(cleanup)
@@ -148,5 +159,38 @@ describe('ProjectMembers removal', () => {
     fireEvent.click(within(row('Lucie Černá')).getByRole('button', { name: 'Odebrat' }))
 
     expect(screen.queryByRole('alert')).toBeNull()
+  })
+})
+
+describe('ProjectMembers messages', () => {
+  it('shows only the result of the last action: removal replaces the add confirmation', async () => {
+    vi.mocked(addProjectMember).mockResolvedValueOnce(members[2])
+    vi.mocked(removeProjectMember).mockResolvedValueOnce(undefined)
+    renderMembers()
+
+    await addMember('lucie@example.test')
+    expect(screen.getByRole('status').textContent).toBe('Lucie Černá je nyní členem týmu.')
+
+    fireEvent.click(within(row('Lucie Černá')).getByRole('button', { name: 'Odebrat' }))
+    expect(screen.queryByRole('status')).toBeNull()
+    await act(async () => { fireEvent.click(within(row('Lucie Černá')).getByRole('button', { name: 'Odebrat' })) })
+
+    expect(screen.getAllByRole('status')).toHaveLength(1)
+    expect(screen.getByRole('status').textContent).toBe('Lucie Černá už není členem týmu.')
+  })
+
+  it('clears an old removal message as soon as the form is submitted', async () => {
+    vi.mocked(removeProjectMember).mockRejectedValueOnce(new TypeError('Failed to fetch'))
+    let resolve: (member: ProjectMember) => void = () => {}
+    vi.mocked(addProjectMember).mockReturnValueOnce(new Promise(done => { resolve = done }))
+    renderMembers()
+    await removeMember('Jan Novák')
+    expect(screen.getByRole('alert')).toBeTruthy()
+
+    await addMember('lucie@example.test')
+
+    expect(screen.queryByRole('alert')).toBeNull()
+    await act(async () => resolve(members[2]))
+    expect(screen.getByRole('status').textContent).toBe('Lucie Černá je nyní členem týmu.')
   })
 })

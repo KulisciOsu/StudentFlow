@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import type { ProjectMember } from '../../../models/projects/ProjectMemberTypes'
 
 /// <summary>
@@ -6,12 +5,12 @@ import type { ProjectMember } from '../../../models/projects/ProjectMemberTypes'
 /// </summary>
 export interface ProjectMembersProps {
   /// <summary>
-  /// ID projektu, ze kterého tlačítka „Odebrat“ odebírají členy.
+  /// ID projektu, do kterého formulář přidává a ze kterého tlačítka „Odebrat“ odebírají členy.
   /// </summary>
   projectId: number
 
   /// <summary>
-  /// Zavolá se po pokusu o odebrání, aby stránka znovu načetla seznam ze serveru.
+  /// Zavolá se po přidání nebo pokusu o odebrání, aby stránka znovu načetla seznam ze serveru.
   /// </summary>
   onChanged: () => void
 
@@ -29,9 +28,4 @@ export interface ProjectMembersProps {
   /// ID přihlášeného uživatele; jeho řádek dostane označení „(vy)“.
   /// </summary>
   currentUserId: string
-
-  /// <summary>
-  /// Obsah pod seznamem uvnitř sekce, například formulář „Přidat člena“.
-  /// </summary>
-  children?: ReactNode
 }

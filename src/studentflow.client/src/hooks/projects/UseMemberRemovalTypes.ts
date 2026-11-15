@@ -1,6 +1,21 @@
 import type { ProjectMember } from '../../models/projects/ProjectMemberTypes'
 
 /// <summary>
+/// Zpráva o výsledku poslední akce v sekci „Členové týmu“ (přidání nebo odebrání člena).
+/// </summary>
+export interface MemberNotice {
+  /// <summary>
+  /// „success“ se zobrazí jako stav (role status), „error“ jako upozornění (role alert).
+  /// </summary>
+  kind: 'success' | 'error'
+
+  /// <summary>
+  /// Text pro uživatele.
+  /// </summary>
+  text: string
+}
+
+/// <summary>
 /// Výsledek hooku useMemberRemoval: stav potvrzení a odebírání a akce pro tlačítka v řádcích.
 /// </summary>
 export interface UseMemberRemovalResult {
@@ -13,16 +28,6 @@ export interface UseMemberRemovalResult {
   /// True, dokud běží požadavek na odebrání; všechna tlačítka pro odebrání jsou mezitím vypnutá.
   /// </summary>
   busy: boolean
-
-  /// <summary>
-  /// Chybová zpráva posledního pokusu o odebrání, nebo null.
-  /// </summary>
-  error: string | null
-
-  /// <summary>
-  /// Potvrzení posledního úspěšného odebrání, nebo null.
-  /// </summary>
-  success: string | null
 
   /// <summary>
   /// Otevře potvrzení u daného člena; případné jiné otevřené potvrzení zavře.
