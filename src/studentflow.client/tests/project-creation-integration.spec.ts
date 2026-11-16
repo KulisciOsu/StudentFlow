@@ -1,4 +1,3 @@
-﻿
 import { expect, test } from '@playwright/test'
 import type { Page } from '@playwright/test'
 
@@ -127,6 +126,7 @@ async function mockStudentApi(page: Page) {
       description: '',
       teamName: 'Integrační tým',
       dueDate: '2099-01-15',
+      isReadOnly: false,
     },
   }))
 
@@ -147,6 +147,8 @@ async function mockStudentApi(page: Page) {
         position: 0,
         priority: 'medium',
         assignee: 'Přihlášený uživatel',
+        isMine: true,
+        canMove: true,
         dueDate: '2099-01-15',
       },
     ],
