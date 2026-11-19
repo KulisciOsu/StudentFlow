@@ -1,16 +1,18 @@
 import type { Project } from '../../models/projects/ProjectTypes'
-import { kanbanConfig } from '../../components/kanban/kanbanConfig'
 
-/// <summary>
-/// Ověří data projektu.
-/// </summary>
+/**
+ * Ověří data projektu vrácená API.
+ */
 function isProject(value: unknown): value is Project {
   return typeof value === 'object'
     && value !== null
     && 'id' in value
     && typeof value.id === 'number'
+    && Number.isInteger(value.id)
     && 'name' in value
     && typeof value.name === 'string'
+    && 'description' in value
+    && typeof value.description === 'string'
     && 'teamName' in value
     && typeof value.teamName === 'string'
     && 'dueDate' in value
@@ -29,11 +31,17 @@ export class ProjectForbiddenError extends Error {
   }
 }
 
-/// <summary>
-/// Načte projekt nástěnky z API.
-/// </summary>
-export async function getProject(signal?: AbortSignal): Promise<Project> {
-  const response = await fetch(`/api/projects/${kanbanConfig.projectId}`, { signal })
+/**
+ * Načte projekt nástěnky podle jeho ID.
+ */
+export async function getProject(
+  projectId: number,
+  signal?: AbortSignal,
+): Promise<Project> {
+  const response = await fetch(`/api/projects/${projectId}`, {
+    signal,
+    credentials: 'same-origin',
+  })
 
   if (response.status === 403) {
     throw new ProjectForbiddenError()

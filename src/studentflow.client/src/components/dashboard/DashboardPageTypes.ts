@@ -1,53 +1,17 @@
+import type {
+  DashboardProject,
+  DashboardTask,
+} from '../../services/dashboard/dashboardApi'
 
 /**
  * Datový model projektu zobrazovaného na dashboardu.
  */
-export type Project = {
-  /** Jedinečný identifikátor projektu. */
-  id: number
-  /** Název projektu. */
-  name: string
-  /** Název projektového týmu. */
-  team: string
-  /** Počet členů týmu. */
-  membersCount: number
-  /** Role aktuálního uživatele v projektu. */
-  role: 'Vedoucí' | 'Člen'
-  /** Počet dokončených úkolů. */
-  completed: number
-  /** Celkový počet úkolů. */
-  total: number
-  /** Počet otevřených úkolů. */
-  openTasks: number
-  /** Počet úkolů po termínu. */
-  overdueTasks: number
-  /** Aktuální milník projektu. */
-  milestone: string
-  /** Seznam členů týmu. */
-  members: string[]
-}
+export type Project = DashboardProject
 
 /**
- * Datový model úkolu zobrazovaného v přehledu dashboardu.
+ * Datový model úkolu zobrazovaného na dashboardu.
  */
-export type Task = {
-  /** Jedinečný identifikátor úkolu. */
-  id: number
-  /** Název úkolu. */
-  name: string
-  /** Projekt, ke kterému úkol patří. */
-  project: string
-  /** Termín dokončení úkolu. */
-  deadline: string
-  /** Priorita úkolu. */
-  priority: 'Vysoká' | 'Střední'
-  /** Aktuální stav úkolu. */
-  status: string
-  /** Označuje úkol po termínu. */
-  overdue?: boolean
-  /** Označuje dokončený úkol. */
-  completed?: boolean
-}
+export type Task = DashboardTask
 
 /**
  * Vstupní vlastnosti hlavní komponenty Dashboard.
@@ -55,7 +19,11 @@ export type Task = {
 export type DashboardProps = {
   /** Otevře formulář pro založení nového projektu. */
   onCreateProject: () => void
-  /** Vloží obsah pod společnou hlavičku aplikace bez ukázkového profilu a dalšího main. */
+
+  /** Otevře nástěnku konkrétního projektu. */
+  onOpenProject: (projectId: number) => void
+
+  /** Vloží dashboard pod společnou hlavičku aplikace. */
   embedded?: boolean
 }
 
@@ -63,6 +31,6 @@ export type DashboardProps = {
  * Vstupní vlastnosti karty projektu.
  */
 export type ProjectCardProps = {
-  /** Projekt, jehož informace se zobrazí na kartě. */
   project: Project
+  onOpen: (projectId: number) => void
 }

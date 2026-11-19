@@ -1,3 +1,4 @@
+
 /// <summary>
 /// Projekt nástěnky.
 /// </summary>
@@ -11,6 +12,11 @@ export interface Project {
   /// Název projektu.
   /// </summary>
   name: string
+
+  /// <summary>
+  /// Popis projektu.
+  /// </summary>
+  description: string
 
   /// <summary>
   /// Název týmu.

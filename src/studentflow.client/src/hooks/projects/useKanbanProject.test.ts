@@ -10,7 +10,14 @@ vi.mock('../../services/projects/kanbanProjectApi', async (importOriginal) => ({
   getProject: vi.fn(),
 }))
 
-const project: Project = { id: 1, name: 'Projekt', teamName: 'Tým', dueDate: null, isReadOnly: true }
+const project: Project = {
+  id: 1,
+  name: 'Projekt',
+  description: 'Popis projektu',
+  teamName: 'Tým',
+  dueDate: null,
+  isReadOnly: true,
+}
 
 beforeEach(() => {
   vi.mocked(getProject).mockReset()
@@ -20,7 +27,7 @@ describe('useKanbanProject', () => {
   it('načte projekt včetně režimu jen pro čtení', async () => {
     vi.mocked(getProject).mockResolvedValue(project)
 
-    const { result } = renderHook(() => useKanbanProject())
+    const { result } = renderHook(() => useKanbanProject(1))
 
     await waitFor(() => expect(result.current.status).toBe('ready'))
     expect(result.current.project?.isReadOnly).toBe(true)
@@ -29,7 +36,7 @@ describe('useKanbanProject', () => {
   it('bez přístupu k projektu nastaví stav forbidden', async () => {
     vi.mocked(getProject).mockRejectedValue(new ProjectForbiddenError())
 
-    const { result } = renderHook(() => useKanbanProject())
+    const { result } = renderHook(() => useKanbanProject(1))
 
     await waitFor(() => expect(result.current.status).toBe('forbidden'))
   })
@@ -37,7 +44,7 @@ describe('useKanbanProject', () => {
   it('při jiné chybě nastaví stav error', async () => {
     vi.mocked(getProject).mockRejectedValue(new Error('chyba'))
 
-    const { result } = renderHook(() => useKanbanProject())
+    const { result } = renderHook(() => useKanbanProject(1))
 
     await waitFor(() => expect(result.current.status).toBe('error'))
   })

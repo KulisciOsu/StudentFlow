@@ -1,11 +1,15 @@
+
 import { useEffect, useState } from 'react'
-import { getProject, ProjectForbiddenError } from '../../services/projects/kanbanProjectApi'
+import {
+  getProject,
+  ProjectForbiddenError,
+} from '../../services/projects/kanbanProjectApi'
 import type { KanbanProjectState } from './UseKanbanProjectTypes'
 
-/// <summary>
-/// Spravuje načítání projektu nástěnky.
-/// </summary>
-export function useKanbanProject(): KanbanProjectState {
+/**
+ * Spravuje načítání projektu nástěnky.
+ */
+export function useKanbanProject(projectId: number): KanbanProjectState {
   const [state, setState] = useState<KanbanProjectState>({
     project: null,
     status: 'loading',
@@ -16,16 +20,22 @@ export function useKanbanProject(): KanbanProjectState {
     let disposed = false
     const timeoutId = window.setTimeout(() => controller.abort(), 10000)
 
-    /// <summary>
-    /// Načte projekt a aktualizuje stav.
-    /// </summary>
     async function loadProject() {
+      setState({ project: null, status: 'loading' })
+
       try {
-        const project = await getProject(controller.signal)
-        if (!disposed) setState({ project, status: 'ready' })
+        const project = await getProject(projectId, controller.signal)
+
+        if (!disposed) {
+          setState({ project, status: 'ready' })
+        }
       } catch (error) {
-        const status = error instanceof ProjectForbiddenError ? 'forbidden' : 'error'
-        if (!disposed) setState({ project: null, status })
+        const status =
+          error instanceof ProjectForbiddenError ? 'forbidden' : 'error'
+
+        if (!disposed) {
+          setState({ project: null, status })
+        }
       } finally {
         window.clearTimeout(timeoutId)
       }
@@ -38,7 +48,7 @@ export function useKanbanProject(): KanbanProjectState {
       window.clearTimeout(timeoutId)
       controller.abort()
     }
-  }, [])
+  }, [projectId])
 
   return state
 }

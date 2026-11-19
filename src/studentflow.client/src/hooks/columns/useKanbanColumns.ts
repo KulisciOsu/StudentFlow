@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react'
 import { getColumns } from '../../services/columns/kanbanColumnsApi'
 import type { KanbanColumnsState } from './UseKanbanColumnsTypes'
 
-/// <summary>
-/// Spravuje načítání sloupců nástěnky.
-/// </summary>
-export function useKanbanColumns(): KanbanColumnsState {
+/**
+ * Spravuje načítání sloupců nástěnky.
+ */
+export function useKanbanColumns(projectId: number): KanbanColumnsState {
   const [state, setState] = useState<KanbanColumnsState>({
     columns: [],
     status: 'loading',
@@ -16,15 +16,19 @@ export function useKanbanColumns(): KanbanColumnsState {
     let disposed = false
     const timeoutId = window.setTimeout(() => controller.abort(), 10000)
 
-    /// <summary>
-    /// Načte sloupce a aktualizuje stav.
-    /// </summary>
     async function loadColumns() {
+      setState({ columns: [], status: 'loading' })
+
       try {
-        const columns = await getColumns(controller.signal)
-        if (!disposed) setState({ columns, status: 'ready' })
+        const columns = await getColumns(projectId, controller.signal)
+
+        if (!disposed) {
+          setState({ columns, status: 'ready' })
+        }
       } catch {
-        if (!disposed) setState({ columns: [], status: 'error' })
+        if (!disposed) {
+          setState({ columns: [], status: 'error' })
+        }
       } finally {
         window.clearTimeout(timeoutId)
       }
@@ -37,7 +41,7 @@ export function useKanbanColumns(): KanbanColumnsState {
       window.clearTimeout(timeoutId)
       controller.abort()
     }
-  }, [])
+  }, [projectId])
 
   return state
 }

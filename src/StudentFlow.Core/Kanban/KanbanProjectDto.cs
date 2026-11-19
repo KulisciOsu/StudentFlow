@@ -1,3 +1,4 @@
+
 namespace StudentFlow.Core.Kanban;
 
 /// <summary>
@@ -14,6 +15,11 @@ public class KanbanProjectDto
     /// Název projektu.
     /// </summary>
     public required string Name { get; init; }
+
+    /// <summary>
+    /// Popis projektu.
+    /// </summary>
+    public string Description { get; init; } = string.Empty;
 
     /// <summary>
     /// Název týmu.

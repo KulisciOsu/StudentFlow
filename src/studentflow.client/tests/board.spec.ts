@@ -60,7 +60,7 @@ async function signIn(page: Page, email: string, accountPassword: string) {
 /// </summary>
 async function openBoard(page: Page) {
   const start = Date.now()
-  await page.goto('/board')
+  await page.goto('/board/1')
   await expect(page.locator('.task-card').first()).toBeVisible()
   return Date.now() - start
 }
@@ -225,7 +225,7 @@ test('vyučující má nástěnku jen pro čtení a přesun API odmítne', async
 test('uživatel mimo projekt nemá k nástěnce přístup', async ({ page, request }) => {
   await signIn(page, await createAccount(request, 'STUDENT'), password)
 
-  await page.goto('/board')
+  await page.goto('/board/1')
 
   await expect(page.getByText('Do tohoto projektu nemáte přístup.')).toBeVisible()
   expect((await page.request.get('/api/projects/1/tasks')).status()).toBe(403)
@@ -235,7 +235,7 @@ test('prázdná nástěnka zobrazí prázdný stav', async ({ page }) => {
   await signIn(page, memberEmail, seedPassword)
   await page.route('**/api/projects/1/tasks', route => route.fulfill({ json: [] }))
 
-  await page.goto('/board')
+  await page.goto('/board/1')
 
   await expect(page.getByText('Na nástěnce zatím nejsou žádné úkoly.')).toBeVisible()
   await expect(column(page, 'K řešení').getByText('Žádné úkoly')).toBeVisible()
@@ -244,7 +244,7 @@ test('prázdná nástěnka zobrazí prázdný stav', async ({ page }) => {
 test('na mobilu jsou sloupce v záložkách a přesun jen u vlastních úkolů', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await signIn(page, memberEmail, seedPassword)
-  await page.goto('/board')
+  await page.goto('/board/1')
 
   await page.getByRole('tab', { name: /Rozpracováno/ }).click()
   await expect(card(page, ownTask)).toBeVisible()

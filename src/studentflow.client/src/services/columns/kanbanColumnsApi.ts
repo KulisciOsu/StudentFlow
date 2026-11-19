@@ -1,9 +1,8 @@
 import type { Column } from '../../models/columns/ColumnTypes'
-import { kanbanConfig } from '../../components/kanban/kanbanConfig'
 
-/// <summary>
-/// Ověří data sloupce.
-/// </summary>
+/**
+ * Ověří data sloupce.
+ */
 function isColumn(value: unknown): value is Column {
   return typeof value === 'object'
     && value !== null
@@ -16,11 +15,17 @@ function isColumn(value: unknown): value is Column {
     && typeof value.isDone === 'boolean'
 }
 
-/// <summary>
-/// Načte sloupce nástěnky z API.
-/// </summary>
-export async function getColumns(signal?: AbortSignal): Promise<Column[]> {
-  const response = await fetch(`/api/projects/${kanbanConfig.projectId}/columns`, { signal })
+/**
+ * Načte sloupce nástěnky podle ID projektu.
+ */
+export async function getColumns(
+  projectId: number,
+  signal?: AbortSignal,
+): Promise<Column[]> {
+  const response = await fetch(`/api/projects/${projectId}/columns`, {
+    signal,
+    credentials: 'same-origin',
+  })
 
   if (!response.ok) {
     throw new Error('Nepodařilo se načíst sloupce.')
