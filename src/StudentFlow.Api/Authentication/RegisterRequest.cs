@@ -5,22 +5,33 @@ namespace StudentFlow.Api.Authentication;
 /// <summary>Vstup registrace s právě jedním typem účtu; potvrzení hesla zůstává pouze ve frontendu.</summary>
 public sealed class RegisterRequest
 {
-    public string? DisplayName { get; init; }
+    public string? FirstName { get; init; }
+    public string? LastName { get; init; }
     public string? Email { get; init; }
     public string? Password { get; init; }
     /// <summary>Kód STUDENT pro člena, nebo TEACHER pro vyučujícího.</summary>
     public string? AccountType { get; init; }
+    /// <summary>Musí být výslovně true; chybějící hodnota nepotvrzuje seznámení se zásadami.</summary>
+    public bool PrivacyAccepted { get; init; }
+    public string? PrivacyPolicyVersion { get; init; }
 
     /// <summary>Vrátí chyby pod názvy polí API; délky počítá v Unicode kódových bodech.</summary>
     public Dictionary<string, string[]> Validate()
     {
         var errors = new Dictionary<string, string[]>();
-        var name = DisplayName?.Trim() ?? "";
-        if (name.EnumerateRunes().Count() is < 1 or > 160)
-            errors["displayName"] = ["Zadejte jméno a příjmení o délce 1 až 160 znaků."];
-        AuthInputValidation.AddEmailAndPasswordErrors(errors, Email, Password);
+        if (RegistrationNameRules.Validate(FirstName, "Jméno") is { } firstNameError)
+            errors["firstName"] = [firstNameError];
+        if (RegistrationNameRules.Validate(LastName, "Příjmení") is { } lastNameError)
+            errors["lastName"] = [lastNameError];
+        AuthInputValidation.AddEmailErrors(errors, Email);
+        if (RegistrationPasswordRules.Validate(Password) is { } passwordError)
+            errors["password"] = [passwordError];
         if (AccountType is not ("STUDENT" or "TEACHER"))
-            errors["accountType"] = ["Vyberte typ účtu: Člen, nebo Vyučující."];
+            errors["accountType"] = ["Vyberte, jestli jste člen týmu, nebo vyučující."];
+        if (!PrivacyAccepted)
+            errors["privacyAccepted"] = ["Před vytvořením účtu potvrďte, že jste se seznámili se zásadami ochrany osobních údajů."];
+        else if (PrivacyPolicyVersion != RegistrationPrivacyPolicy.Version)
+            errors["privacyAccepted"] = ["Zásady se změnily. Obnovte stránku, přečtěte si aktuální znění a potvrďte ho znovu."];
         return errors;
     }
 

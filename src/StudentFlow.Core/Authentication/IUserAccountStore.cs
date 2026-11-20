@@ -16,13 +16,18 @@ public sealed class UserCredentials(UserIdentity user, string passwordHash)
 }
 
 /// <summary>Podklady pro založení účtu s již zahashovaným heslem a právě jedním typem účtu.</summary>
-public sealed class NewUserAccount(string displayName, string email, string passwordHash, AccountType accountType)
+public sealed class NewUserAccount(string firstName, string lastName, string email, string passwordHash, AccountType accountType,
+    PrivacyAcceptance? privacyAcceptance = null)
 {
-    public string DisplayName { get; } = displayName;
+    public string FirstName { get; } = firstName;
+    public string LastName { get; } = lastName;
+    public string DisplayName => $"{FirstName} {LastName}";
     public string Email { get; } = email;
     [JsonIgnore]
     public string PasswordHash { get; } = passwordHash;
     public AccountType AccountType { get; } = accountType;
+    /// <summary>Registrace dokládá přijetí zásad; starší a technické testovací účty mohou být bez něj.</summary>
+    public PrivacyAcceptance? PrivacyAcceptance { get; } = privacyAcceptance;
 }
 
 public enum CreateUserStatus { Created, EmailAlreadyRegistered }

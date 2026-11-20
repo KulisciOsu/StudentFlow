@@ -45,7 +45,7 @@ public class DashboardControllerTests
             new
             {
                 email = "jan.novak@example.test",
-                password = "moje-dlouhe-heslo-2026"
+                password = "TestHeslo1!"
             });
 
         Assert.Equal(HttpStatusCode.OK, login.StatusCode);
@@ -150,7 +150,7 @@ public class DashboardControllerTests
             new
             {
                 email = "jan.novak@example.test",
-                password = "moje-dlouhe-heslo-2026"
+                password = "TestHeslo1!"
             });
 
         Assert.Equal(HttpStatusCode.OK, login.StatusCode);
@@ -275,7 +275,7 @@ public class DashboardControllerTests
             new
             {
                 email = "jan.novak@example.test",
-                password = "moje-dlouhe-heslo-2026"
+                password = "TestHeslo1!"
             });
 
         Assert.Equal(HttpStatusCode.OK, login.StatusCode);
@@ -390,7 +390,7 @@ public class DashboardControllerTests
             new
             {
                 email = "jan.novak@example.test",
-                password = "moje-dlouhe-heslo-2026"
+                password = "TestHeslo1!"
             });
 
         Assert.Equal(HttpStatusCode.OK, login.StatusCode);
@@ -506,7 +506,7 @@ public class DashboardControllerTests
             new
             {
                 email = "jan.novak@example.test",
-                password = "moje-dlouhe-heslo-2026"
+                password = "TestHeslo1!"
             });
 
         Assert.Equal(HttpStatusCode.OK, login.StatusCode);
@@ -616,7 +616,7 @@ public class DashboardControllerTests
             new
             {
                 email = "jan.novak@example.test",
-                password = "moje-dlouhe-heslo-2026"
+                password = "TestHeslo1!"
             });
 
         Assert.Equal(HttpStatusCode.OK, login.StatusCode);

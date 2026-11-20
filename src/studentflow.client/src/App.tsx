@@ -89,7 +89,7 @@ function App() {
           onRegistered={(user) =>
             navigate('/login', {
               email: user.email,
-              notice: 'Účet byl vytvořen. Nyní se přihlaste.',
+              notice: 'Účet je vytvořený. Teď se můžete přihlásit.',
             })
           }
         />

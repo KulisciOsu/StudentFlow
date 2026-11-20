@@ -1,13 +1,13 @@
 import { expect, test } from '@playwright/test'
 import type { APIRequestContext, Page } from '@playwright/test'
 
-const password = 'moje-dlouhe-heslo-2026'
+const password = 'TestHeslo1!'
 const cookieName = '__Host-StudentFlow.Session'
 async function createAccount(request: APIRequestContext, type: 'STUDENT' | 'TEACHER' = 'STUDENT') {
   const email = `session-${crypto.randomUUID()}@example.test`
   const csrf = await (await request.get('/api/auth/csrf')).json()
   expect((await request.post('/api/auth/register', {
-    headers: { 'X-CSRF-TOKEN': csrf.token }, data: { displayName: 'Testovací uživatel', email, password, accountType: type },
+    headers: { 'X-CSRF-TOKEN': csrf.token }, data: { firstName: 'Testovací', lastName: 'uživatel', email, password, accountType: type, privacyAccepted: true, privacyPolicyVersion: '2026-11-20.2' },
   })).status()).toBe(201)
   return email
 }

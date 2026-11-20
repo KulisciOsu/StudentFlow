@@ -20,7 +20,7 @@ public class DevelopmentBoardSeedTests
             ["DevelopmentSeed:MemberEmail"] = memberEmail,
             ["DevelopmentSeed:TeacherEmail"] = $"teacher-{Guid.NewGuid():N}@example.invalid",
             ["DevelopmentSeed:LeaderEmail"] = leaderEmail,
-            ["DevelopmentSeed:Password"] = Guid.NewGuid().ToString("N"),
+            ["DevelopmentSeed:Password"] = "Board1!" + Guid.NewGuid().ToString("N")[..6],
         };
         await using var app = await RegistrationApp.CreateAsync(environment: "Development", seedEnabled: true, seedConfiguration: settings, dashboard: true);
         await app.Database.ApplyMigrationAsync("V005__seed_kanban_demo.sql");

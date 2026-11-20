@@ -120,9 +120,9 @@ internal sealed class RegistrationApp : IAsyncDisposable
         return response;
     }
 
-    public static Dictionary<string, object?> Valid(string email = "jan.novak@example.test", string type = "STUDENT", string password = "moje-dlouhe-heslo-2026") => new()
+    public static Dictionary<string, object?> Valid(string email = "jan.novak@example.test", string type = "STUDENT", string password = "TestHeslo1!") => new()
     {
-        ["displayName"] = " Jan Novák ", ["email"] = email, ["password"] = password, ["accountType"] = type
+        ["firstName"] = "Jan", ["lastName"] = "Novák", ["email"] = email, ["password"] = password, ["accountType"] = type, ["privacyAccepted"] = true, ["privacyPolicyVersion"] = RegistrationPrivacyPolicy.Version
     };
 
     public async ValueTask DisposeAsync()

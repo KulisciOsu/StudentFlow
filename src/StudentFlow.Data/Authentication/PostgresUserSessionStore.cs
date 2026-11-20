@@ -8,7 +8,7 @@ namespace StudentFlow.Data.Authentication;
 public sealed class PostgresUserSessionStore(NpgsqlDataSource dataSource) : IUserSessionStore
 {
     private const string SelectSession = """
-        SELECT u.user_id AS Id, u.display_name AS DisplayName, u.email AS Email,
+        SELECT u.user_id AS Id, COALESCE(u.first_name || ' ' || u.last_name, u.display_name) AS DisplayName, u.email AS Email,
                u.is_active AS IsActive, r.role_code AS AccountTypeCode,
                s.created_at AS CreatedAt, s.expires_at AS ExpiresAt, s.persistent AS Persistent
         FROM user_session s JOIN app_user u USING (user_id)

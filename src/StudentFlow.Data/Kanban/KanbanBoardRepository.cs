@@ -17,7 +17,7 @@ public class KanbanBoardRepository : IKanbanBoardRepository
                task.position AS Position,
                task.title AS Title,
                task.priority AS Priority,
-               app_user.display_name AS Assignee,
+               COALESCE(app_user.first_name || ' ' || app_user.last_name, app_user.display_name) AS Assignee,
                task.assignee_id AS AssigneeId,
                task.due_date AS DueDate
         FROM task

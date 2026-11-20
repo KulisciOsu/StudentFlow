@@ -47,7 +47,7 @@ try {
         cwd: root, stdio: 'inherit', env: { ...process.env, ConnectionStrings__DefaultConnection: backendConnection,
           Auth__RegistrationRateLimit__PermitLimit: '200', Auth__LoginRateLimit__PermitLimit: '200',
           // Účty pro E2E testy nástěnky; seed je zapojí do ukázkového projektu (tests/board.spec.ts).
-          DevelopmentSeed__Enabled: 'true', DevelopmentSeed__Password: 'studentflow-e2e-heslo',
+          DevelopmentSeed__Enabled: 'true', DevelopmentSeed__Password: 'StudentFlow1!',
           DevelopmentSeed__MemberEmail: 'e2e-clen@studentflow.test', DevelopmentSeed__LeaderEmail: 'e2e-vedouci@studentflow.test',
           DevelopmentSeed__TeacherEmail: 'e2e-ucitel@studentflow.test' },
       })

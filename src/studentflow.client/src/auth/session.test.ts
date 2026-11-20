@@ -3,7 +3,7 @@ import { fetchIdentity, loginAccount, logoutAccount, validateLogin } from './ses
 import { AuthFailure } from './client'
 import { homeFor } from './types'
 
-const fields = { email: 'jan@example.test', password: 'moje-dlouhe-heslo-2026', rememberMe: false }
+const fields = { email: 'jan@example.test', password: 'TestHeslo1!', rememberMe: false }
 const identity = { user: { id: '42', displayName: 'Jan Novák', email: fields.email, accountType: 'STUDENT' as const }, session: { expiresAt: '2026-11-03T12:00:00Z', persistent: false } }
 const json = (value: unknown, status = 200, headers = {}) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': 'application/json', ...headers } })
 const csrf = () => json({ token: 'token', headerName: 'X-CSRF-TOKEN' })

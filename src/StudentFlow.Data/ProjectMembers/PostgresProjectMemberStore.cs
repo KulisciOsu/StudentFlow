@@ -13,7 +13,7 @@ namespace StudentFlow.Data.ProjectMembers;
 public sealed class PostgresProjectMemberStore(NpgsqlDataSource dataSource) : IProjectMemberStore
 {
     private const string SelectMember = """
-        SELECT pm.user_id AS UserId, u.display_name AS DisplayName, u.email AS Email,
+        SELECT pm.user_id AS UserId, COALESCE(u.first_name || ' ' || u.last_name, u.display_name) AS DisplayName, u.email AS Email,
                pm.is_leader AS IsLeader, pm.joined_at AS JoinedAt
         FROM project_member pm
         JOIN app_user u ON u.user_id = pm.user_id
@@ -52,7 +52,7 @@ public sealed class PostgresProjectMemberStore(NpgsqlDataSource dataSource) : IP
         var rows = await connection.QueryAsync<MemberRow>(new CommandDefinition($"""
             {SelectMember}
             WHERE pm.project_id = @ProjectId
-            ORDER BY pm.is_leader DESC, u.display_name COLLATE "cs-x-icu", pm.user_id
+            ORDER BY pm.is_leader DESC, COALESCE(u.first_name || ' ' || u.last_name, u.display_name) COLLATE "cs-x-icu", pm.user_id
             """, new { ProjectId = projectId }, cancellationToken: cancellationToken));
         return rows.Select(row => row.ToMember()).ToList();
     }
@@ -63,7 +63,7 @@ public sealed class PostgresProjectMemberStore(NpgsqlDataSource dataSource) : IP
         ArgumentException.ThrowIfNullOrWhiteSpace(email);
         await using var connection = await dataSource.OpenConnectionAsync(cancellationToken);
         var row = await connection.QuerySingleOrDefaultAsync<AccountRow>(new CommandDefinition("""
-            SELECT u.user_id AS Id, u.display_name AS DisplayName, u.email AS Email,
+            SELECT u.user_id AS Id, COALESCE(u.first_name || ' ' || u.last_name, u.display_name) AS DisplayName, u.email AS Email,
                    u.is_active AS IsActive, r.role_code AS AccountTypeCode
             FROM app_user u
             JOIN user_role ur ON ur.user_id = u.user_id
@@ -90,7 +90,7 @@ public sealed class PostgresProjectMemberStore(NpgsqlDataSource dataSource) : IP
                     ON CONFLICT (project_id, user_id) DO NOTHING
                     RETURNING user_id, is_leader, joined_at
                 )
-                SELECT i.user_id AS UserId, u.display_name AS DisplayName, u.email AS Email,
+                SELECT i.user_id AS UserId, COALESCE(u.first_name || ' ' || u.last_name, u.display_name) AS DisplayName, u.email AS Email,
                        i.is_leader AS IsLeader, i.joined_at AS JoinedAt
                 FROM inserted i
                 JOIN app_user u ON u.user_id = i.user_id

@@ -85,7 +85,7 @@ public class DevelopmentAccountSeedTests
         var missingEmail = settings[existingTeacherEmail ? MemberEmailKey : TeacherEmailKey]!;
         await using var app = await RegistrationApp.CreateAsync(environment: "Development", seedEnabled: false, seedConfiguration: settings);
         var accounts = new PostgresUserAccountStore(app.Database.DataSource);
-        var created = await accounts.CreateAsync(new("Vlastní účet", $" {email.ToUpperInvariant()} ", "existing-hash", existingType));
+        var created = await accounts.CreateAsync(new("Vlastní", "účet", $" {email.ToUpperInvariant()} ", "existing-hash", existingType));
         await app.Database.ExecuteAsync("UPDATE app_user SET is_active = false");
         app.Services.GetRequiredService<IConfiguration>()["DevelopmentSeed:Enabled"] = "true";
 
@@ -143,7 +143,7 @@ public class DevelopmentAccountSeedTests
         Assert.Equal(new[] { "TEACHER" }, await accounts.GetRoleCodesAsync(teacher.User.Id));
     }
 
-    /// <summary>Ověří použití vlastního hesla včetně mezer a zachování hashe po pozdější změně konfigurace.</summary>
+    /// <summary>Ověří použití vlastního hesla podle registračních pravidel a zachování hashe po pozdější změně konfigurace.</summary>
     /// <param name="useTeacherEmail">Zda ověřit účet vyučujícího místo člena z testovací konfigurace.</param>
     /// <param name="typeCode">Očekávaný kód typu účtu v odpovědi přihlášení.</param>
     /// <returns>Úlohu dokončenou po ověření konfigurovaného hesla a opakovaného seedu.</returns>
@@ -155,7 +155,7 @@ public class DevelopmentAccountSeedTests
         var settings = CreateSeedConfiguration();
         var email = settings[useTeacherEmail ? TeacherEmailKey : MemberEmailKey]!;
         var rejectedPassword = settings[PasswordKey]!;
-        var customPassword = $"  {Guid.NewGuid():N}  ";
+        var customPassword = "Seed2!" + Guid.NewGuid().ToString("N")[..6];
         await using var app = await RegistrationApp.CreateAsync(environment: "Development", seedEnabled: false, seedConfiguration: settings);
         var configuration = app.Services.GetRequiredService<IConfiguration>();
         configuration["DevelopmentSeed:Enabled"] = "true";
@@ -168,7 +168,7 @@ public class DevelopmentAccountSeedTests
         var teacher = (await accounts.FindByEmailAsync(settings[TeacherEmailKey]!))!;
         Assert.NotEqual(customPassword, created.PasswordHash);
         Assert.NotEqual(member.PasswordHash, teacher.PasswordHash);
-        configuration[PasswordKey] = Guid.NewGuid().ToString("N");
+        configuration[PasswordKey] = "Seed3!" + Guid.NewGuid().ToString("N")[..6];
         await DevelopmentAccountSeeder.SeedAsync(app.Services);
         Assert.Equal(created.PasswordHash, (await accounts.FindByEmailAsync(email))!.PasswordHash);
 
@@ -189,8 +189,8 @@ public class DevelopmentAccountSeedTests
     [Theory]
     [InlineData(-1)]
     [InlineData(0)]
-    [InlineData(14)]
-    [InlineData(129)]
+    [InlineData(7)]
+    [InlineData(16)]
     public async Task Seed_RejectsInvalidPasswordBeforeCreatingAccounts(int passwordLength)
     {
         await using var app = await RegistrationApp.CreateAsync(environment: "Development", seedEnabled: false, seedConfiguration: CreateSeedConfiguration());
@@ -265,6 +265,6 @@ public class DevelopmentAccountSeedTests
     {
         [MemberEmailKey] = $"member-{Guid.NewGuid():N}@example.invalid",
         [TeacherEmailKey] = $"teacher-{Guid.NewGuid():N}@example.invalid",
-        [PasswordKey] = Guid.NewGuid().ToString("N")
+        [PasswordKey] = "Seed1!" + Guid.NewGuid().ToString("N")[..6]
     };
 }

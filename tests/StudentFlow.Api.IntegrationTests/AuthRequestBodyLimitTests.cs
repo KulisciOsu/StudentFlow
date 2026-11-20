@@ -20,7 +20,7 @@ public class AuthRequestBodyLimitTests
             Assert.Equal(201, (int)(await app.Client.PostAsJsonAsync("/api/auth/register", RegistrationApp.Valid())).StatusCode);
 
         object payload = endpoint == "register" ? RegistrationApp.Valid()
-            : new { email = "jan.novak@example.test", password = "moje-dlouhe-heslo-2026", rememberMe = false };
+            : new { email = "jan.novak@example.test", password = "TestHeslo1!", rememberMe = false };
         var json = JsonSerializer.SerializeToUtf8Bytes(payload);
         var body = Enumerable.Repeat((byte)' ', bytes).ToArray();
         json.CopyTo(body, 0);

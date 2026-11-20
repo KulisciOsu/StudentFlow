@@ -30,7 +30,7 @@ a podrobné stavy session, které původní dokument nepokrývá.
 
 - Zachovat React, TypeScript, Vite, ASP.NET Core, PostgreSQL a Dapper.
 - Účet má jméno, unikátní e-mail, heslo a právě jeden typ: **Člen**, nebo **Vyučující**.
-- E-mail se ořízne a převede na malá písmena; heslo má 15–128 znaků.
+- E-mail se ořízne a převede na malá písmena; nové heslo má 8–15 znaků, velké písmeno, číslici a speciální znak; bílé znaky se nepovolují.
 - Zabezpečená cookie a serverová session: 8 hodin, s volbou „Zůstat přihlášen“
   30 dní, bez automatického prodlužování. Logout session zneplatňuje na serveru.
 - Po registraci následuje přihlášení. Člen začíná na `/projects`, vyučující
@@ -85,7 +85,7 @@ s jeho stránkou v exportu. Doplňky rozšiřují nepokryté chování a šířk
 nenahrazují původní wireframy.
 
 Již schválená upřesnění se evidují textově: popisek „Člen“ pro `STUDENT`,
-heslo 15–128 znaků oproti původní nápovědě 8 znaků, přepínání viditelnosti
+heslo 8–15 znaků s kontrolou složení a bez bílých znaků, přepínání viditelnosti
 hesla, životnost session a současný rozsah bez obnovy hesla. Pravidla a chování
 popisují [API kontrakt](API_CONTRACT.md) a
 [stavy a přechody](SCREENS_AND_FLOWS.md); nevytvářejí další desktopový wireframe.
@@ -112,3 +112,8 @@ do testovacích reportů a evidence Jira.
   Chování fyzických zařízení a skutečné softwarové klávesnice není ověřené.
 - První spuštění a navázání další funkce popisuje
   [integrační návod](INTEGRATION_GUIDE.md). Stav převzetí a CI se eviduje v Jiře.
+
+Od aktualizace registrace je nutné potvrzení aktuálních [zásad ochrany osobních údajů](../../../src/studentflow.client/public/privacy.html).
+Verze a čas potvrzení se ukládají s účtem; starší hesla zůstávají použitelná při přihlášení.
+
+Registrace přijímá samostatné `firstName` a `lastName` (1–50 Unicode znaků, pouze písmena a diakritika, bez bílých znaků). Výstupní `displayName` se skládá pro zobrazení. Zásady verze `2026-11-20.2` představují principy GDPR ve školním prototypu se smyšlenými údaji a nevyžadují doplnění kontaktních údajů.

@@ -5,14 +5,14 @@ import type { APIRequestContext, Locator, Page } from '@playwright/test'
 /// Účty, které při E2E založí vývojový seed (scripts/e2e-api.mjs) a zapojí do ukázkového projektu.
 /// Člen převzal úkoly Jana Nováka, vedoucí úkoly Petry Svobodové.
 /// </summary>
-const seedPassword = 'studentflow-e2e-heslo'
+const seedPassword = 'StudentFlow1!'
 const memberEmail = 'e2e-clen@studentflow.test'
 const leaderEmail = 'e2e-vedouci@studentflow.test'
 
 /// <summary>
 /// Heslo účtů registrovaných přímo v testu.
 /// </summary>
-const password = 'moje-dlouhe-heslo-2026'
+const password = 'TestHeslo1!'
 
 /// <summary>
 /// Vlastní úkol člena a cizí úkol (řešitel Tomáš Dvořák) z ukázkových dat V005.
@@ -39,7 +39,7 @@ async function createAccount(request: APIRequestContext, type: 'STUDENT' | 'TEAC
   const email = `board-${crypto.randomUUID()}@example.test`
   const csrf = await (await request.get('/api/auth/csrf')).json()
   expect((await request.post('/api/auth/register', {
-    headers: { 'X-CSRF-TOKEN': csrf.token }, data: { displayName: 'Testovací uživatel', email, password, accountType: type },
+    headers: { 'X-CSRF-TOKEN': csrf.token }, data: { firstName: 'Testovací', lastName: 'uživatel', email, password, accountType: type, privacyAccepted: true, privacyPolicyVersion: '2026-11-20.2' },
   })).status()).toBe(201)
   return email
 }

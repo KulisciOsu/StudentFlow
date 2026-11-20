@@ -12,7 +12,8 @@ public sealed class LoginRequest
     public Dictionary<string, string[]> Validate()
     {
         var errors = new Dictionary<string, string[]>();
-        AuthInputValidation.AddEmailAndPasswordErrors(errors, Email, Password);
+        AuthInputValidation.AddEmailErrors(errors, Email);
+        AuthInputValidation.AddLoginPasswordErrors(errors, Password);
         return errors;
     }
 }

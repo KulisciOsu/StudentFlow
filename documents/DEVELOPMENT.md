@@ -108,10 +108,10 @@ neobsahuje výchozí e-maily ani heslo. Názvy proměnných uvádí také `.env.
 | `DevelopmentSeed__MemberEmail` | Vlastní e-mail účtu člena. |
 | `DevelopmentSeed__TeacherEmail` | Vlastní, odlišný e-mail účtu vyučujícího. |
 | `DevelopmentSeed__LeaderEmail` | Volitelný, odlišný e-mail účtu vedoucího (typ `STUDENT`). |
-| `DevelopmentSeed__Password` | Heslo pro všechny nově vytvářené účty, 15 až 128 znaků Unicode; mezery jsou jeho součástí. |
+| `DevelopmentSeed__Password` | Heslo pro nově vytvářené účty: 8–15 Unicode znaků, alespoň jedno velké písmeno, číslice a speciální znak; bez mezer a dalších bílých znaků. |
 | `DevelopmentSeed__Enabled` | Nastavte `true` až po vyplnění všech přihlašovacích údajů. |
 
-Nejdříve musí běžet databáze s provedenými migracemi V001–V003. Potom spusťte
+Nejdříve musí běžet databáze s provedenými migracemi včetně `V20261120_1200__registration_privacy_acceptance.sql`. Potom spusťte
 `node scripts/dev.mjs`, který předá `.env` aplikaci. Při samostatném spuštění
 přes `dotnet run` předejte stejné hodnoty jako proměnné prostředí.
 
@@ -193,3 +193,16 @@ Použití autentizace v další funkci a kontrolní postup pro předání popisu
 
 Podklady: [dotnet dev-certs](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-dev-certs),
 [Vite server options](https://vite.dev/config/server-options).
+
+## Aktualizace registrace a zásad ochrany údajů
+
+Na existující databázi je nutné jednou aplikovat `database/migrations/V20261120_1200__registration_privacy_acceptance.sql`.
+Restart již vytvořeného Docker volume nové migrace automaticky nespouští.
+Nové registrace vyžadují aktuální potvrzení zásad a stejné heslové pravidlo
+platí také pro nové seed účty. Starším účtům se žádný souhlas nedoplňuje.
+E2E používá pouze testovací údaje a heslo `StudentFlow1!`; příklady
+registrace používají `TestHeslo1!`. Tato ukázková hesla nejsou určena pro skutečné účty.
+
+Po rozdělení jména je nutné aplikovat také `database/migrations/V20261120_1300__separate_registration_names.sql`. Seed nových účtů ukládá samostatné jméno a příjmení. Zobrazení starších účtů zůstává kompatibilní, jejich původní názvy se automaticky nerozdělují.
+
+Pro aktuální technický limit 1–50 znaků aplikujte také `database/migrations/V20261120_1400__registration_name_length_50.sql`. Případné delší části jména je potřeba výslovně opravit; migrace je automaticky nezkracuje. Limit se uživateli zobrazí až v chybové hlášce při překročení.

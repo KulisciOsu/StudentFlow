@@ -13,7 +13,7 @@ Ukázkové identity a obsah rozcestníku nejsou skutečná data ani implementace
 
 | Cesta | Obsah | Akce |
 | :--- | :--- | :--- |
-| `/register` | Jméno a příjmení, e-mail, heslo, heslo znovu, radio tlačítka Člen a Vyučující. Všechna pole povinná, právě jeden typ. | „Vytvořit účet“ → `POST /register` → při `201` login s potvrzením. Odkaz „Přihlaste se“. |
+| `/register` | Samostatné jméno a příjmení, e-mail, heslo, heslo znovu, radio tlačítka Člen a Vyučující. Všechna pole povinná, právě jeden typ. | „Vytvořit účet“ → `POST /register` → při `201` login s potvrzením. Odkaz „Přihlaste se“. |
 | `/login` | E-mail, heslo, volitelně „Zůstat přihlášen“. Nápověda „Přihlášení až na 30 dní na tomto zařízení“. | „Přihlásit se“ → `POST /login` → rozcestník podle typu účtu. Odkaz „Zaregistrujte se“. |
 | `/projects` | Hlavička s identitou a logoutem, pohled člena. | Pro typ Člen; bez přepínání typu účtu. Obsah dodá KAN-47. |
 | `/teaching` | Stejná hlavička, pohled vyučujícího. | Pro typ Vyučující; bez přepínání typu účtu. Obsah dodá KAN-47. |
@@ -27,19 +27,19 @@ potřebný pro stránku, dostane vysvětlení a odkaz na dostupný pohled, nikol
 
 ### Detaily formulářů
 
-- Nápověda hesla: „15–128 znaků. Můžete použít mezery i delší heslovou frázi.“
-- Heslo znovu se porovnává přesně; rozdíl: „Hesla se neshodují.“ API dostane jen
+- Nápověda hesla: „8–15 znaků, alespoň jedno velké písmeno, číslice a speciální znak (např. ! nebo #). Bez mezer.“
+- Heslo znovu se porovnává přesně; rozdíl: „Hesla se neshodují. Zadejte prosím stejné heslo do obou polí.“ API dostane jen
   `password`. Každé heslové pole má vlastní přepínač Zobrazit/Skrýt.
 - Typ účtu je `fieldset` s legendou a dvěma radio tlačítky stejné skupiny
   `accountType`. Výchozí stav je bez výběru, výběr je povinný. Chyba:
-  „Vyberte typ účtu: Člen, nebo Vyučující.“ Volba jedné možnosti zruší druhou.
+  „Vyberte, jestli jste člen týmu, nebo vyučující.“ Volba jedné možnosti zruší druhou.
   Ve skupině fungují také šipky klávesnice. Popisky vysvětlují jednotlivé typy;
   vyučující přístup k projektům teprve dostává.
   Vedoucí týmu ani administrátor se při registraci nenabízí.
-- Jméno: `autocomplete=name`; e-mail: `type=email`, `autocomplete=username`,
+- Jméno: `autocomplete=given-name`; příjmení: `autocomplete=family-name`; e-mail: `type=email`, `autocomplete=username`,
   bez automatických velkých písmen. Heslo: `new-password` při registraci,
   `current-password` při loginu. Vložení ze schránky i správce hesel jsou povolené.
-- Po neúspěchu zachovat jméno, e-mail a zvolený typ účtu. Hesla po dokončeném neúspěšném
+- Po neúspěchu zachovat jméno, příjmení, e-mail a zvolený typ účtu. Hesla po dokončeném neúspěšném
   pokusu vymazat; při lokální kontrole před odesláním zůstanou pro opravu.
   Při přechodu jinam se vždy odstraní.
 - Enter odesílá. Během odesílání nelze vytvořit druhý požadavek. Přepínač
@@ -71,8 +71,8 @@ stateDiagram-v2
 | Chyba ověření | „Přihlášení se nepodařilo ověřit. Zkontrolujte připojení a zkuste to znovu.“ | „Zkusit znovu“. Chyba se nevydává za nepřihlášený stav. |
 | Probíhá registrace / login | „Vytváříme účet…“ / „Přihlašujeme…“, zaneprázdněný formulář. | Jeden požadavek, bez předčasného úspěchu nebo přesměrování. |
 | Lokální chyba / `400` | Souhrn a chyby u polí. | Fokus na souhrn s odkazy na pole. |
-| Registrace `409` | „Účet s tímto e-mailem už existuje. Přihlaste se.“ | Chyba u e-mailu, odkaz na login. |
-| Registrace `201` | Login: „Účet byl vytvořen. Nyní se přihlaste.“ | E-mail z paměti, heslo prázdné; bez automatické session. |
+| Registrace `409` | „S tímto e-mailem teď účet nelze vytvořit. Zkuste se přihlásit nebo použijte jiný e-mail.“ | Obecná zpráva s nabídkou přihlášení. |
+| Registrace `201` | Login: „Účet je vytvořený. Teď se můžete přihlásit.“ | E-mail z paměti, heslo prázdné; bez automatické session. |
 | Login `401` | „E-mail nebo heslo nejsou správné.“ | Nerozlišovat neexistující/neaktivní účet; zachovat e-mail. |
 | `429` | „Příliš mnoho pokusů. Zkuste to znovu za …“ | Respektovat `Retry-After`, poté akce uživatele. |
 | `403 CSRF_INVALID` | Během jedné obnovy zůstává stav odesílání. | Při opakované chybě výzva k opakování, bez smyčky. |
@@ -93,7 +93,7 @@ uživatele nesmí znovu naplnit privátní cache.
 - Desktop: formulářová karta nejvýše 448 CSS px, vycentrovaná. Mobil: celá
   dostupná šířka s odsazením, přirozené svislé rolování.
 - Tabletové rozložení při šířce 704–1199 CSS px (44–75 rem při základním písmu
-  16 px): registrační karta nejvýše 640 px, dvojice jméno/e-mail a heslo/opakování
+  16 px): registrační karta nejvýše 640 px, dvojice jméno/příjmení a e-mail/heslo
   ve dvou sloupcích. Volby Člen/Vyučující jsou vedle sebe, odeslání přes celou
   šířku. Pořadí polí při ovládání klávesnicí zůstává stejné.
 - Přihlášení má na tabletu kartu nejvýše 544 px a pole pod sebou. Přihlášený
@@ -112,7 +112,7 @@ uživatele nesmí znovu naplnit privátní cache.
 | ID | Scénář | Očekávaný výsledek |
 | :--- | :--- | :--- |
 | A01 | Registrace Člen / Vyučující. | Každá varianta vede na login; vybrat lze právě jednu, vedení týmu se nenabízí. |
-| A02 | Žádný typ, kombinace/pole typů v API, různá hesla, heslo 14/129 znaků. | Chyby ve formuláři nebo `400` v API; délky 15/128 projdou. |
+| A02 | Žádný typ, kombinace/pole typů v API, různá hesla, heslo 7/16 znaků. | Chyby ve formuláři nebo `400` v API; délky 8/15 při splnění složení projdou. |
 | A03 | E-mail s mezerami a jinou velikostí písmen. | Jeden normalizovaný účet, duplicita `409`. |
 | A04 | Neexistující/neaktivní účet či špatné heslo. | Shodné `401` bez potvrzení existence účtu. |
 | A05 | Login bez/s „Zůstat přihlášen“. | Absolutní 8 h / 30 dní; `/me` expiraci neprodlužuje. |
@@ -126,3 +126,18 @@ uživatele nesmí znovu naplnit privátní cache.
 
 Scénáře jsou podklady pro KAN-111/112. Návrhový krok nenahrazuje jejich skutečné
 provedení proti implementované aplikaci.
+
+### Potvrzení ochrany osobních údajů
+
+Před odesláním je povinný checkbox „Seznámil/a jsem se se zásadami ochrany
+osobních údajů“, výchozí stav je nezaškrtnutý. Zásady se otevřou v nové kartě
+bez ztráty formuláře. Bez potvrzení klient neodešle registraci a server
+odmítne také přímý požadavek bez potvrzení aktuální verze. Úspěch má hlášku
+„Účet je vytvořený. Teď se můžete přihlásit.“ Při neznámém výsledku zápisu
+se úspěch nepotvrzuje a doporučí se nejdřív zkusit přihlášení.
+
+### Upřesnění jména a školních zásad
+
+Registrace má samostatná povinná pole Jméno a Příjmení. Každé má 1–50 Unicode znaků, připouští pouze písmena a související diakritiku a odmítá číslice, interpunkci, symboly i všechny bílé znaky včetně okolních mezer. Hodnoty se neořezávají. Pro automatické doplnění používají given-name a family-name. Zásady ve verzi `2026-11-20.2` jsou úplný demonstrační text pro školní prototyp bez položek k doplnění. Upřesnění rozvíjí stávající registrační obrazovku, původní wireframy se znovu nekreslí.
+
+Délka jména a příjmení se ve formuláři předem neuvádí. Prázdné pole dostane výzvu k vyplnění, při překročení 50 znaků se limit vysvětlí v chybě příslušného pole.
