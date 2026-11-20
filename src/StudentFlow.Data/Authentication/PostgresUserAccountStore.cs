@@ -8,7 +8,7 @@ namespace StudentFlow.Data.Authentication;
 public sealed class PostgresUserAccountStore(NpgsqlDataSource dataSource) : IUserAccountStore
 {
     private const string SelectUser = """
-        SELECT u.user_id AS Id, u.display_name AS DisplayName, u.email AS Email,
+        SELECT u.user_id AS Id, COALESCE(u.first_name || ' ' || u.last_name, u.display_name) AS DisplayName, u.email AS Email,
                u.password_hash AS PasswordHash, u.is_active AS IsActive,
                r.role_code AS AccountTypeCode
         FROM app_user u
@@ -21,13 +21,15 @@ public sealed class PostgresUserAccountStore(NpgsqlDataSource dataSource) : IUse
     public async Task<CreateUserResult> CreateAsync(NewUserAccount account, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(account);
-        ArgumentException.ThrowIfNullOrWhiteSpace(account.DisplayName);
+        if (RegistrationNameRules.Validate(account.FirstName, "Jméno") is { } firstNameError)
+            throw new ArgumentException(firstNameError, nameof(account));
+        if (RegistrationNameRules.Validate(account.LastName, "Příjmení") is { } lastNameError)
+            throw new ArgumentException(lastNameError, nameof(account));
         ArgumentException.ThrowIfNullOrWhiteSpace(account.Email);
         ArgumentException.ThrowIfNullOrWhiteSpace(account.PasswordHash);
         var code = AccountTypeCodes.ToCode(account.AccountType);
-        var name = account.DisplayName.Trim();
         var email = account.Email.Trim();
-        if (name.EnumerateRunes().Count() > 160 || email.EnumerateRunes().Count() is < 3 or > 320)
+        if (email.EnumerateRunes().Count() is < 3 or > 320)
             throw new ArgumentException("Account fields exceed their allowed lengths.", nameof(account));
 
         await using var connection = await dataSource.OpenConnectionAsync(cancellationToken);
@@ -35,10 +37,12 @@ public sealed class PostgresUserAccountStore(NpgsqlDataSource dataSource) : IUse
         try
         {
             var inserted = await connection.QuerySingleAsync<InsertedUser>(new CommandDefinition("""
-                INSERT INTO app_user (display_name, email, password_hash)
-                VALUES (@Name, normalize_account_email(@Email), @Hash)
+                INSERT INTO app_user (first_name, last_name, email, password_hash, privacy_policy_version, privacy_accepted_at)
+                VALUES (@FirstName, @LastName, normalize_account_email(@Email), @Hash, @PolicyVersion, @AcceptedAt)
                 RETURNING user_id AS Id, email AS Email
-                """, new { Name = name, Email = email, Hash = account.PasswordHash }, transaction, cancellationToken: cancellationToken));
+                """, new { account.FirstName, account.LastName, Email = email, Hash = account.PasswordHash,
+                    PolicyVersion = account.PrivacyAcceptance?.Version,
+                    AcceptedAt = account.PrivacyAcceptance?.AcceptedAt }, transaction, cancellationToken: cancellationToken));
             var assigned = await connection.ExecuteAsync(new CommandDefinition("""
                 INSERT INTO user_role (user_id, role_id)
                 SELECT @Id, role_id FROM app_role WHERE role_code = @Code
@@ -47,7 +51,7 @@ public sealed class PostgresUserAccountStore(NpgsqlDataSource dataSource) : IUse
                 throw new InvalidOperationException("The required account type role is missing.");
 
             await transaction.CommitAsync(cancellationToken);
-            return new(CreateUserStatus.Created, new(inserted.Id, name, inserted.Email, account.AccountType, true));
+            return new(CreateUserStatus.Created, new(inserted.Id, account.DisplayName, inserted.Email, account.AccountType, true));
         }
         catch (PostgresException exception) when (exception.SqlState == PostgresErrorCodes.UniqueViolation
             && exception.ConstraintName is "app_user_email_key" or "app_user_normalized_email_key")

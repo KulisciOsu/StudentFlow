@@ -1,6 +1,6 @@
 # KAN-114: API kontrakt autentizace
 
-**Schválený kontrakt, verze 0.4.0.** JSON struktury, příklady a HTTP odpovědi
+**Kontrakt, verze 0.5.0.** JSON struktury, příklady a HTTP odpovědi
 jsou v [auth.openapi.yaml](auth.openapi.yaml). Zde jsou význam a pravidla,
 která samotné schéma nezachytí. Změna smlouvy musí změnit oba soubory.
 
@@ -27,16 +27,20 @@ logoutu bez těla. Neznámá pole se odmítají jako `400 VALIDATION_FAILED`.
 
 | Pole | Registrace | Login | Pravidlo |
 | :--- | :--- | :--- | :--- |
-| `displayName` | Povinné | — | Po oříznutí 1–160 Unicode znaků; samotné bílé znaky nestačí. Bez unikátnosti. |
+| `firstName` | Povinné | — | Samostatné jméno, 1–50 Unicode znaků; pouze písmena a související diakritika. Číslice, interpunkce, symboly, bílé znaky a BOM se odmítají. Bez unikátnosti. |
+| `lastName` | Povinné | — | Samostatné příjmení, 1–50 Unicode znaků; stejná pravidla jako jméno. |
 | `email` | Povinné | Povinné | Po oříznutí 3–320 znaků, platná e-mailová adresa, převod na malá písmena. |
-| `password` | Povinné | Povinné | 15–128 Unicode znaků; bez ořezání, změny velikosti či Unicode normalizace. |
+| `password` | Povinné | Povinné | Registrace: 8–15 Unicode znaků, alespoň jedno velké písmeno, číslice a speciální znak; bez bílých znaků. Login: 1–128 znaků kvůli existujícím účtům. Heslo se neupravuje. |
 | `accountType` | Povinné | — | Jediný řetězec `STUDENT` (Člen) nebo `TEACHER` (Vyučující). Pole, kombinace, prázdná hodnota a `null` se odmítají. |
+| `privacyAccepted` | Povinné | — | Výslovně `true`; potvrzení seznámení se zásadami ochrany osobních údajů. |
+| `privacyPolicyVersion` | Povinné | — | Aktuální verze `2026-11-20.2`; starší či chybějící verze znamená `400` s chybou `privacyAccepted`. |
 | `rememberMe` | — | Volitelné | Boolean, výchozí `false`; neurčuje typ účtu ani oprávnění. |
 
-Nejprve se normalizují jméno a e-mail, pak validují délky. OpenAPI popisuje
-normalizovanou podobu. Heslo se měří v Unicode code pointech; frontend a backend
-musí délku počítat shodně, nikoli UTF-16 jednotkami. Není požadována kombinace
-velkých písmen, číslic a symbolů. Hesla nesmějí být v URL, logu ani odpovědi API.
+Normalizuje se pouze e-mail. Jméno, příjmení a heslo se neořezávají ani
+automaticky nerozdělují. Délky se měří v Unicode code pointech; frontend a backend
+musí délku počítat shodně, nikoli UTF-16 jednotkami. Nové heslo musí obsahovat alespoň jedno velké písmeno, desetinnou číslici a
+interpunkční nebo symbolový znak. Malé písmeno není povinné. Unicode bílé
+znaky a BOM se odmítají, nikdy se z hesla potichu neodstraňují. Hesla nesmějí být v URL, logu ani odpovědi API.
 
 JSON registrace i loginu má limit **16 KiB**, včetně požadavků bez `Content-Length`.
 Překročení vrací `413 PAYLOAD_TOO_LARGE` před hashováním a zápisem.
@@ -48,6 +52,10 @@ jsou součástí uloženého formátu a umožní pozdější ověření a rehash
 `STUDENT` se v rozhraní zobrazuje jako „Člen“. Zadaný typ `ADMIN`, `TEAM_LEADER`,
 neznámá hodnota, pole typů nebo staré pole `accountTypes` znamená `400`.
 Registrace nepřijímá ID, aktivitu účtu ani informace o projektech.
+Pole `displayName` je pouze výstup pro zobrazení: pro nové účty se skládá
+z `firstName` a `lastName` oddělených jednou mezerou, nejvýše 101 znaků.
+Vstupní `displayName` se odmítá. Nové účty ukládají pouze atomické části jména;
+původní nerozdělená jména starších účtů se zachovávají bez odhadu jejich částí.
 Duplicitní normalizovaný e-mail odmítá i databáze. Souběžné registrace nesmějí
 vytvořit dva účty nebo účet bez zvoleného typu.
 
@@ -143,10 +151,10 @@ nikoli textu. Stejný tvar používají i chyby frameworku, CSRF a rate limiteru
   "type": "about:blank",
   "title": "Neplatné vstupní údaje",
   "status": 400,
-  "detail": "Opravte označená pole.",
+  "detail": "Ještě prosím zkontrolujte označené údaje.",
   "code": "VALIDATION_FAILED",
   "traceId": "request-correlation-id",
-  "errors": { "password": ["Heslo musí mít 15 až 128 znaků."] }
+  "errors": { "password": ["Heslo musí mít 8 až 15 znaků."] }
 }
 ```
 
@@ -157,7 +165,7 @@ nikoli textu. Stejný tvar používají i chyby frameworku, CSRF a rate limiteru
 | `401` chráněné API | `UNAUTHENTICATED` | Skrýt soukromá data, zrušit identitu a přejít na login. |
 | `403` | `CSRF_INVALID` | Obnovit token, nejvýše jednou opakovat. |
 | `403` projektové API | `FORBIDDEN` | Zobrazit nedostatek oprávnění; ponechat přihlášení. Mimo pět auth endpointů. |
-| `409` registrace | `EMAIL_ALREADY_REGISTERED` | Označit e-mail a nabídnout login. Výslovná informace o duplicitě je navržené chování k validaci. |
+| `409` registrace | `REGISTRATION_CONFLICT` | Neutrálně oznámit, že účet nelze vytvořit, a nabídnout přihlášení nebo jiný e-mail. Nevracet výslovné potvrzení existence účtu. |
 | `413` registrace / login | `PAYLOAD_TOO_LARGE` | Požadavek přesahuje 16 KiB; neopakovat beze změny. |
 | `415` | `UNSUPPORTED_MEDIA_TYPE` | Chyba klienta, neopakovat beze změny. |
 | `429` | `RATE_LIMITED` | Doba čekání podle `Retry-After`; poté akce uživatele, ne automatický POST. |
@@ -197,3 +205,19 @@ Při chybě logoutu obsah zůstane skrytý až do potvrzeného opakování. V UR
 
 Názvy cookie, DTO, endpointů a politika obnovy tokenu jsou návrh projektu,
 nikoli předepsaná výchozí konfigurace ASP.NET Core.
+
+## Potvrzení zásad ochrany osobních údajů
+
+Povinné nezaškrtnuté pole otevírá `/privacy.html` v nové kartě a zachovává
+vyplněný formulář. Zdroj zásad je v `src/studentflow.client/public/privacy.html`.
+Server kontroluje potvrzení a verzi a ve stejné transakci jako účet ukládá
+`privacy_policy_version` a vlastní čas `privacy_accepted_at`. Čas klienta se
+nepřijímá. Vyžaduje migraci `V20261120_1200__registration_privacy_acceptance.sql`.
+Starší a technické seed účty zůstávají bez vymyšleného potvrzení.
+
+Checkbox dokládá seznámení se zásadami, sám neurčuje právní základ zpracování.
+Text je uzavřená výuková ukázka principů GDPR pro školní prototyp se
+smyšlenými testovacími údaji. Neobsahuje položky k doplnění a nepředstavuje
+právní dokument pro produkční provoz. Stav `409` se nadále liší
+od `201`, takže neutrální wording sám neodstraňuje možnost zjišťování
+existence účtu z HTTP výsledků; ověření e-mailu není součástí této změny.

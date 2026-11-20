@@ -12,7 +12,7 @@ namespace StudentFlow.Api.IntegrationTests;
 
 public class SessionTests
 {
-    private const string Password = "moje-dlouhe-heslo-2026";
+    private const string Password = "TestHeslo1!";
     private const string CookieName = "__Host-StudentFlow.Session";
     private static object Login(string email = "jan.novak@example.test", string password = Password, bool rememberMe = false) => new { email, password, rememberMe };
     private static async Task SeedAsync(RegistrationApp app, string type = "STUDENT")

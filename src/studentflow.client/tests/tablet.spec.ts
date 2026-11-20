@@ -31,10 +31,10 @@ for (const viewport of tablets) {
   test(`tablet ${viewport.width}×${viewport.height}: formuláře a dotykové ovládání`, async ({ page }, testInfo) => {
     await page.setViewportSize(viewport)
     await page.goto('/register')
-    const name = page.getByRole('textbox', { name: 'Jméno a příjmení', exact: true })
-    const email = page.getByRole('textbox', { name: 'E-mail', exact: true })
+    const name = page.getByRole('textbox', { name: 'Jméno', exact: true })
+    const surname = page.getByRole('textbox', { name: 'Příjmení', exact: true })
     const left = await box(name)
-    const right = await box(email)
+    const right = await box(surname)
     expect(Math.abs(left.y - right.y)).toBeLessThanOrEqual(1)
     expect(right.x).toBeGreaterThanOrEqual(left.x + left.width)
     expect(right.x + right.width).toBeLessThanOrEqual(viewport.width)
@@ -56,7 +56,7 @@ for (const viewport of tablets) {
     const submit = await box(page.getByRole('button', { name: 'Přihlásit se', exact: true }))
     expect(submit.height).toBeGreaterThanOrEqual(44)
     await preview(page, testInfo, 'tablet-login')
-    await page.getByLabel('Heslo', { exact: true }).fill('heslo-pro-tablet-2026')
+    await page.getByLabel('Heslo', { exact: true }).fill('TabletHeslo1!')
     await page.getByRole('button', { name: 'Zobrazit heslo', exact: true }).tap()
     await expect(page.getByLabel('Heslo', { exact: true })).toHaveAttribute('type', 'text')
     await page.getByRole('checkbox', { name: /^Zůstat přihlášen/ }).tap()
@@ -67,15 +67,20 @@ for (const viewport of tablets) {
 for (const type of ['STUDENT', 'TEACHER'] as const) {
   test(`tablet ${type}: registrace, login, otočení a logout dotykem`, async ({ page }, testInfo) => {
     const email = `tablet-${crypto.randomUUID()}@example.test`
-    const password = 'heslo-pro-tablet-2026'
-    const displayName = 'Tabletový uživatel s dlouhým jménem pro kontrolu hlavičky'
+    const password = 'TabletHeslo1!'
+    const firstName = 'Tabletový'
+    const lastName = 'UživatelSDelšímPříjmenímProKontroluHlavičky'
+    const displayName = `${firstName} ${lastName}`
     await page.setViewportSize({ width: 768, height: 1024 })
     await page.goto('/register')
-    await page.getByRole('textbox', { name: 'Jméno a příjmení', exact: true }).fill(displayName)
+    await page.getByRole('textbox', { name: 'Jméno', exact: true }).fill(firstName)
+    await page.getByRole('textbox', { name: 'Příjmení', exact: true }).fill(lastName)
     await page.getByRole('textbox', { name: 'E-mail', exact: true }).fill(email)
     await page.getByLabel(/^Heslo\s*\*?$/u).fill(password)
     await page.getByLabel(/^Heslo znovu\s*\*?$/u).fill(password)
     await page.getByText(type === 'STUDENT' ? 'Člen' : 'Vyučující', { exact: true }).tap()
+
+    await page.getByRole('checkbox', { name: /Seznámil/ }).check()
 
     // Menší viditelná výška při otevřené softwarové klávesnici musí dovolit posun k odeslání.
     await page.setViewportSize({ width: 768, height: 480 })

@@ -4,14 +4,14 @@ import type { APIRequestContext, Page } from '@playwright/test'
 /// <summary>
 /// Účty, které při E2E založí vývojový seed (scripts/e2e-api.mjs). Vedoucí vede ukázkový projekt 1 „Tým Sova“, člen je v něm běžným členem.
 /// </summary>
-const seedPassword = 'studentflow-e2e-heslo'
+const seedPassword = 'StudentFlow1!'
 const leaderEmail = 'e2e-vedouci@studentflow.test'
 const memberEmail = 'e2e-clen@studentflow.test'
 
 /// <summary>
 /// Heslo účtů registrovaných přímo v testu.
 /// </summary>
-const password = 'moje-dlouhe-heslo-2026'
+const password = 'TestHeslo1!'
 
 const settingsPath = '/projects/1/settings'
 const membersApi = '/api/projects/1/members'
@@ -26,10 +26,13 @@ const membersApi = '/api/projects/1/members'
 async function createAccount(request: APIRequestContext, type: 'STUDENT' | 'TEACHER') {
   const id = crypto.randomUUID()
   const email = `members-${id}@example.test`
-  const displayName = `Nový člen ${id.slice(0, 8)}`
+  const firstName = 'Nový'
+  const suffix = id.replaceAll('-', '').slice(0, 8).split('').map(value => String.fromCharCode(65 + Number.parseInt(value, 16))).join('')
+  const lastName = `Člen${suffix}`
+  const displayName = `${firstName} ${lastName}`
   const csrf = await (await request.get('/api/auth/csrf')).json()
   expect((await request.post('/api/auth/register', {
-    headers: { 'X-CSRF-TOKEN': csrf.token }, data: { displayName, email, password, accountType: type },
+    headers: { 'X-CSRF-TOKEN': csrf.token }, data: { firstName, lastName, email, password, accountType: type, privacyAccepted: true, privacyPolicyVersion: '2026-11-20.2' },
   })).status()).toBe(201)
   return { email, displayName }
 }

@@ -8,7 +8,8 @@ export type LoginErrors = Partial<Record<'email' | 'password', string>>
 export function validateLogin(fields: LoginFields): LoginErrors {
   const errors: LoginErrors = {}
   if (Array.from(fields.email.trim()).length > 320 || !/^[^\s@]+@[^\s@]+$/u.test(fields.email.trim())) errors.email = 'Zadejte platnou e-mailovou adresu.'
-  if (Array.from(fields.password).length < 15 || Array.from(fields.password).length > 128) errors.password = 'Heslo musí mít 15 až 128 znaků.'
+  if (!fields.password) errors.password = 'Zadejte heslo.'
+  else if (Array.from(fields.password).length > 128) errors.password = 'Heslo může mít nejvýše 128 znaků.'
   return errors
 }
 async function readIdentity(response: Response): Promise<Identity> {

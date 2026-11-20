@@ -212,7 +212,9 @@ Sada pokrývá nový i existující stav databáze, zachování účtů při upg
 odmítnutí kolizí bez částečné migrace, právě jeden typ účtu a jeho souběžné změny
 ve třech úrovních izolace, Unicode normalizaci, souběžnou duplicitu registrace,
 rollback zápisu při chybě role, podmíněný rehash a integritu tabulky session.
-HTTP sada přidává oba typy registrace, nezměněné heslo včetně mezer, náhodnou sůl
+HTTP sada přidává oba typy registrace, samostatná povinná jména a příjmení
+bez bílých znaků včetně Unicode hranic, hesla délky 8–15 znaků s požadovaným
+složením a bez bílých znaků, potvrzení aktuální verze zásad, náhodnou sůl
 a pracovní faktor hashe, Unicode hranice, chybný JSON, CSRF, duplicitu, stavové
 kódy 400/403/409/413/415/429/503 a bezpečný tvar odpovědí. Session po registraci
 nevzniká. Společná infrastruktura je v `StudentFlow.Testing`; každá sada má vlastní
@@ -241,7 +243,7 @@ citlivého obsahu vnitřní výjimky.
 při vývojovém startu včetně přihlášení a odhlášení, opakované i souběžné spuštění
 bez duplicit a zachování existujícího hesla, typu, jména a aktivity. Ověřuje
 také doplnění chybějícího účtu při existenci druhého, vlastní heslo z konfigurace
-včetně mezer, různé hashe obou účtů, zachování hesla po změně konfigurace
+splňující pravidla nové registrace, různé hashe obou účtů, zachování hesla po změně konfigurace
 a odmítnutí chybějícího či neplatného hesla nebo e-mailu před zápisem. Shodné
 e-maily obou typů se odmítají. Testy si generují vlastní náhodné údaje, předávají
 je konfigurací před startem API a nečtou lokální `.env`. Bez vlastní konfigurace
