@@ -63,6 +63,9 @@ describe('session API client', () => {
 
 describe('login form and navigation rules', () => {
   it('requires email and a valid password, counting Unicode code points', () => {
+    expect(validateLogin({ ...fields, password: '' })).toHaveProperty('password')
+    expect(validateLogin({ ...fields, password: 'Test1!aa' })).toEqual({})
+    expect(validateLogin({ ...fields, password: '  starší heslová fráze  ' })).toEqual({})
     expect(validateLogin({ ...fields, email: 'bad', password: '🦉'.repeat(14) })).toHaveProperty('email')
     expect(validateLogin({ ...fields, password: '🦉'.repeat(15) })).toEqual({})
     expect(validateLogin({ ...fields, password: '🦉'.repeat(128) })).toEqual({})

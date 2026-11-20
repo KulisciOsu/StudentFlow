@@ -270,6 +270,19 @@ public class RegistrationTests
     }
 
     [Fact]
+    public async Task ExistingPassword_RemainsUsableWithoutInventingPrivacyAcceptance()
+    {
+        await using var app = await RegistrationApp.CreateAsync();
+        const string legacy = "  puvodni dlouha heslova fraze  ";
+        var hash = new PasswordHasher<object>().HashPassword(new object(), legacy);
+        await new PostgresUserAccountStore(app.Database.DataSource).CreateAsync(new("Starší", "účet", "legacy@example.test", hash, AccountType.Member));
+        await app.SetCsrfAsync();
+        var response = await app.Client.PostAsJsonAsync("/api/auth/login", new { email = "legacy@example.test", password = legacy });
+        Assert.Equal(200, (int)response.StatusCode);
+        Assert.Equal(0L, await app.Database.ScalarAsync<long>("SELECT count(*) FROM app_user WHERE privacy_accepted_at IS NOT NULL"));
+    }
+
+    [Fact]
     public async Task MissingOrForgedCsrf_IsRejectedBeforeWriting()
     {
         await using var app = await RegistrationApp.CreateAsync();
