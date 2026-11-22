@@ -127,6 +127,7 @@ async function mockStudentApi(page: Page) {
       teamName: 'Integrační tým',
       dueDate: '2099-01-15',
       isReadOnly: false,
+      isLeader: true,
     },
   }))
 
@@ -232,7 +233,7 @@ for (const [width, height] of [[390, 844], [820, 1180], [1280, 900]]) {
       fullPage: true,
     })
 
-    await page.getByRole('link', { name: 'Můj přehled', exact: true }).click()
+    await page.getByRole('link', { name: 'Moje projekty', exact: true }).click()
 
     await expect(page).toHaveURL('/projects')
     await expect(page.getByRole('heading', { name: 'Moje projekty', exact: true })).toBeVisible()
@@ -303,7 +304,7 @@ test('dashboard člena zachová filtry úkolů a oba vstupy do založení projek
 
   await expect(page).toHaveURL('/projects/new')
 
-  await page.getByRole('link', { name: 'Můj přehled', exact: true }).click()
+  await page.getByRole('link', { name: 'Moje projekty', exact: true }).click()
 
   await expect(page).toHaveURL('/projects')
 

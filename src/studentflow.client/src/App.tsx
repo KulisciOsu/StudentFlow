@@ -115,6 +115,7 @@ function App() {
   } else if (state.status === 'authenticated') {
     const { user } = state.identity
     const home = homeFor(user)
+    const homeLabel = user.accountType === 'STUDENT' ? 'Moje projekty' : 'Můj přehled'
 
     const boardMatch = route.path.match(/^\/board\/(\d+)$/)
     const projectId = boardMatch ? Number(boardMatch[1]) : null
@@ -135,7 +136,7 @@ function App() {
     } else {
       content = (
         <>
-          <AuthHeader currentPath={route.path} navigate={navigate} />
+          <AuthHeader />
 
           {wrongType ? (
             <section>
@@ -161,11 +162,17 @@ function App() {
               key={settingsMatch[1]}
               projectId={Number(settingsMatch[1])}
               currentUserId={user.id}
+              home={{ path: home, label: homeLabel }}
+              onNavigate={navigate}
             />
           ) : projectId !== null
             && Number.isSafeInteger(projectId)
             && projectId > 0 ? (
-            <KanbanBoard projectId={projectId} />
+            <KanbanBoard
+              projectId={projectId}
+              home={{ path: home, label: homeLabel }}
+              onNavigate={navigate}
+            />
           ) : route.path === home ? (
             user.accountType === 'STUDENT' ? (
               <Dashboard
@@ -199,6 +206,9 @@ function App() {
     }
   }
 
+  const homePath =
+    state.status === 'authenticated' ? homeFor(state.identity.user) : null
+
   const formLayout =
     state.status === 'anonymous' && route.path === '/register'
       ? ' app--register'
@@ -212,7 +222,20 @@ function App() {
         state.status === 'authenticated' ? 'app--workspace' : 'app--auth'
       }${formLayout}`}
     >
-      <h1>StudentFlow</h1>
+      <h1>
+        {homePath ? (
+          <a
+            className="app-home-link"
+            href={homePath}
+            onClick={(event) => {
+              event.preventDefault()
+              navigate(homePath)
+            }}
+          >
+            StudentFlow
+          </a>
+        ) : 'StudentFlow'}
+      </h1>
       {content}
     </main>
   )

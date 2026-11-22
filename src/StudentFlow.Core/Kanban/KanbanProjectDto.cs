@@ -35,4 +35,9 @@ public class KanbanProjectDto
     /// Zda má přihlášený uživatel nástěnku jen pro čtení. Doplňuje API.
     /// </summary>
     public bool IsReadOnly { get; set; }
+
+    /// <summary>
+    /// Zda je přihlášený uživatel vedoucím týmu a smí otevřít nastavení projektu. Doplňuje API.
+    /// </summary>
+    public bool IsLeader { get; set; }
 }

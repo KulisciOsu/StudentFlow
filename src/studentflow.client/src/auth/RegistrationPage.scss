@@ -34,8 +34,7 @@
 .session-header { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; flex-wrap: wrap; border-bottom: 1px solid #dce3ed; margin-bottom: 1.5rem; padding-bottom: 1rem; }
 .session-header p { margin: 0; overflow-wrap: anywhere; max-width: 100%; }
 .session-header span { display: block; color: #475569; }
-.session-header nav { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
-.session-header a { display: inline-flex; min-height: 44px; align-items: center; }
+.session-header button { min-height: 44px; }
 .app--workspace :focus-visible { outline: 3px solid #1d4ed8; outline-offset: 3px; }
 
 // Tablet na výšku i na šířku, včetně menších tabletů od 704 CSS px.

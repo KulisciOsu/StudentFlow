@@ -32,4 +32,9 @@ export interface Project {
   /// Určuje, zda má přihlášený uživatel nástěnku jen pro čtení.
   /// </summary>
   isReadOnly: boolean
+
+  /// <summary>
+  /// Určuje, zda je přihlášený uživatel vedoucím týmu a smí otevřít nastavení projektu.
+  /// </summary>
+  isLeader: boolean
 }

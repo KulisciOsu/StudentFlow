@@ -5,6 +5,17 @@
   width: 100%;
 }
 
+.project-settings__breadcrumb {
+  margin: 0;
+  color: #626f86;
+  font-size: 0.875rem;
+
+  a {
+    color: inherit;
+    text-underline-offset: 2px;
+  }
+}
+
 .project-settings__title {
   margin: 0;
 }

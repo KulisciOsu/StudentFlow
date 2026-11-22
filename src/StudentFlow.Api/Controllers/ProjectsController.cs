@@ -54,6 +54,7 @@ public class ProjectsController : ControllerBase
         }
 
         project.IsReadOnly = BoardPermissions.IsReadOnly(role);
+        project.IsLeader = role == ProjectRoleEnum.Leader;
 
         return project;
     }

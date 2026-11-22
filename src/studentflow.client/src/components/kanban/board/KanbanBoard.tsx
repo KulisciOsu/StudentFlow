@@ -28,12 +28,19 @@ import { KanbanColumn } from '../column/KanbanColumn'
 import { MoveErrorToast } from '../feedback/MoveErrorToast'
 import { BoardFilters } from '../filters/BoardFilters'
 import { BoardHeader } from '../header/BoardHeader'
+import type { HomeLink, NavigateTo } from '../../../models/navigation/NavigationTypes'
 import { MobileBoard } from '../mobile/MobileBoard'
 import { TaskCardContent } from '../task/TaskCardContent'
 import './KanbanBoard.scss'
 
 type KanbanBoardProps = {
   projectId: number
+
+  /** Přehled, na který vede drobečková navigace. */
+  home: HomeLink
+
+  /** Přechod na jinou stránku aplikace. */
+  onNavigate: NavigateTo
 }
 
 /**
@@ -51,7 +58,7 @@ const detectCollision: CollisionDetection = (args) => {
 /**
  * Zobrazuje Kanban nástěnku konkrétního projektu.
  */
-export function KanbanBoard({ projectId }: KanbanBoardProps) {
+export function KanbanBoard({ projectId, home, onNavigate }: KanbanBoardProps) {
   const { project, status: projectStatus } = useKanbanProject(projectId)
   const { columns, status: columnsStatus } = useKanbanColumns(projectId)
 
@@ -232,7 +239,7 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
       className="kanban-board"
       aria-labelledby="kanban-board-title"
     >
-      <BoardHeader project={project} />
+      <BoardHeader project={project} home={home} onNavigate={onNavigate} />
       <BoardFilters
         filters={filters}
         assignees={assignees}

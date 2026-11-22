@@ -19,6 +19,8 @@ function isProject(value: unknown): value is Project {
     && (value.dueDate === null || typeof value.dueDate === 'string')
     && 'isReadOnly' in value
     && typeof value.isReadOnly === 'boolean'
+    && 'isLeader' in value
+    && typeof value.isLeader === 'boolean'
 }
 
 /// <summary>

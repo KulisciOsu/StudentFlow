@@ -83,6 +83,26 @@ public class ProjectsControllerTests
         Assert.False(memberResult.Value!.IsReadOnly);
     }
 
+    /// <summary>
+    /// Ověří, že příznak vedoucího dostane jen vedoucí týmu, ne člen ani vyučující.
+    /// </summary>
+    [Theory]
+    [InlineData(TestUsers.Leader, true)]
+    [InlineData(TestUsers.Member, false)]
+    [InlineData(TestUsers.Teacher, false)]
+    public async Task Get_ReturnsLeaderFlagOnlyForLeader(long userId, bool isLeader)
+    {
+        var controller = TestUsers.SignIn(
+            new ProjectsController(
+                new FakeKanbanBoardRepository(),
+                new FakeProjectCreationRepository()),
+            userId);
+
+        var result = await controller.Get(1);
+
+        Assert.Equal(isLeader, result.Value!.IsLeader);
+    }
+
     [Fact]
     public async Task Create_ValidCommand_ReturnsCreatedProject()
     {

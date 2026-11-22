@@ -1,3 +1,4 @@
+import type { HomeLink, NavigateTo } from '../../../models/navigation/NavigationTypes'
 import type { Project } from '../../../models/projects/ProjectTypes'
 
 /// <summary>
@@ -8,4 +9,14 @@ export interface BoardHeaderProps {
   /// Projekt nástěnky.
   /// </summary>
   project: Project
+
+  /// <summary>
+  /// Přehled, na který vede drobečková navigace.
+  /// </summary>
+  home: HomeLink
+
+  /// <summary>
+  /// Přechod na jinou stránku aplikace.
+  /// </summary>
+  onNavigate: NavigateTo
 }
