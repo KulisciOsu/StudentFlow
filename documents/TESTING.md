@@ -113,6 +113,10 @@ dotnet test tests/StudentFlow.Core.Tests/StudentFlow.Core.Tests.csproj -c Releas
 dotnet test tests/StudentFlow.Data.Tests/StudentFlow.Data.Tests.csproj -c Release
 ```
 
+`StudentFlow.Data.Tests` ověřuje bez databáze kontroly vstupů datové vrstvy, které
+proběhnou před připojením (prázdné či neplatné údaje účtu, délka hashe tokenu session).
+Chování SQL nad skutečnou PostgreSQL 17 testuje `StudentFlow.Data.IntegrationTests`.
+
 Collector pro coverage je již přidaný. Pro sběr při běhu konkrétního projektu:
 
 ```bash
