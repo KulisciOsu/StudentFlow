@@ -26,7 +26,20 @@ flowchart TD
 
 Oprávnění vychází z typu účtu (člen, vyučující) a z role v konkrétním projektu (vedoucí, člen). Vyučující má nástěnky jen pro čtení, nastavení projektu spravuje pouze vedoucí týmu.
 
-## 3. Průběh požadavku
+## 3. Použité technologie
+
+| Část | Technologie |
+| --- | --- |
+| Frontend | React, TypeScript, Vite |
+| Backend | C#, ASP.NET Core Web API (.NET 10) |
+| Přístup k datům | Dapper, Npgsql |
+| Databáze | PostgreSQL 17, schéma v SQL migracích |
+| Testy | xUnit, Vitest, Playwright |
+| Vývojové prostředí | Docker Compose pro PostgreSQL |
+
+Důvody volby jednotlivých technologií uvádí [technologický návrh](TECHNOLOGICAL_DESIGN.md).
+
+## 4. Průběh požadavku
 
 1. Frontend odešle požadavek na `/api/...`. Ve vývoji ho Vite proxy předá API, takže prohlížeč pracuje s jedním originem a zabezpečenými cookies.
 2. API ověří session, u zápisů také CSRF token, a zvaliduje vstup.
@@ -34,7 +47,7 @@ Oprávnění vychází z typu účtu (člen, vyučující) a z role v konkrétn�
 4. Data provede SQL dotaz nad PostgreSQL a vrátí výsledek.
 5. API vrátí odpověď ve formátu JSON a frontend podle ní aktualizuje rozhraní.
 
-## 4. Závislosti mezi projekty
+## 5. Závislosti mezi projekty
 
 - `StudentFlow.Api` → `StudentFlow.Core`, `StudentFlow.Data`
 - `StudentFlow.Data` → `StudentFlow.Core`
@@ -42,7 +55,7 @@ Oprávnění vychází z typu účtu (člen, vyučující) a z role v konkrétn�
 
 Implementace z Data registruje Api při startu aplikace. Core tak není vázaný na konkrétní databázovou technologii.
 
-## 5. Testy
+## 6. Testy
 
 Testy jsou oddělené od produkčního kódu. Backendové projekty jsou ve složce `tests/`, frontendové testy v projektu klienta.
 
@@ -58,8 +71,10 @@ Testy jsou oddělené od produkčního kódu. Backendové projekty jsou ve slož
 
 Integrační testy si přes sdílený projekt `StudentFlow.Testing` zakládají izolované testovací databáze. Spuštění popisuje [testovací dokumentace](../TESTING.md).
 
-## 6. Zdůvodnění
+## 7. Zdůvodnění hlavních rozhodnutí
 
-- Oddělený frontend a backend s REST API umožňují vyvíjet obě části samostatně.
-- Rozdělení backendu na Api, Core a Data dává každé části jednu odpovědnost; doménová pravidla v Core lze testovat bez webu a databáze.
-- Rozhraní v Core s implementací v Data oddělují doménová pravidla od SQL, takže změna přístupu k datům nezasáhne zbytek aplikace.
+- **Rozdělení backendu na Api, Core a Data.** Pravidla, která musí platit v API i při zápisu do databáze (e-mail, jméno, heslo, oprávnění), jsou na jednom místě v Core. API pracuje s rozhraními, takže controllery i pravidla se testují nad repozitáři v paměti bez databáze.
+- **REST API na stejném originu jako frontend.** Frontend volá relativní adresy `/api/...`, ve vývoji je předává Vite proxy. Prohlížeč tak nepotřebuje CORS a může používat zabezpečené cookies s prefixem `__Host-`.
+- **Serverová session v cookie místo tokenu v prohlížeči.** Cookie je `HttpOnly`, takže k ní JavaScript nemá přístup, a odhlášení session zneplatní přímo na serveru. Zápisové požadavky chrání CSRF token.
+- **PostgreSQL s Dapperem a ručně psaným SQL.** Uživatelé, projekty, členství a úkoly jsou provázané vazbami, které relační databáze hlídá cizími klíči a omezeními. Dapper ponechává dotazy pod přímou kontrolou vývojářů.
+- **Schéma v SQL migracích.** Migrace jsou obyčejné SQL soubory, které provádí PostgreSQL v Dockeru i testovací sady. Nepotřebují další nástroj a dají se zkontrolovat v code review.
