@@ -22,9 +22,6 @@ export type DashboardProps = {
 
   /** Otevře nástěnku konkrétního projektu. */
   onOpenProject: (projectId: number) => void
-
-  /** Vloží dashboard pod společnou hlavičku aplikace. */
-  embedded?: boolean
 }
 
 /**

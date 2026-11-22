@@ -153,7 +153,6 @@ function App() {
             </section>
           ) : creatingProject ? (
             <CreateProjectPage
-              embedded
               onBack={() => navigate(home)}
               onCreated={(id) => navigate(`/board/${id}`)}
             />
@@ -170,7 +169,6 @@ function App() {
           ) : route.path === home ? (
             user.accountType === 'STUDENT' ? (
               <Dashboard
-                embedded
                 onCreateProject={() => navigate('/projects/new')}
                 onOpenProject={(id) => navigate(`/board/${id}`)}
               />

@@ -1,7 +1,6 @@
 
 .sf-shell {
   width: 100%;
-  min-height: min(854px, calc(100vh - 2px));
   background: #f5f5f5;
   color: #292929;
   border: 1px solid #bdbdbd;
@@ -9,123 +8,7 @@
   font-size: 14px;
 }
 
-.sf-topbar {
-  height: 55px;
-  padding: 0 22px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #fff;
-  border-bottom: 1px solid #dedede;
-}
-
-.sf-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  color: #292929;
-  text-decoration: none;
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.sf-brand-mark {
-  width: 30px;
-  height: 30px;
-  display: grid;
-  place-items: center;
-  border: 1.5px solid #555;
-  border-radius: 7px;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.sf-account-area { display: flex; align-items: center; gap: 18px; }
-.sf-notification {
-  position: relative;
-  width: 27px;
-  height: 32px;
-  padding: 4px;
-  border: 0;
-  background: transparent;
-  color: #292929;
-  cursor: pointer;
-}
-.sf-notification svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.sf-notification-count {
-  position: absolute;
-  top: 0;
-  right: -2px;
-  width: 15px;
-  height: 15px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: #303030;
-  color: #fff;
-  font-size: 9px;
-  font-weight: 700;
-}
-.sf-profile-wrap { position: relative; }
-.sf-profile {
-  min-width: 176px;
-  height: 40px;
-  padding: 3px 10px 3px 4px;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  border: 1px solid #d4d4d4;
-  border-radius: 22px;
-  background: #fff;
-  color: #292929;
-  text-align: left;
-  cursor: pointer;
-}
-.sf-avatar {
-  width: 31px;
-  height: 31px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: #dedede;
-  color: #303030;
-  font-size: 10px;
-  font-weight: 700;
-}
-.sf-profile-copy { display: flex; flex: 1; flex-direction: column; line-height: 1.2; }
-.sf-profile-copy strong { font-size: 12px; font-weight: 700; white-space: nowrap; }
-.sf-profile-copy small { margin-top: 2px; color: #777; font-size: 10px; }
-.sf-chevron {
-  width: 7px;
-  height: 7px;
-  margin: -4px 2px 0 4px;
-  border-right: 1.5px solid #444;
-  border-bottom: 1.5px solid #444;
-  transform: rotate(45deg);
-}
-.sf-chevron.is-open { margin-top: 4px; transform: rotate(225deg); }
-.sf-profile-menu {
-  position: absolute;
-  z-index: 5;
-  top: calc(100% + 8px);
-  right: 0;
-  width: 220px;
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  border: 1px solid #ddd;
-  border-radius: 9px;
-  background: #fff;
-  box-shadow: 0 8px 24px #00000018;
-  font-size: 12px;
-}
-.sf-profile-menu span { color: #777; }
-.sf-profile-menu button { margin-top: 8px; padding: 7px; border: 1px solid #ddd; border-radius: 5px; background: #f7f7f7; cursor: pointer; }
-
 .sf-content {
-  min-height: 798px;
   padding: 29px 24px 70px;
   background: #f5f5f5;
 }
@@ -193,10 +76,6 @@
 
 /* Tablet – pouze úprava rozměrů */
 @media (min-width: 641px) and (max-width: 900px) {
-  .sf-topbar {
-    padding: 0 18px;
-  }
-
   .sf-content {
     padding: 26px 22px 50px;
   }
@@ -212,14 +91,7 @@
 
 /* Mobil */
 @media (max-width: 640px) {
-  .sf-shell { min-height: 100vh; }
-  .sf-topbar { height: 58px; padding: 0 10px; }
-  .sf-brand { gap: 7px; font-size: 13px; }
-  .sf-brand-mark { width: 27px; height: 27px; }
-  .sf-account-area { gap: 8px; }
-  .sf-profile { min-width: 0; width: 42px; height: 42px; padding: 4px; justify-content: center; }
-  .sf-profile-copy, .sf-chevron { display: none; }
-  .sf-content { min-height: calc(100vh - 58px); padding: 18px 10px 30px; }
+  .sf-content { padding: 18px 10px 30px; }
   .sf-content-inner { width: 100%; }
   .sf-page-heading :is(h1, h2) { font-size: 21px; }
   .sf-page-heading p { font-size: 13px; }
@@ -243,11 +115,6 @@
     width: 100%;
     min-height: 44px;
   }
-}
-
-.sf-shell.sf-shell--embedded,
-.sf-shell--embedded .sf-content {
-  min-height: 0;
 }
 
 /* Validace formuláře */

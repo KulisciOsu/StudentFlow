@@ -9,26 +9,6 @@ import type {
 import { getDashboard } from '../../services/dashboard/dashboardApi'
 import './Dashboard.scss'
 
-/** Vykreslí ikonu oznámení v záhlaví dashboardu. */
-function BellIcon() {
-  return (
-    <svg
-      width="21"
-      height="21"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
-      <path d="M10 21h4" />
-    </svg>
-  )
-}
-
 /**
  * Zobrazí kartu skutečného projektu z databáze.
  */
@@ -123,19 +103,14 @@ function ProjectCard({ project, onOpen }: ProjectCardProps) {
 export function Dashboard({
   onCreateProject,
   onOpenProject,
-  embedded = false,
 }: DashboardProps) {
   const [activeTab, setActiveTab] = useState<'open' | 'done'>('open')
-  const [profileOpen, setProfileOpen] = useState(false)
   const [notice, setNotice] = useState('')
   const [projects, setProjects] = useState<Project[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [reloadKey, setReloadKey] = useState(0)
-
-  const Container = embedded ? 'section' : 'main'
-  const ProjectsHeading = embedded ? 'h2' : 'h1'
 
   useEffect(() => {
     const controller = new AbortController()
@@ -177,88 +152,15 @@ export function Dashboard({
   const doneTaskCount = tasks.filter((task) => task.completed).length
 
   /**
-   * Zobrazí informační hlášku a zavře nabídku profilu.
+   * Zobrazí informační hlášku.
    */
   function showPlaceholder(message: string) {
     setNotice(message)
-    setProfileOpen(false)
   }
 
   return (
-    <div className={`dashboard${embedded ? ' dashboard--embedded' : ''}`}>
-      {!embedded && (
-        <header className="dashboard__header">
-          <a
-            className="dashboard__brand"
-            href="/dashboard"
-            aria-label="StudentFlow – úvodní dashboard"
-          >
-            <span className="dashboard__logo">SF</span>
-            <strong>StudentFlow</strong>
-          </a>
-
-          <div className="dashboard__header-actions">
-            <button
-              className="dashboard__notifications"
-              type="button"
-              aria-label="Oznámení"
-              onClick={() =>
-                showPlaceholder('Oznámení budou doplněna později.')
-              }
-            >
-              <BellIcon />
-              <span className="dashboard__notification-count">3</span>
-            </button>
-
-            <div className="dashboard__profile-wrapper">
-              <button
-                className="dashboard__account"
-                type="button"
-                aria-expanded={profileOpen}
-                aria-label="Uživatelský profil"
-                onClick={() => {
-                  setProfileOpen((previous) => !previous)
-                  setNotice('')
-                }}
-              >
-                <span className="dashboard__avatar">SF</span>
-                <span className="dashboard__account-info">
-                  <strong>Uživatelský účet</strong>
-                  <small>Student</small>
-                </span>
-                <span aria-hidden="true">⌄</span>
-              </button>
-
-              {profileOpen && (
-                <div className="dashboard__profile-menu">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      showPlaceholder(
-                        'Nastavení profilu zatím není dostupné.',
-                      )
-                    }
-                  >
-                    Nastavení
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      showPlaceholder(
-                        'Odhlášení proveďte přes hlavní nabídku aplikace.',
-                      )
-                    }
-                  >
-                    Odhlásit se
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
-      )}
-
-      <Container className="dashboard__content">
+    <div className="dashboard">
+      <section className="dashboard__content">
         {notice && (
           <div className="dashboard__notice" role="status">
             <span>{notice}</span>
@@ -275,9 +177,9 @@ export function Dashboard({
         <section aria-labelledby="projects-title">
           <div className="dashboard__section-heading">
             <div>
-              <ProjectsHeading id="projects-title">
+              <h2 id="projects-title">
                 Moje projekty
-              </ProjectsHeading>
+              </h2>
               <p>
                 Projekty, ve kterých jste členem nebo vedoucím týmu.
               </p>
@@ -432,7 +334,7 @@ export function Dashboard({
             </table>
           </div>
         </section>
-      </Container>
+      </section>
     </div>
   )
 }

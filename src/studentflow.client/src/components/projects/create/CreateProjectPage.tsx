@@ -8,9 +8,9 @@ import type {
 import './CreateProjectPage.scss'
 
 const initialValues: FormValues = {
-  projectName: 'Rezervační systém knihovny',
+  projectName: '',
   description: '',
-  deadline: '2027-01-15',
+  deadline: '',
   teamName: '',
 }
 
@@ -70,17 +70,11 @@ async function readApiError(response: Response): Promise<string> {
 export function CreateProjectPage({
   onBack,
   onCreated,
-  embedded = false,
 }: CreateProjectPageProps) {
   const [values, setValues] = useState<FormValues>(initialValues)
-  const [profileOpen, setProfileOpen] = useState(false)
   const [errors, setErrors] = useState<FormErrors>({})
   const [serverError, setServerError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const Container = embedded ? 'section' : 'main'
-  const PageHeading = embedded ? 'h2' : 'h1'
-  const SectionHeading = embedded ? 'h3' : 'h2'
 
   function validateForm(formValues: FormValues): FormErrors {
     const validationErrors: FormErrors = {}
@@ -191,58 +185,10 @@ export function CreateProjectPage({
   }
 
   return (
-    <Container
-      className={`sf-shell${embedded ? ' sf-shell--embedded' : ''}`}
+    <section
+      className="sf-shell"
       aria-labelledby="create-project-title"
     >
-      {!embedded && (
-        <header className="sf-topbar">
-          <a className="sf-brand" href="/" aria-label="StudentFlow – úvodní stránka">
-            <span className="sf-brand-mark">SF</span>
-            <span>StudentFlow</span>
-          </a>
-
-          <div className="sf-account-area">
-            <button
-              className="sf-notification"
-              type="button"
-              aria-label="Oznámení, 3 nepřečtená"
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
-              </svg>
-              <span className="sf-notification-count">3</span>
-            </button>
-
-            <div className="sf-profile-wrap">
-              <button
-                className="sf-profile"
-                type="button"
-                aria-expanded={profileOpen}
-                onClick={() => setProfileOpen((open) => !open)}
-              >
-                <span className="sf-avatar">PS</span>
-                <span className="sf-profile-copy">
-                  <strong>Petra Svobodová</strong>
-                  <small>Student</small>
-                </span>
-                <span className={`sf-chevron ${profileOpen ? 'is-open' : ''}`} />
-              </button>
-
-              {profileOpen && (
-                <div className="sf-profile-menu">
-                  <strong>Petra Svobodová</strong>
-                  <span>student@studentflow.cz</span>
-                  <button type="button" onClick={() => setProfileOpen(false)}>
-                    Zavřít nabídku
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
-      )}
-
       <section className="sf-content">
         <div className="sf-content-inner">
           <nav className="sf-breadcrumb" aria-label="Drobečková navigace">
@@ -260,7 +206,7 @@ export function CreateProjectPage({
           </nav>
 
           <div className="sf-page-heading">
-            <PageHeading id="create-project-title">Založit projekt</PageHeading>
+            <h2 id="create-project-title">Založit projekt</h2>
             <p>
               Projekt se zakládá společně s týmem. Vy se stanete jeho vedoucím.
             </p>
@@ -268,7 +214,7 @@ export function CreateProjectPage({
 
           <form className="sf-form-card" onSubmit={handleSubmit} noValidate>
             <section className="sf-form-section" aria-labelledby="project-section-title">
-              <SectionHeading id="project-section-title">1 · Projekt</SectionHeading>
+              <h3 id="project-section-title">1 · Projekt</h3>
 
               <div className="sf-field">
                 <label htmlFor="project-name">
@@ -353,7 +299,7 @@ export function CreateProjectPage({
               className="sf-form-section sf-team-section"
               aria-labelledby="team-section-title"
             >
-              <SectionHeading id="team-section-title">2 · Tým</SectionHeading>
+              <h3 id="team-section-title">2 · Tým</h3>
 
               <div className="sf-field">
                 <label htmlFor="team-name">
@@ -416,6 +362,6 @@ export function CreateProjectPage({
           </form>
         </div>
       </section>
-    </Container>
+    </section>
   )
 }
