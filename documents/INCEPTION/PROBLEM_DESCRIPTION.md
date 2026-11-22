@@ -1,5 +1,7 @@
 ## 4.2 Popis problému
 
+> **Krok 1 řetězce: problém.** Pokračuje [vizí projektu](VIZE_PROJEKTU.md).
+
 Studentské týmy dnes organizují společnou práci v několika nesouvisejících nástrojích, takže nikdo nemá úplný přehled o úkolech, termínech a podílu jednotlivých členů. Nejvíc to pocítí vyučující, který má hodnotit jednotlivce, ale vidí hlavně výsledek práce celého týmu.
 
 ### Současný stav
@@ -25,13 +27,15 @@ Tým nemá jedno místo, kde by byly úkoly, jejich stav, termíny a podklady po
 
 ### Nedostatky současného řešení
 
-- **Roztříštěnost:** informace jsou ve více nástrojích najednou a úkol zadaný v chatu snadno zapadne.
-- **Chybí aktuální přehled:** tabulky s úkoly se přestávají aktualizovat a stav práce není vidět bez ptaní.
-- **Obecné nástroje nesedí na školu:** Jira a Asana jsou na nastavení složité a žádný z nich nepočítá s rolí vyučujícího. Ten by musel být pozván do nástroje každého týmu zvlášť.
-- **Podíl jednotlivců nejde doložit:** historie kódu ukazuje jen programování, ne analýzu, dokumentaci nebo testování. Hodnocení pak stojí na dojmu nebo na tom, co tým řekne sám.
+Každý nedostatek má číslo, na které odkazují další dokumenty.
+
+| # | Nedostatek | Popis |
+| --- | --- | --- |
+| N1 | **Roztříštěnost** | Informace jsou ve více nástrojích najednou a úkol zadaný v chatu snadno zapadne. |
+| N2 | **Chybí aktuální přehled** | Tabulky s úkoly se přestávají aktualizovat a stav práce není vidět bez ptaní. |
+| N3 | **Obecné nástroje nesedí na školu** | Jira a Asana jsou na nastavení složité a žádný z nich nepočítá s rolí vyučujícího. Ten by musel být pozván do nástroje každého týmu zvlášť. |
+| N4 | **Podíl jednotlivců nejde doložit** | Historie kódu ukazuje jen programování, ne analýzu, dokumentaci nebo testování. Hodnocení pak stojí na dojmu nebo na tom, co tým řekne sám. |
 
 ### Proč je vhodné vytvořit nový systém
 
-Nový systém spojí úkoly, termíny, komentáře a soubory na jedno místo a bude obsahovat jen funkce, které studentský tým opravdu potřebuje. Role vyučujícího bude součástí systému od začátku, takže uvidí všechny své týmy v jednom prostředí. Statistiky práce jednotlivých členů budou vycházet ze skutečně přiřazených a dokončených úkolů, ne z dojmu. Takový nástroj dnes žádná z uvedených alternativ nenabízí.
-
----
+Nový systém spojí úkoly, termíny, komentáře a soubory na jedno místo (N1) a bude obsahovat jen funkce, které studentský tým opravdu potřebuje (N3). Stav úkolů bude vidět na nástěnce bez ptaní (N2). Role vyučujícího bude součástí systému od začátku, takže uvidí všechny své týmy v jednom prostředí (N3). Statistiky práce jednotlivých členů budou vycházet ze skutečně přiřazených a dokončených úkolů, ne z dojmu (N4). Takový nástroj dnes žádná z uvedených alternativ nenabízí.

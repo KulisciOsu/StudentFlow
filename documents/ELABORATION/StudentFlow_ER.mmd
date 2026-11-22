@@ -91,12 +91,12 @@
 %%   ]
 %% }
 %% @svg-end
-%% @rule UZIVATEL má povinné boolean atributy clen a vyucujici. Alespoň jeden z nich je true; oba mohou být true současně.
-%% @rule CLEN_PROJEKTU zachycuje aktuální členství jednoho UZIVATELE s clen = true v jednom PROJEKTU. Identifikuje jej dvojice UZIVATEL a PROJEKT; pro tuto dvojici existuje nejvýše jedno členství.
+%% @rule UZIVATEL má povinný atribut typ_uctu s právě jednou hodnotou: člen, nebo vyučující. Jeden účet nemůže mít oba typy současně (viz auth/API_CONTRACT.md).
+%% @rule CLEN_PROJEKTU zachycuje aktuální členství jednoho UZIVATELE s typ_uctu = člen v jednom PROJEKTU. Identifikuje jej dvojice UZIVATEL a PROJEKT; pro tuto dvojici existuje nejvýše jedno členství.
 %% @rule Jeden UZIVATEL může mít 0..N členství; jeden PROJEKT má 1..N členství. Každé CLEN_PROJEKTU patří právě jednomu UZIVATELI a právě jednomu PROJEKTU.
 %% @rule Povinný boolean CLEN_PROJEKTU.vedouci určuje, zda je daný uživatel vedoucím právě tohoto projektu. V jiných projektech může mít odlišnou hodnotu.
 %% @rule Každý PROJEKT má právě jedno členství s vedouci = true; ostatní členství tohoto projektu mají vedouci = false.
-%% @rule Jeden UZIVATEL s vyucujici = true může mít přístup k 0..N projektům; jeden PROJEKT může mít 0..N takových vyučujících. Vazba UZIVATEL–PROJEKT je přímá a neidentifikující.
+%% @rule Jeden UZIVATEL s typ_uctu = vyučující může mít přístup k 0..N projektům; jeden PROJEKT může mít 0..N takových vyučujících. Vazba UZIVATEL–PROJEKT je přímá a neidentifikující.
 %% @rule Úkol identifikuje projekt a číslo úkolu.
 %% @rule Každý UKOL má právě jednoho UZIVATELE jako autora a právě jednoho UZIVATELE jako řešitele; může jít o stejného uživatele. Jeden UZIVATEL může vytvořit 0..N úkolů a řešit 0..N úkolů. Obě vazby jsou neidentifikující.
 %% @rule Jedna PRILOHA představuje jedno nahrání souboru k úkolu. Identifikuje ji vlastní povinný atribut id, unikátní mezi všemi přílohami. Vazba na UKOL je neidentifikující.
@@ -117,8 +117,8 @@ erDiagram
         int id "# * Identifikátor účtu"
         string email "* Email uživatele"
         string jmeno "* Zobrazované jméno"
-        boolean clen "* Je členem"
-        boolean vyucujici "* Je vyučujícím"
+        string typ_uctu "* Člen, nebo vyučující"
+        boolean aktivni "* Účet je aktivní"
     }
 
 

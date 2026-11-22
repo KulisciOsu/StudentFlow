@@ -93,6 +93,10 @@ vrátí `500 INTERNAL_ERROR` bez citlivých detailů a nevydá úspěšnou ident
 - Projektová API kontrolují členství nebo přidělený přístup na serveru při
   každém požadavku. `TEACHER` nedává přístup ke všem projektům. Vedení týmu
   vzniká z konkrétního členství, nikoli z globální role nebo typu účtu.
+- **Dočasně v prototypu:** přidělování přístupu vyučujícím (UC09) zatím
+  neexistuje, proto nástěnka umožňuje účtu `TEACHER` číst všechny projekty,
+  pouze pro čtení. Jde o známé omezení A01, které odstraní implementace UC09;
+  viz [prototyp](../PROTOTYP.md#známá-omezení-prototypu).
 - Autentizace nevrací projekty ani jejich oprávnění. Obsah dashboardu dodává
   KAN-47 a navazující tasky; zde se vymezují cesty a předání identity.
 
