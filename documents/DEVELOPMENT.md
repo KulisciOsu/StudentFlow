@@ -96,6 +96,16 @@ docker compose stop
 Samotné API lze spustit pomocí `node scripts/dev.mjs api`. Pro frontend
 samostatně slouží `npm --prefix src/studentflow.client run dev`.
 
+### Spuštění z Visual Studia
+
+Frontend (`studentflow.client`) lze spustit z Visual Studia bez předchozího
+`node scripts/dev.mjs setup`. Pokud v `.certs/` chybí certifikát, Vite ho při
+startu exportuje pomocí `dotnet dev-certs https` (stejně jako setup). Důvěru
+certifikátu nastavuje Visual Studio při prvním spuštění HTTPS profilu API,
+případně `dotnet dev-certs https --trust`. API spuštěné z Visual Studia
+nenačítá `.env`; connection string a seed nastavte v User Secrets projektu
+`StudentFlow.Api`.
+
 ## Testovací účty pro lokální vývoj
 
 Vývojový seed umí při startu API založit účet člena (`STUDENT`) a vyučujícího

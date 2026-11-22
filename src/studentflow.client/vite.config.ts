@@ -1,25 +1,25 @@
 /// <reference types="vitest/config" />
 import { defineConfig } from 'vite';
 import plugin from '@vitejs/plugin-react';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { ensureDevCertificate } from '../../scripts/dev-certs.mjs';
 
 export default defineConfig(({ command }) => {
-    const certPath = fileURLToPath(new URL('../../.certs/localhost.pem', import.meta.url));
-    const keyPath = fileURLToPath(new URL('../../.certs/localhost.key', import.meta.url));
-    if (command === 'serve' && (!existsSync(certPath) || !existsSync(keyPath))) {
-        throw new Error('Nejdříve z kořene projektu spusťte node scripts/dev.mjs setup.');
-    }
+    // Při spuštění z Visual Studia (npm run dev) chybějící certifikát vytvoří; build ho nepotřebuje.
+    const certificate = command === 'serve'
+        ? ensureDevCertificate(fileURLToPath(new URL('../..', import.meta.url)))
+        : null;
 
     return {
         plugins: [plugin()],
-        server: command === 'serve' ? {
+        server: certificate ? {
             host: 'localhost',
             port: 60357,
             strictPort: true,
             https: {
-                cert: readFileSync(certPath),
-                key: readFileSync(keyPath),
+                cert: readFileSync(certificate.certPath),
+                key: readFileSync(certificate.keyPath),
             },
             proxy: {
                 '/api': {
