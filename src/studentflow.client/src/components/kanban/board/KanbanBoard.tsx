@@ -255,7 +255,6 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
         <MobileBoard
           columns={columns}
           tasks={tasks.filter((task) => visibleTaskIds.has(task.id))}
-          isReadOnly={project.isReadOnly}
           onMoveTask={(taskId, columnId) => void moveTask(
             taskId, columnId, tasks.filter((task) => task.columnId === columnId).length,
           )}

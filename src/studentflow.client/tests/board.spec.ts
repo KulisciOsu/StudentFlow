@@ -241,7 +241,7 @@ test('prázdná nástěnka zobrazí prázdný stav', async ({ page }) => {
   await expect(column(page, 'K řešení').getByText('Žádné úkoly')).toBeVisible()
 })
 
-test('na mobilu jsou sloupce v záložkách a přesun jen u vlastních úkolů', async ({ page }) => {
+test('na mobilu jsou sloupce v záložkách, přesun jen u vlastních úkolů a žádná tlačítka bez funkce', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await signIn(page, memberEmail, seedPassword)
   await page.goto('/board/1')
@@ -252,6 +252,8 @@ test('na mobilu jsou sloupce v záložkách a přesun jen u vlastních úkolů',
   await page.getByRole('tab', { name: /K řešení/ }).click()
   await expect(card(page, foreignTask)).toBeVisible()
   await expect(page.getByLabel(`Přesunout úkol ${foreignTask}`)).toHaveCount(0)
-  await expect(page.getByRole('button', { name: 'Nový úkol' })).toBeVisible()
+  // Vytváření úkolů ani stránky Plán, Statistiky a Soubory zatím neexistují, proto je mobil nenabízí.
+  await expect(page.getByRole('button', { name: 'Nový úkol' })).toHaveCount(0)
+  await expect(page.getByRole('navigation', { name: 'Hlavní navigace' })).toHaveCount(0)
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
 })

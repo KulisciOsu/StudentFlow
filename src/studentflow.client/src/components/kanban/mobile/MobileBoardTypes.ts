@@ -16,11 +16,6 @@ export interface MobileBoardProps {
   tasks: Task[]
 
   /// <summary>
-  /// Určuje, zda má uživatel nástěnku jen pro čtení.
-  /// </summary>
-  isReadOnly: boolean
-
-  /// <summary>
   /// Přesune úkol na konec cílového sloupce.
   /// </summary>
   onMoveTask: (taskId: number, columnId: number) => void
