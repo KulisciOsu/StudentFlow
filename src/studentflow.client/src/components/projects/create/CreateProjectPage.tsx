@@ -224,6 +224,7 @@ export function CreateProjectPage({
                   id="project-name"
                   name="projectName"
                   type="text"
+                  placeholder="Např. Evidence praxí"
                   value={values.projectName}
                   onChange={(event) => update('projectName', event.target.value)}
                   maxLength={160}
