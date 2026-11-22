@@ -56,6 +56,7 @@ async function mockStudentApi(page: Page) {
       tasks: [
         {
           id: 1,
+          projectId: 1,
           name: 'Čištění datasetu',
           project: 'Testovací projekt',
           deadline: '2099-01-15',
@@ -66,6 +67,7 @@ async function mockStudentApi(page: Page) {
         },
         {
           id: 2,
+          projectId: 1,
           name: 'Analýza požadavků',
           project: 'Testovací projekt',
           deadline: '2099-01-15',
@@ -76,6 +78,7 @@ async function mockStudentApi(page: Page) {
         },
         {
           id: 3,
+          projectId: 1,
           name: 'Příprava dokumentace',
           project: 'Testovací projekt',
           deadline: '2099-01-20',
@@ -86,6 +89,7 @@ async function mockStudentApi(page: Page) {
         },
         {
           id: 4,
+          projectId: 1,
           name: 'Kontrola výsledků',
           project: 'Testovací projekt',
           deadline: '2099-01-25',
@@ -299,6 +303,12 @@ test('dashboard člena zachová filtry úkolů a oba vstupy do založení projek
   await page.getByRole('button', { name: 'Otevřené (3)', exact: true }).click()
 
   await expect(tasks.getByRole('button', { name: 'Čištění datasetu', exact: true })).toBeVisible()
+
+  // Název úkolu otevře nástěnku jeho projektu.
+  await tasks.getByRole('button', { name: 'Čištění datasetu', exact: true }).click()
+  await expect(page).toHaveURL('/board/1')
+  await page.goBack()
+  await expect(page).toHaveURL('/projects')
 
   await page.getByRole('button', { name: /Založit nový projekt/ }).click()
 

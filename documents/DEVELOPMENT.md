@@ -71,8 +71,8 @@ API; dostupnost databáze ověřuje Compose healthcheck, nikoli tento endpoint.
 
 Registrace a login již vyžadují funkční databázi po migraci V003. Úvodní
 adresa přesměruje na přihlášení; po loginu člen pokračuje na dashboard `/projects`
-a vyučující na `/teaching`. Dashboard zatím používá ukázková data projektů
-a úkolů. Ukázkové API sloupců a úkolů je také chráněné session.
+a vyučující na `/teaching`. Dashboard načítá projekty a úkoly přihlášeného
+uživatele z API. API projektů, sloupců a úkolů je chráněné session.
 
 Pro důvěru vývojovému certifikátu lze podle platformy použít:
 

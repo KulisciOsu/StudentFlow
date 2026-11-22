@@ -204,6 +204,11 @@ public class DashboardControllerTests
         Assert.Equal(
             "Projekt Jana",
             tasks[0].GetProperty("project").GetString());
+
+        // Úkol nese ID svého projektu, aby šel z dashboardu otevřít na nástěnce.
+        Assert.Equal(
+            projects[0].GetProperty("id").GetInt32(),
+            tasks[0].GetProperty("projectId").GetInt32());
     }
 
     /// <summary>

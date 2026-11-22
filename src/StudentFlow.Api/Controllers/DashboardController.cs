@@ -58,6 +58,7 @@ public sealed class DashboardController(
             Tasks = data.Tasks.Select(t => new DashboardTaskDto
             {
                 Id = t.Id,
+                ProjectId = t.ProjectId,
                 Name = t.Name,
                 Project = t.Project,
                 Deadline = t.Deadline,

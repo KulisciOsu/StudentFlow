@@ -107,7 +107,6 @@ export function Dashboard({
   onOpenProject,
 }: DashboardProps) {
   const [activeTab, setActiveTab] = useState<'open' | 'done'>('open')
-  const [notice, setNotice] = useState('')
   const [projects, setProjects] = useState<Project[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
@@ -153,28 +152,9 @@ export function Dashboard({
   const openTaskCount = tasks.filter((task) => !task.completed).length
   const doneTaskCount = tasks.filter((task) => task.completed).length
 
-  /**
-   * Zobrazí informační hlášku.
-   */
-  function showPlaceholder(message: string) {
-    setNotice(message)
-  }
-
   return (
     <div className="dashboard">
       <section className="dashboard__content">
-        {notice && (
-          <div className="dashboard__notice" role="status">
-            <span>{notice}</span>
-            <button
-              type="button"
-              aria-label="Zavřít upozornění"
-              onClick={() => setNotice('')}
-            >
-              ×
-            </button>
-          </div>
-        )}
 
         <section aria-labelledby="projects-title">
           <div className="dashboard__section-heading">
@@ -299,11 +279,8 @@ export function Dashboard({
                         <button
                           type="button"
                           className="dashboard__task-link"
-                          onClick={() =>
-                            showPlaceholder(
-                              `Detail úkolu „${task.name}“ bude doplněn později.`,
-                            )
-                          }
+                          title={`Otevřít nástěnku projektu ${task.project}`}
+                          onClick={() => onOpenProject(task.projectId)}
                         >
                           {task.name}
                         </button>
