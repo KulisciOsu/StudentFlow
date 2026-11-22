@@ -1,151 +1,65 @@
 # Návrh architektury systému StudentFlow
 
-## 1. Účel dokumentu
+## 1. Přehled
 
-Tento dokument popisuje základní architekturu systému StudentFlow, jeho hlavní komponenty, jejich vzájemnou komunikaci a rozdělení odpovědností. Cílem je vytvořit přehledný a rozšiřitelný základ pro implementaci systému určeného ke správě studentských týmových projektů.
-
-## 2. Přehled architektury
-
-StudentFlow bude implementován jako webová aplikace využívající architekturu klient–server. Uživatelské rozhraní bude odděleno od backendu a přístupu k datům. Komunikace mezi frontendem a backendem bude probíhat prostřednictvím REST API.
-
-Architektura se skládá z následujících hlavních částí:
-
-- **Frontend** – uživatelské rozhraní aplikace a prezentace dat.
-- **Backend API** – zpracování HTTP požadavků, validace vstupních dat a zprostředkování aplikačních funkcí.
-- **Core** – doménové entity, pravidla, doménová logika a potřebná rozhraní.
-- **Data** – přístup k databázi a implementace datových operací.
-- **Databáze** – trvalé ukládání aplikačních dat.
-- **Testovací vrstva** – automatické ověřování správnosti jednotlivých částí systému.
-
-Jednotlivé části budou odděleny podle odpovědnosti, aby se usnadnil vývoj, testování a budoucí rozšiřování aplikace.
-
-## 3. Architektonický diagram
+StudentFlow je webová aplikace typu klient–server. Frontend v prohlížeči komunikuje s backendem přes REST API (JSON přes HTTPS). Backend je rozdělený podle odpovědnosti na projekty `StudentFlow.Api`, `StudentFlow.Core` a `StudentFlow.Data` a data ukládá do PostgreSQL.
 
 ```mermaid
 flowchart TD
-    U["Uživatel"] --> F["Frontend: React + TypeScript"]
-    F -->|HTTP/HTTPS, JSON| API["Backend: ASP.NET Core Web API"]
-    API --> C["Core: Doménová logika"]
-    API --> D["Data: Datová vrstva"]
-    D --> DB[("Relační databáze")]
-    T["xUnit testy"] -.-> API
-    T -.-> C
-    T -.-> D
+    U["Uživatel"] --> F["Frontend<br/>React + TypeScript"]
+    F -->|"HTTPS, JSON, /api/..."| API["StudentFlow.Api<br/>ASP.NET Core Web API"]
+    API --> C["StudentFlow.Core<br/>doménová pravidla a rozhraní"]
+    API --> D["StudentFlow.Data<br/>SQL přes Dapper"]
+    D --> C
+    D --> DB[("PostgreSQL 17")]
 ```
 
-Diagram znázorňuje logické členění systému a vztahy mezi jeho hlavními komponentami. Frontend komunikuje s backendem prostřednictvím REST API. Backend využívá doménovou logiku v projektu `StudentFlow.Core` a datové operace zajišťované projektem `StudentFlow.Data`. Datová vrstva komunikuje s databází.
+## 2. Komponenty
 
-Testovací projekty jsou odděleny od produkčního kódu a slouží k ověřování jednotlivých částí systému. Nejsou součástí běžného provozního toku aplikace.
+| Část | Odpovědnost |
+| --- | --- |
+| `studentflow.client` | Uživatelské rozhraní: registrace a přihlášení, dashboard, nástěnka, založení a nastavení projektu. API volá relativními adresami `/api/...`. |
+| `StudentFlow.Api` | Controllery REST API, validace vstupů, autentizace session cookie s ochranou CSRF, kontrola oprávnění a registrace implementací přes dependency injection. Chyby vrací v jednotném tvaru (problem details s kódem chyby). |
+| `StudentFlow.Core` | Doménová pravidla (formát e-mailu, jména a hesla, oprávnění k nástěnce, přesuny úkolů, správa členů) a rozhraní pro přístup k datům. Nezávisí na webové vrstvě ani na databázi. |
+| `StudentFlow.Data` | Implementace rozhraní z Core: parametrizované SQL dotazy nad PostgreSQL přes Dapper a Npgsql. Neurčuje doménová pravidla. |
+| Databáze | PostgreSQL 17. Schéma vzniká SQL migracemi v `database/migrations/`. |
 
-## 4. Popis jednotlivých komponent
+Oprávnění vychází z typu účtu (člen, vyučující) a z role v konkrétním projektu (vedoucí, člen). Vyučující má nástěnky jen pro čtení, nastavení projektu spravuje pouze vedoucí týmu.
 
-### 4.1 Frontend
+## 3. Průběh požadavku
 
-Frontend zajišťuje komunikaci s uživatelem, prezentaci dat a ovládání funkcí systému. Umožní uživatelům pracovat s projekty, týmy, úkoly a dalšími funkcemi aplikace.
+1. Frontend odešle požadavek na `/api/...`. Ve vývoji ho Vite proxy předá API, takže prohlížeč pracuje s jedním originem a zabezpečenými cookies.
+2. API ověří session, u zápisů také CSRF token, a zvaliduje vstup.
+3. Controller použije pravidla z Core a data získá přes rozhraní, které implementuje Data.
+4. Data provede SQL dotaz nad PostgreSQL a vrátí výsledek.
+5. API vrátí odpověď ve formátu JSON a frontend podle ní aktualizuje rozhraní.
 
-Použité technologie:
+## 4. Závislosti mezi projekty
 
-- React
-- TypeScript
-- Vite
-- HTML a CSS
+- `StudentFlow.Api` → `StudentFlow.Core`, `StudentFlow.Data`
+- `StudentFlow.Data` → `StudentFlow.Core`
+- `StudentFlow.Core` nezávisí na žádném dalším projektu.
 
-Frontend bude komunikovat s backendem prostřednictvím HTTP požadavků na REST API. Data budou přenášena ve formátu JSON.
+Implementace z Data registruje Api při startu aplikace. Core tak není vázaný na konkrétní databázovou technologii.
 
-### 4.2 Backend API
+## 5. Testy
 
-Backend představuje vstupní bod pro požadavky frontendu. Zajišťuje zpracování HTTP požadavků, validaci vstupních dat, volání příslušné doménové logiky a vracení odpovědí klientovi.
+Testy jsou oddělené od produkčního kódu. Backendové projekty jsou ve složce `tests/`, frontendové testy v projektu klienta.
 
-Použitá technologie:
+| Sada | Co ověřuje |
+| --- | --- |
+| `StudentFlow.Core.Tests` | Doménová pravidla bez infrastruktury. |
+| `StudentFlow.Api.Tests` | Controllery nad repozitářem v paměti. |
+| `StudentFlow.Data.Tests` | Kontroly vstupů datové vrstvy bez databáze. |
+| `StudentFlow.Data.IntegrationTests` | SQL dotazy, omezení a migrace nad skutečnou PostgreSQL 17. |
+| `StudentFlow.Api.IntegrationTests` | Celé HTTP API včetně autentizace nad skutečnou PostgreSQL 17. |
+| Vitest | Frontendová logika, hooky a komponenty. |
+| Playwright | Uživatelské průchody v prohlížeči proti běžícímu API. |
 
-- ASP.NET Core Web API
+Integrační testy si přes sdílený projekt `StudentFlow.Testing` zakládají izolované testovací databáze. Spuštění popisuje [testovací dokumentace](../TESTING.md).
 
-API bude rozděleno do endpointů a controllerů podle jednotlivých oblastí systému. Součástí backendu bude také konfigurace aplikace, zpracování chyb a zabezpečení prostřednictvím autentizace a autorizace podle uživatelských rolí.
+## 6. Zdůvodnění
 
-Při konfiguraci aplikace budou zaregistrovány potřebné implementace rozhraní z datové vrstvy, aby je bylo možné využívat prostřednictvím mechanismu dependency injection.
-
-### 4.3 Core
-
-Core představuje doménovou část aplikace. Obsahuje hlavní entity systému, pravidla a rozhraní potřebná pro realizaci aplikačních funkcí.
-
-Příklady doménových oblastí:
-
-- uživatelé a jejich role,
-- týmy a členství,
-- projekty,
-- úkoly a jejich stavy,
-- komentáře a další související data.
-
-V případě potřeby bude Core definovat také rozhraní pro přístup k datům, která budou implementována v projektu `StudentFlow.Data`.
-
-Core nebude přímo záviset na databázové implementaci ani na webové vrstvě. Díky tomu bude možné testovat doménovou logiku nezávisle na databázové a webové infrastruktuře.
-
-### 4.4 Data
-
-Datová vrstva zajišťuje ukládání, načítání, změny a mazání dat. Bude obsahovat implementaci datových operací a případných rozhraní definovaných v projektu `StudentFlow.Core`.
-
-Pro práci s relační databází lze využít Entity Framework Core. Konkrétní databázový systém a způsob přístupu k datům budou upřesněny v technologickém návrhu.
-
-Datová vrstva nebude určovat doménová pravidla aplikace. Její hlavní odpovědností bude zajištění komunikace s databází a poskytování dat prostřednictvím definovaných rozhraní.
-
-### 4.5 Databáze
-
-Databáze bude sloužit k trvalému ukládání údajů o uživatelích, týmech, projektech, úkolech a dalších objektech systému.
-
-Datový model bude navržen s ohledem na vazby mezi jednotlivými entitami, integritu dat a budoucí rozšiřitelnost aplikace.
-
-Konkrétní databázový systém zatím není v tomto dokumentu pevně stanoven.
-
-### 4.6 Testovací vrstva
-
-Automatizované testy budou odděleny od produkčního kódu ve složce `tests/`.
-
-Budou využívat framework xUnit a budou rozděleny podle testované komponenty:
-
-- `StudentFlow.Api.Tests` – testování API, jeho endpointů a chování při zpracování požadavků.
-- `StudentFlow.Core.Tests` – testování doménové logiky a pravidel implementovaných v projektu `StudentFlow.Core`.
-- `StudentFlow.Data.Tests` – testování datové vrstvy a operací pro práci s databází.
-
-Testy pomohou odhalovat chyby při vývoji a ověřovat, že změny v jedné části systému nenaruší již implementovanou funkcionalitu.
-
-## 5. Komunikace mezi komponentami
-
-Komunikace mezi jednotlivými částmi systému bude probíhat následujícím způsobem:
-
-1. Uživatel provede akci ve frontendové aplikaci.
-2. Frontend odešle HTTP požadavek na odpovídající endpoint backendu.
-3. Backend zpracuje požadavek a ověří vstupní data.
-4. Backend využije příslušnou doménovou logiku a pravidla definovaná v projektu `StudentFlow.Core`.
-5. Pokud je potřeba pracovat s databázovými daty, využije se odpovídající rozhraní, jehož implementaci zajišťuje projekt `StudentFlow.Data`.
-6. Datová vrstva provede potřebnou operaci s databází a vrátí výsledek.
-7. Backend připraví HTTP odpověď, zpravidla ve formátu JSON.
-8. Frontend zpracuje odpověď a aktualizuje uživatelské rozhraní.
-
-Přístup k funkcím systému bude zabezpečen autentizací a autorizací podle požadavků na přihlašování a uživatelské role.
-
-## 6. Závislosti mezi projekty
-
-Závislosti mezi backendovými projekty budou nastaveny tak, aby doménová logika nebyla přímo závislá na technických detailech.
-
-- `StudentFlow.Api` bude využívat `StudentFlow.Core` a při konfiguraci aplikace také implementace z `StudentFlow.Data`.
-- `StudentFlow.Data` bude využívat `StudentFlow.Core` pro doménové typy a případná rozhraní pro přístup k datům.
-- `StudentFlow.Core` nebude záviset na `StudentFlow.Api` ani `StudentFlow.Data`.
-- Testovací projekty budou odkazovat na odpovídající testované projekty.
-
-Implementace rozhraní z projektu `StudentFlow.Data` budou při startu aplikace zaregistrovány v projektu `StudentFlow.Api` prostřednictvím dependency injection. Tím bude možné využívat datové operace bez přímé závislosti doménové logiky na konkrétní databázové technologii.
-
-## 7. Zdůvodnění architektonických rozhodnutí
-
-Oddělení frontendu a backendu umožní samostatný vývoj uživatelského rozhraní a serverové logiky. REST API vytvoří jasně definované rozhraní mezi oběma částmi aplikace.
-
-Rozdělení backendu na projekty `Api`, `Core` a `Data` usnadní orientaci v kódu, údržbu a testování. Každá část bude mít jasně vymezenou odpovědnost.
-
-Oddělení doménové logiky od databázových operací umožní měnit technické implementace bez nutnosti zásadně upravovat celou aplikaci. Definování rozhraní v projektu `Core` navíc umožní testovat doménovou logiku nezávisle na konkrétní databázi.
-
-Automatizované testy pomohou ověřovat správnost implementace při dalším vývoji a při změnách stávajících funkcí. Rozdělení testů podle jednotlivých projektů usnadní identifikaci případných problémů.
-
-## 8. Shrnutí
-
-Návrh vychází ze současné struktury repozitáře a vymezuje plánované odpovědnosti jednotlivých projektů. Architektura odděluje uživatelské rozhraní, backend, doménovou logiku, datovou vrstvu a automatizované testy.
-
-Jednotlivé části budou propojeny prostřednictvím definovaných rozhraní a standardní komunikace přes REST API. Návrh umožňuje postupné doplňování funkcionality podle požadavků projektu a vytváří základ pro další vývoj a testování systému StudentFlow.
+- Oddělený frontend a backend s REST API umožňují vyvíjet obě části samostatně.
+- Rozdělení backendu na Api, Core a Data dává každé části jednu odpovědnost; doménová pravidla v Core lze testovat bez webu a databáze.
+- Rozhraní v Core s implementací v Data oddělují doménová pravidla od SQL, takže změna přístupu k datům nezasáhne zbytek aplikace.
