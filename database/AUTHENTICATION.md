@@ -102,3 +102,17 @@ součástí veřejné odpovědi session.
 Podklady: [PostgreSQL 17 constraint triggery](https://www.postgresql.org/docs/17/sql-createtrigger.html),
 [NpgsqlDataSource a transakce](https://www.npgsql.org/doc/basic-usage.html),
 [Dapper async API](https://github.com/DapperLib/Dapper/blob/main/Dapper/SqlMapper.Async.cs).
+
+## Potvrzení zásad při registraci
+
+Migrace `V20261120_1200__registration_privacy_acceptance.sql` doplňuje
+`app_user.privacy_policy_version` a `app_user.privacy_accepted_at`.
+Obě hodnoty jsou současně vyplněné, nebo současně NULL. Starší účty a technické
+seed účty zůstávají s NULL; nové veřejné registrace potvrzení vyžadují.
+Účet, typ a potvrzení se ukládají v jedné transakci. Čas pochází ze serveru.
+
+## Samostatné jméno a příjmení
+
+Migrace `V20261120_1300__separate_registration_names.sql` přidává `first_name` a `last_name`; navazující `V20261120_1400__registration_name_length_50.sql` omezuje každé pole na 1–50 Unicode znaků bez bílých znaků a BOM. Při existenci delší části jména se migrace zastaví bez oříznutí dat. Nové účty vyplňují obě hodnoty a ponechávají `display_name` NULL. Celé jméno sestavují čtecí dotazy. Starší účty si ponechávají původní `display_name` a obě nové části NULL; migrace neodhaduje jejich rozdělení a zachovává ID, heslo, typ i session. Databázové omezení dovoluje právě jednu z těchto podob.
+
+Formát jména a příjmení (pouze písmena a související diakritika) ověřuje API i `PostgresUserAccountStore` prostřednictvím `RegistrationNameRules`. Databázová omezení dále hlídají úplnost, délku a bílé znaky. Stávající účty se automaticky nepřejmenovávají.

@@ -18,6 +18,9 @@
 .account-type small { display: block; }
 .registration-submit { width: 100%; min-height: 44px; font: inherit; font-weight: 600; padding: .75rem; border: 0; border-radius: .4rem; background: #1e3a5f; color: #fff; margin-top: 1rem; cursor: pointer; }
 .registration-submit:disabled { background: #64748b; cursor: wait; }
+.registration-privacy { margin-top: 1rem; grid-column: 1 / -1; }
+.registration-privacy > label { display: flex; align-items: flex-start; gap: .65rem; min-height: 44px; cursor: pointer; }
+.registration-privacy input { flex-shrink: 0; width: 1.125rem; height: 1.125rem; margin: .2rem 0 0; }
 .registration-back { display: inline-flex; align-items: center; min-height: 44px; margin-top: 1rem; }
 .error-summary { border: 1px solid #991b1b; border-radius: .4rem; background: #fef2f2; color: #7f1d1d; padding: .75rem; margin: 1rem 0; }
 .error-summary p { margin: 0; }

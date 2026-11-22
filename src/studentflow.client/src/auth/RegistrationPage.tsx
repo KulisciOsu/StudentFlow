@@ -3,10 +3,12 @@ import type { FormEvent } from 'react'
 import { registerAccount, RegistrationFailure, validateRegistration } from './registration'
 import type { RegisteredUser, RegistrationErrors, RegistrationFields } from './registration'
 import './RegistrationPage.scss'
+import { privacyPolicyUrl } from './privacy'
 
-const initialFields: RegistrationFields = { displayName: '', email: '', password: '', passwordConfirmation: '', accountType: '' }
+const initialFields: RegistrationFields = { firstName: '', lastName: '', email: '', password: '', passwordConfirmation: '', accountType: '', privacyAccepted: false }
 const labels: Record<keyof RegistrationFields, string> = {
-  displayName: 'Jméno a příjmení', email: 'E-mail', password: 'Heslo', passwordConfirmation: 'Heslo znovu', accountType: 'Typ účtu',
+  firstName: 'Jméno', lastName: 'Příjmení', email: 'E-mail', password: 'Heslo', passwordConfirmation: 'Heslo znovu', accountType: 'Typ účtu',
+  privacyAccepted: 'Ochrana osobních údajů',
 }
 
 /** Formulář pro jeden typ účtu; onRegistered volá až po potvrzení založení účtu serverem. */
@@ -33,7 +35,7 @@ export function RegistrationPage({ onRegistered, onLogin }: { onRegistered: (use
     return () => window.clearInterval(interval)
   }, [retryUntil])
 
-  function update(field: keyof RegistrationFields, value: string) {
+  function update<K extends keyof RegistrationFields>(field: K, value: RegistrationFields[K]) {
     setFields(current => ({ ...current, [field]: value }))
     setErrors(current => ({ ...current, [field]: undefined }))
   }
@@ -45,7 +47,7 @@ export function RegistrationPage({ onRegistered, onLogin }: { onRegistered: (use
     const validation = validateRegistration(fields)
     setErrors(validation)
     if (Object.keys(validation).length) {
-      setMessage('Opravte označená pole.')
+      setMessage('Ještě prosím zkontrolujte označené údaje.')
       setErrorRevision(current => current + 1)
       return
     }
@@ -64,7 +66,7 @@ export function RegistrationPage({ onRegistered, onLogin }: { onRegistered: (use
       if (!controller.signal.aborted) {
         setFields(current => ({ ...current, password: '', passwordConfirmation: '' }))
         setErrors(error instanceof RegistrationFailure ? error.errors : {})
-        setMessage(error instanceof RegistrationFailure ? error.message : 'Vytvoření účtu se nepodařilo potvrdit. Zkontrolujte připojení a zkuste to znovu.')
+        setMessage(error instanceof RegistrationFailure ? error.message : 'Vytvoření účtu se nepodařilo potvrdit. Zkontrolujte připojení a zkuste se nejdřív přihlásit; účet už mohl vzniknout.')
         if (error instanceof RegistrationFailure && error.retryAfter) {
           setRetryUntil(Date.now() + error.retryAfter * 1000)
           setRemaining(error.retryAfter)
@@ -79,7 +81,7 @@ export function RegistrationPage({ onRegistered, onLogin }: { onRegistered: (use
 
   const errorText = (field: keyof RegistrationFields) => errors[field]
     ? <p id={`register-${field}-error`} className="field-error">{errors[field]}</p> : null
-  const input = (field: 'displayName' | 'email' | 'password' | 'passwordConfirmation') => {
+  const input = (field: 'firstName' | 'lastName' | 'email' | 'password' | 'passwordConfirmation') => {
     const isPassword = field === 'password' || field === 'passwordConfirmation'
     const show = field === 'password' ? showPassword : showConfirmation
     const toggle = () => field === 'password' ? setShowPassword(!showPassword) : setShowConfirmation(!showConfirmation)
@@ -88,7 +90,7 @@ export function RegistrationPage({ onRegistered, onLogin }: { onRegistered: (use
       <div className={isPassword ? 'password-input' : undefined}>
         <input id={`register-${field}`} name={field} required
           type={isPassword ? (show ? 'text' : 'password') : field === 'email' ? 'email' : 'text'}
-          autoComplete={isPassword ? 'new-password' : field === 'email' ? 'username' : 'name'}
+          autoComplete={isPassword ? 'new-password' : field === 'email' ? 'username' : field === 'firstName' ? 'given-name' : 'family-name'}
           autoCapitalize={field === 'email' ? 'none' : undefined} spellCheck={isPassword || field === 'email' ? false : undefined}
           value={fields[field]} onChange={event => update(field, event.target.value)}
           aria-invalid={!!errors[field]}
@@ -99,7 +101,7 @@ export function RegistrationPage({ onRegistered, onLogin }: { onRegistered: (use
           {show ? 'Skrýt' : 'Zobrazit'}
         </button>}
       </div>
-      {field === 'password' && <p className="field-hint" id="password-hint">15–128 znaků. Můžete použít mezery i delší heslovou frázi.</p>}
+      {field === 'password' && <p className="field-hint" id="password-hint">8–15 znaků, alespoň jedno velké písmeno, číslice a speciální znak (např. ! nebo #). Bez mezer.</p>}
       {errorText(field)}
     </div>
   }
@@ -119,7 +121,8 @@ export function RegistrationPage({ onRegistered, onLogin }: { onRegistered: (use
     <form noValidate onSubmit={submit} aria-busy={busy}>
       <fieldset disabled={busy} className="registration-fields">
         <legend className="visually-hidden">Registrační údaje</legend>
-        {input('displayName')}{input('email')}{input('password')}{input('passwordConfirmation')}
+        {input('firstName')}{input('lastName')}
+        {input('email')}{input('password')}{input('passwordConfirmation')}
         <fieldset className="account-types" aria-describedby={errors.accountType ? 'register-accountType-error' : 'account-type-hint'} aria-invalid={!!errors.accountType}>
           <legend>Typ účtu <span aria-hidden="true">*</span></legend>
           <p className="field-hint" id="account-type-hint">Vyberte právě jeden typ účtu.</p>
@@ -134,6 +137,17 @@ export function RegistrationPage({ onRegistered, onLogin }: { onRegistered: (use
           </div>
           {errorText('accountType')}
         </fieldset>
+        <div className="registration-privacy">
+          <label htmlFor="register-privacyAccepted">
+            <input id="register-privacyAccepted" name="privacyAccepted" type="checkbox" required
+              checked={fields.privacyAccepted} onChange={event => update('privacyAccepted', event.target.checked)}
+              aria-invalid={!!errors.privacyAccepted}
+              aria-describedby={errors.privacyAccepted ? 'register-privacyAccepted-error' : undefined} />
+            <span>Seznámil/a jsem se se <a href={privacyPolicyUrl} target="_blank" rel="noopener noreferrer">zásadami ochrany osobních údajů</a>. <span aria-hidden="true">*</span></span>
+          </label>
+          <p className="field-hint">Zásady se otevřou v nové kartě. Vyplněný formulář zůstane zachovaný.</p>
+          {errorText('privacyAccepted')}
+        </div>
         <button className="registration-submit" type="submit" disabled={busy || remaining > 0}>
           {busy ? 'Vytváříme účet…' : 'Vytvořit účet'}
         </button>

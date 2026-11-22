@@ -89,7 +89,7 @@ public sealed class PostgresDashboardRepository(
         const string membersSql = """
             SELECT
                 pm.project_id AS ProjectId,
-                u.display_name AS DisplayName
+                COALESCE(u.first_name || ' ' || u.last_name, u.display_name) AS DisplayName
             FROM project_member pm
             JOIN app_user u
                 ON u.user_id = pm.user_id
@@ -98,7 +98,7 @@ public sealed class PostgresDashboardRepository(
                 FROM project_member
                 WHERE user_id = @UserId
             )
-            ORDER BY pm.project_id, u.display_name;
+            ORDER BY pm.project_id, COALESCE(u.first_name || ' ' || u.last_name, u.display_name);
             """;
 
         var members = await connection.QueryAsync<DashboardMemberRow>(

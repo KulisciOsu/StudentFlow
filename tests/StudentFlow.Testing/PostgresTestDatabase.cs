@@ -57,6 +57,9 @@ public sealed class PostgresTestDatabase : IAsyncDisposable
             if (!legacy)
             {
                 await database.ApplyMigrationAsync("V003__authentication_foundation.sql");
+                await database.ApplyMigrationAsync("V20261120_1200__registration_privacy_acceptance.sql");
+                await database.ApplyMigrationAsync("V20261120_1300__separate_registration_names.sql");
+                await database.ApplyMigrationAsync("V20261120_1400__registration_name_length_50.sql");
 
                 if (dashboard)
                 {

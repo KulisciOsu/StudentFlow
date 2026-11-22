@@ -22,7 +22,7 @@ public class ProjectCreationRepositoryTests
         var accountStore = new PostgresUserAccountStore(database.DataSource);
 
         var account = await accountStore.CreateAsync(
-            new("Testovací uživatel", "test@example.test", "test-hash", AccountType.Member));
+            new("Testovací", "uživatel", "test@example.test", "test-hash", AccountType.Member));
 
         var creatorUserId = account.User!.Id;
 
@@ -102,7 +102,7 @@ public class ProjectCreationRepositoryTests
         var accountStore = new PostgresUserAccountStore(database.DataSource);
 
         var account = await accountStore.CreateAsync(
-            new("Testovací uživatel", "rollback@example.test", "test-hash", AccountType.Member));
+            new("Testovací", "uživatel", "rollback@example.test", "test-hash", AccountType.Member));
 
         var creatorUserId = account.User!.Id;
 

@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: StudentFlow Authentication API
-  version: 0.4.0
+  version: 0.5.0
   description: >-
     KAN-114: schválený kontrakt. Implementované jsou všechny uvedené endpointy. Sémantická pravidla
     v API_CONTRACT.md jsou součástí kontraktu. Frontend a API používají stejný
@@ -65,10 +65,13 @@ paths:
             schema:
               $ref: '#/components/schemas/RegisterRequest'
             example:
-              displayName: Jan Novák
+              firstName: Jan
+              lastName: Novák
               email: jan.novak@example.test
-              password: moje-dlouhe-heslo-2026
+              password: TestHeslo1!
               accountType: STUDENT
+              privacyAccepted: true
+              privacyPolicyVersion: '2026-11-20.2'
       responses:
         '201':
           description: Účet založen; klient přejde na přihlášení.
@@ -90,7 +93,7 @@ paths:
         '403':
           $ref: '#/components/responses/CsrfInvalid'
         '409':
-          $ref: '#/components/responses/EmailAlreadyRegistered'
+          $ref: '#/components/responses/RegistrationConflict'
         '413':
           $ref: '#/components/responses/PayloadTooLarge'
         '415':
@@ -123,7 +126,7 @@ paths:
               $ref: '#/components/schemas/LoginRequest'
             example:
               email: jan.novak@example.test
-              password: moje-dlouhe-heslo-2026
+              password: TestHeslo1!
               rememberMe: false
       responses:
         '200':
@@ -264,8 +267,13 @@ components:
       type: string
       minLength: 1
       maxLength: 160
-      pattern: '\S'
-      description: Po oříznutí; neunikátní zobrazované jméno.
+      description: Celé jméno pouze pro zobrazení; nové účty jej skládají ze dvou částí (nejvýše 101 znaků), starší nerozdělená jména mají nejvýše 160 znaků.
+    NamePart:
+      type: string
+      minLength: 1
+      maxLength: 50
+      pattern: '^\p{L}[\p{L}\p{Mn}\p{Mc}]*$'
+      description: Samostatné jméno nebo příjmení tvořené pouze písmeny a související diakritikou; bez číslic, interpunkce, symbolů, bílých znaků a BOM. Hodnota se neořezává ani nepřepisuje.
     Email:
       type: string
       format: email
@@ -274,23 +282,37 @@ components:
       description: Oříznutý e-mail převedený na malá písmena.
     Password:
       type: string
-      minLength: 15
+      minLength: 8
+      maxLength: 15
+      writeOnly: true
+      description: Alespoň jedno velké písmeno, desetinná číslice a interpunkční nebo symbolový znak; žádné bílé znaky ani BOM. Délka v Unicode code pointech, bez ořezání.
+    LoginPassword:
+      type: string
+      minLength: 1
       maxLength: 128
       writeOnly: true
-      description: Unicode code pointy; bez ořezání a normalizace.
+      description: Existující heslo beze změny, včetně starší delší heslové fráze.
     RegisterRequest:
       type: object
       additionalProperties: false
-      required: [displayName, email, password, accountType]
+      required: [firstName, lastName, email, password, accountType, privacyAccepted, privacyPolicyVersion]
       properties:
-        displayName:
-          $ref: '#/components/schemas/DisplayName'
+        firstName:
+          $ref: '#/components/schemas/NamePart'
+        lastName:
+          $ref: '#/components/schemas/NamePart'
         email:
           $ref: '#/components/schemas/Email'
         password:
           $ref: '#/components/schemas/Password'
         accountType:
           $ref: '#/components/schemas/AccountType'
+        privacyAccepted:
+          type: boolean
+          const: true
+        privacyPolicyVersion:
+          type: string
+          const: '2026-11-20.2'
     LoginRequest:
       type: object
       additionalProperties: false
@@ -299,7 +321,7 @@ components:
         email:
           $ref: '#/components/schemas/Email'
         password:
-          $ref: '#/components/schemas/Password'
+          $ref: '#/components/schemas/LoginPassword'
         rememberMe:
           type: boolean
           default: false
@@ -386,7 +408,7 @@ components:
             - INVALID_CREDENTIALS
             - UNAUTHENTICATED
             - CSRF_INVALID
-            - EMAIL_ALREADY_REGISTERED
+            - REGISTRATION_CONFLICT
             - PAYLOAD_TOO_LARGE
             - UNSUPPORTED_MEDIA_TYPE
             - RATE_LIMITED
@@ -418,11 +440,11 @@ components:
             type: about:blank
             title: Neplatné vstupní údaje
             status: 400
-            detail: Opravte označená pole.
+            detail: Ještě prosím zkontrolujte označené údaje.
             code: VALIDATION_FAILED
             traceId: request-correlation-id
             errors:
-              password: [Heslo musí mít 15 až 128 znaků.]
+              password: [Heslo musí mít 8 až 15 znaků.]
     InvalidCredentials:
       description: 401 INVALID_CREDENTIALS; shodné pro špatné heslo a neexistující/neaktivní účet.
       headers:
@@ -471,8 +493,8 @@ components:
             detail: Obnovte ověření a zkuste to znovu.
             code: CSRF_INVALID
             traceId: request-correlation-id
-    EmailAlreadyRegistered:
-      description: 409 EMAIL_ALREADY_REGISTERED, včetně souběžné registrace stejného e-mailu.
+    RegistrationConflict:
+      description: 409 REGISTRATION_CONFLICT, včetně souběžné registrace stejného e-mailu.
       headers:
         Cache-Control:
           $ref: '#/components/headers/NoStore'
@@ -482,13 +504,11 @@ components:
             $ref: '#/components/schemas/Problem'
           example:
             type: about:blank
-            title: Účet již existuje
+            title: Účet se nepodařilo vytvořit
             status: 409
-            detail: Účet s tímto e-mailem už existuje. Přihlaste se.
-            code: EMAIL_ALREADY_REGISTERED
+            detail: S tímto e-mailem teď účet nelze vytvořit. Zkuste se přihlásit nebo použijte jiný e-mail.
+            code: REGISTRATION_CONFLICT
             traceId: request-correlation-id
-            errors:
-              email: [Účet s tímto e-mailem už existuje.]
     PayloadTooLarge:
       description: 413 PAYLOAD_TOO_LARGE; JSON registrace nebo loginu přesahuje 16 KiB.
       headers:

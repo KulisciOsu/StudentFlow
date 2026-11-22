@@ -9,7 +9,7 @@ public class UserSessionStoreTests
 {
     private static readonly DateTimeOffset Now = new(2026, 11, 2, 12, 0, 0, TimeSpan.Zero);
     private static async Task<long> UserAsync(PostgresTestDatabase database) =>
-        (await new PostgresUserAccountStore(database.DataSource).CreateAsync(new("Jan Novák", "jan@example.test", "hash-v1", AccountType.Member))).User!.Id;
+        (await new PostgresUserAccountStore(database.DataSource).CreateAsync(new("Jan", "Novák", "jan@example.test", "hash-v1", AccountType.Member))).User!.Id;
 
     [Theory]
     [InlineData(false, 8)]
@@ -20,7 +20,7 @@ public class UserSessionStoreTests
         var store = new PostgresUserSessionStore(database.DataSource); var hash = RandomNumberGenerator.GetBytes(32);
         var created = await store.CreateAsync(id, "hash-v1", null, hash, persistent, null, Now);
         Assert.NotNull(created); Assert.Equal(Now.AddHours(hours), created.Session.ExpiresAt);
-        await database.ExecuteAsync("UPDATE app_user SET display_name = 'Aktuální jméno'");
+        await database.ExecuteAsync("UPDATE app_user SET first_name = 'Aktuální', last_name = 'jméno'");
         var loaded = await store.FindActiveAsync(hash, Now.AddHours(1));
         Assert.Equal("Aktuální jméno", loaded!.User.DisplayName);
         Assert.Equal(created.Session, loaded.Session);

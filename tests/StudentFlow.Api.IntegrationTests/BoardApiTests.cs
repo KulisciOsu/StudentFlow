@@ -9,7 +9,7 @@ namespace StudentFlow.Api.IntegrationTests;
 /// </summary>
 public class BoardApiTests
 {
-    private const string Password = "moje-dlouhe-heslo-2026";
+    private const string Password = "TestHeslo1!";
 
     /// <summary>
     /// Ověří, že nepřihlášený uživatel dostane 401.

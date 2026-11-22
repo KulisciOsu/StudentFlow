@@ -24,7 +24,7 @@ public class HandoffExampleTests
         await using var app = await RegistrationApp.CreateAsync(includeHandoffExample: true);
         await app.SetCsrfAsync();
         Assert.Equal(201, (int)(await app.Client.PostAsJsonAsync("/api/auth/register", RegistrationApp.Valid(type: accountType))).StatusCode);
-        Assert.Equal(200, (int)(await app.Client.PostAsJsonAsync("/api/auth/login", new { email = "jan.novak@example.test", password = "moje-dlouhe-heslo-2026" })).StatusCode);
+        Assert.Equal(200, (int)(await app.Client.PostAsJsonAsync("/api/auth/login", new { email = "jan.novak@example.test", password = "TestHeslo1!" })).StatusCode);
         var response = await app.Client.GetAsync("/api/account/summary?userId=999999");
         Assert.Equal(200, (int)response.StatusCode);
         Assert.Equal("no-store", response.Headers.CacheControl!.ToString());

@@ -12,7 +12,7 @@ namespace StudentFlow.Api.IntegrationTests;
 public class ProjectMembersApiTests
 {
     private const string Migration = "V20261114_2156__project_member_management.sql";
-    private const string Password = "moje-dlouhe-heslo-2026";
+    private const string Password = "TestHeslo1!";
     private const string MembersPath = "/api/projects/1/members";
     private const string MissingProjectMembersPath = "/api/projects/999/members";
 
@@ -438,7 +438,9 @@ public class ProjectMembersApiTests
         var client = app.CreateClient();
         await RegistrationApp.SetCsrfAsync(client);
         var payload = RegistrationApp.Valid(email, accountType, Password);
-        payload["displayName"] = displayName;
+        var parts = displayName.Split(' ');
+        payload["firstName"] = parts[0];
+        payload["lastName"] = parts[1];
 
         var response = await client.PostAsJsonAsync("/api/auth/register", payload);
 

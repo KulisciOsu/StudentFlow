@@ -25,6 +25,8 @@ public class MigrationTests
             """);
         var id = await db.ScalarAsync<long>("SELECT user_id FROM app_user");
         await db.ApplyMigrationAsync("V003__authentication_foundation.sql");
+        await db.ApplyMigrationAsync("V20261120_1200__registration_privacy_acceptance.sql");
+        await db.ApplyMigrationAsync("V20261120_1300__separate_registration_names.sql");
         var loaded = await new PostgresUserAccountStore(db.DataSource).FindByEmailAsync("JAN.NOVAK@example.test");
         Assert.NotNull(loaded);
         Assert.Equal(id, loaded.User.Id);
@@ -71,8 +73,8 @@ public class MigrationTests
     }
 
     [Theory]
-    [InlineData("\t", "hash", "app_user_display_name_not_blank")]
-    [InlineData("\u00A0", "hash", "app_user_display_name_not_blank")]
+    [InlineData("\t", "hash", "app_user_name_parts_complete")]
+    [InlineData("\u00A0", "hash", "app_user_name_parts_complete")]
     [InlineData("A", "\t", "app_user_password_hash_not_blank")]
     public async Task WhitespaceOnlyNameOrHash_IsRejectedByDatabase(string name, string hash, string constraint)
     {
@@ -88,7 +90,7 @@ public class MigrationTests
     public async Task LastTypeCannotBeDeleted_SecondTypeCannotBeAdded_AndCodesCannotBeRenamed()
     {
         await using var db = await PostgresTestDatabase.CreateAsync();
-        var created = await new PostgresUserAccountStore(db.DataSource).CreateAsync(new("A", "a@example.test", "hash", AccountType.Member));
+        var created = await new PostgresUserAccountStore(db.DataSource).CreateAsync(new("A", "Test", "a@example.test", "hash", AccountType.Member));
         var id = created.User!.Id;
         var missing = await Assert.ThrowsAsync<PostgresException>(() => db.ExecuteAsync($"DELETE FROM user_role WHERE user_id = {id}"));
         Assert.Equal("user_account_type_exactly_one", missing.ConstraintName);
@@ -103,7 +105,7 @@ public class MigrationTests
     public async Task NormalizedEmailUniqueness_IsEnforcedForDirectSqlWrites()
     {
         await using var db = await PostgresTestDatabase.CreateAsync();
-        await new PostgresUserAccountStore(db.DataSource).CreateAsync(new("A", "a@example.test", "hash", AccountType.Member));
+        await new PostgresUserAccountStore(db.DataSource).CreateAsync(new("A", "Test", "a@example.test", "hash", AccountType.Member));
         var error = await Assert.ThrowsAsync<PostgresException>(() => db.ExecuteAsync("INSERT INTO app_user(email,display_name,password_hash) VALUES (' A@EXAMPLE.TEST ','B','hash')"));
         Assert.Equal("app_user_normalized_email_key", error.ConstraintName);
     }
@@ -112,7 +114,7 @@ public class MigrationTests
     public async Task NormalizedEmailUniqueness_AlsoTrimsUnicodeWhitespaceInDirectSql()
     {
         await using var db = await PostgresTestDatabase.CreateAsync();
-        await new PostgresUserAccountStore(db.DataSource).CreateAsync(new("A", "a@example.test", "hash", AccountType.Member));
+        await new PostgresUserAccountStore(db.DataSource).CreateAsync(new("A", "Test", "a@example.test", "hash", AccountType.Member));
         var error = await Assert.ThrowsAsync<PostgresException>(() => db.ExecuteAsync("INSERT INTO app_user(email,display_name,password_hash) VALUES (U&'\\00A0A@EXAMPLE.TEST\\3000','B','hash')"));
         Assert.Equal("app_user_normalized_email_key", error.ConstraintName);
     }
@@ -125,7 +127,7 @@ public class MigrationTests
     {
         await using var db = await PostgresTestDatabase.CreateAsync();
         var store = new PostgresUserAccountStore(db.DataSource);
-        var created = await store.CreateAsync(new("A", "a@example.test", "hash", AccountType.Member));
+        var created = await store.CreateAsync(new("A", "Test", "a@example.test", "hash", AccountType.Member));
         var id = created.User!.Id;
         await using (var first = await db.DataSource.OpenConnectionAsync())
         await using (var second = await db.DataSource.OpenConnectionAsync())
@@ -156,7 +158,7 @@ public class MigrationTests
     public async Task Sessions_StoreOnlyHash_AndEnforceAbsoluteLifetime(bool persistent, int hours)
     {
         await using var db = await PostgresTestDatabase.CreateAsync();
-        var account = await new PostgresUserAccountStore(db.DataSource).CreateAsync(new("A", "a@example.test", "hash", AccountType.Member));
+        var account = await new PostgresUserAccountStore(db.DataSource).CreateAsync(new("A", "Test", "a@example.test", "hash", AccountType.Member));
         var sql = $"""
             INSERT INTO user_session(user_id, token_hash, created_at, expires_at, persistent)
             VALUES ({account.User!.Id}, decode(repeat('ab',32),'hex'), '2026-11-02T12:00:00Z',

@@ -3,7 +3,7 @@ import { fetchIdentity, loginAccount, logoutAccount, validateLogin } from './ses
 import { AuthFailure } from './client'
 import { homeFor } from './types'
 
-const fields = { email: 'jan@example.test', password: 'moje-dlouhe-heslo-2026', rememberMe: false }
+const fields = { email: 'jan@example.test', password: 'TestHeslo1!', rememberMe: false }
 const identity = { user: { id: '42', displayName: 'Jan Novák', email: fields.email, accountType: 'STUDENT' as const }, session: { expiresAt: '2026-11-03T12:00:00Z', persistent: false } }
 const json = (value: unknown, status = 200, headers = {}) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': 'application/json', ...headers } })
 const csrf = () => json({ token: 'token', headerName: 'X-CSRF-TOKEN' })
@@ -63,6 +63,9 @@ describe('session API client', () => {
 
 describe('login form and navigation rules', () => {
   it('requires email and a valid password, counting Unicode code points', () => {
+    expect(validateLogin({ ...fields, password: '' })).toHaveProperty('password')
+    expect(validateLogin({ ...fields, password: 'Test1!aa' })).toEqual({})
+    expect(validateLogin({ ...fields, password: '  starší heslová fráze  ' })).toEqual({})
     expect(validateLogin({ ...fields, email: 'bad', password: '🦉'.repeat(14) })).toHaveProperty('email')
     expect(validateLogin({ ...fields, password: '🦉'.repeat(15) })).toEqual({})
     expect(validateLogin({ ...fields, password: '🦉'.repeat(128) })).toEqual({})

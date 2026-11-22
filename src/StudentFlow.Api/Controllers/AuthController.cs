@@ -34,16 +34,14 @@ public sealed class AuthController(IAntiforgery antiforgery, IUserAccountStore a
     {
         var errors = request.Validate();
         if (errors.Count > 0)
-            return ApiProblems.Result(HttpContext, 400, "VALIDATION_FAILED", "Neplatné vstupní údaje", "Opravte označená pole.", errors);
+            return ApiProblems.Result(HttpContext, 400, "VALIDATION_FAILED", "Zkontrolujte registrační údaje", "Ještě prosím zkontrolujte označené údaje.", errors);
 
         var hash = hasher.HashPassword(request, request.Password!);
-        var result = await accounts.CreateAsync(new NewUserAccount(request.DisplayName!, request.Email!, hash, request.GetAccountType()), cancellationToken);
+        var result = await accounts.CreateAsync(new NewUserAccount(request.FirstName!, request.LastName!, request.Email!, hash, request.GetAccountType(),
+            new PrivacyAcceptance(RegistrationPrivacyPolicy.Version, clock.GetUtcNow())), cancellationToken);
         if (result.Status == CreateUserStatus.EmailAlreadyRegistered)
-            return ApiProblems.Result(HttpContext, 409, "EMAIL_ALREADY_REGISTERED", "Účet již existuje",
-                "Účet s tímto e-mailem už existuje. Přihlaste se.", new Dictionary<string, string[]>
-                {
-                    ["email"] = ["Účet s tímto e-mailem už existuje."]
-                });
+            return ApiProblems.Result(HttpContext, 409, "REGISTRATION_CONFLICT", "Účet se nepodařilo vytvořit",
+                "S tímto e-mailem teď účet nelze vytvořit. Zkuste se přihlásit nebo použijte jiný e-mail.");
         return StatusCode(201, new { user = AuthUserDto.From(result.User!) });
     }
 

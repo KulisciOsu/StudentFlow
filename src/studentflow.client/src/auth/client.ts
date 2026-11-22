@@ -3,7 +3,7 @@ import { isRecord } from './types'
 
 /** Chyba použitelná ve formuláři; převádí odpověď API na zprávu, chyby polí a čekání na další pokus. */
 export class AuthFailure extends Error {
-  readonly errors: Partial<Record<'displayName' | 'email' | 'password' | 'accountType', string>>
+  readonly errors: Partial<Record<'firstName' | 'lastName' | 'email' | 'password' | 'accountType' | 'privacyAccepted', string>>
   /** Počet sekund do dalšího pokusu po omezení frekvence; nula znamená bez čekání. */
   readonly retryAfter: number
   /** HTTP status; nula znamená, že stav odpovědi operace nebyl předán. */
@@ -34,8 +34,8 @@ export async function authPost(path: string, body: unknown, signal?: AbortSignal
 export async function responseFailure(response: Response, fallback: string): Promise<AuthFailure> {
   const value: unknown = await response.json().catch(() => null)
   const errors: AuthFailure['errors'] = {}
-  if (isRecord(value) && isRecord(value.errors)) {
-    for (const field of ['displayName', 'email', 'password', 'accountType'] as const) {
+  if (response.status === 400 && isRecord(value) && value.code === 'VALIDATION_FAILED' && isRecord(value.errors)) {
+    for (const field of ['firstName', 'lastName', 'email', 'password', 'accountType', 'privacyAccepted'] as const) {
       const messages = value.errors[field]
       if (Array.isArray(messages) && typeof messages[0] === 'string') errors[field] = messages[0]
     }
