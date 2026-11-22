@@ -182,8 +182,9 @@ function App() {
             ) : (
               <section>
                 <h2>Přehled vyučujícího</h2>
-                <p>
-                  Zde budete mít přehled projektů, ke kterým dostanete přístup.
+                <p role="status">
+                  Zatím nemáte přístup k žádnému projektu. Projekty, které vám
+                  budou zpřístupněny, se zobrazí zde.
                 </p>
               </section>
             )
