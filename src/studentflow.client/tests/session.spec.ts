@@ -90,7 +90,8 @@ test('výpadek ověření se nevydává za odhlášení a dovolí nové ověřen
 test('logout zneplatní cookie na serveru a tlačítko Zpět neodhalí přehled', async ({ page, request }) => {
   await signIn(page, await createAccount(request))
   const cookie = (await page.context().cookies()).find(item => item.name === cookieName)!
-  await page.getByRole('link', { name: 'Můj přehled' }).click()
+  // Po přihlášení je uživatel na přehledu, kde odkaz na přehled nedává smysl.
+  await expect(page.getByRole('link', { name: 'Můj přehled' })).toHaveCount(0)
   await page.getByRole('button', { name: 'Odhlásit se', exact: true }).click()
   await expect(page).toHaveURL('/login'); await expect(page.getByRole('status')).toHaveText('Byli jste odhlášeni.')
   expect((await request.get('/api/auth/me', { headers: { Cookie: `${cookieName}=${cookie.value}` } })).status()).toBe(401)

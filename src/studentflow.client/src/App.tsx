@@ -135,7 +135,7 @@ function App() {
     } else {
       content = (
         <>
-          <AuthHeader navigate={navigate} />
+          <AuthHeader currentPath={route.path} navigate={navigate} />
 
           {wrongType ? (
             <section>

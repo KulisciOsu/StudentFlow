@@ -2,8 +2,11 @@
 import { useAuth } from './AuthContext'
 import { homeFor } from './types'
 
-/** Společná hlavička ověřeného účtu s navigací podle typu a serverovým odhlášením. */
-export function AuthHeader({ navigate }: { navigate: (path: string) => void }) {
+/**
+ * Společná hlavička ověřeného účtu s navigací podle typu a serverovým odhlášením.
+ * Odkaz na přehled skrývá na samotném přehledu, kde by nikam nevedl.
+ */
+export function AuthHeader({ currentPath, navigate }: { currentPath: string; navigate: (path: string) => void }) {
   const { state, signOut } = useAuth()
 
   if (state.status !== 'authenticated') return null
@@ -19,15 +22,17 @@ export function AuthHeader({ navigate }: { navigate: (path: string) => void }) {
       </p>
 
       <nav aria-label="Účet">
-        <a
-          href={home}
-          onClick={(event) => {
-            event.preventDefault()
-            navigate(home)
-          }}
-        >
-          Můj přehled
-        </a>
+        {currentPath !== home && (
+          <a
+            href={home}
+            onClick={(event) => {
+              event.preventDefault()
+              navigate(home)
+            }}
+          >
+            Můj přehled
+          </a>
+        )}
 
         <button type="button" onClick={() => void signOut()}>
           Odhlásit se

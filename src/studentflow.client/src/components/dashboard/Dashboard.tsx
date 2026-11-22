@@ -7,6 +7,8 @@ import type {
   ProjectCardProps,
 } from './DashboardPageTypes'
 import { getDashboard } from '../../services/dashboard/dashboardApi'
+import { formatMemberCount } from '../../utils/projects/memberCount'
+import { memberInitials } from '../../utils/projects/memberInitials'
 import './Dashboard.scss'
 
 /**
@@ -37,7 +39,7 @@ function ProjectCard({ project, onOpen }: ProjectCardProps) {
         <div>
           <h3>{project.name}</h3>
           <p>
-            {project.team} · {project.membersCount} členů
+            {project.team} · {formatMemberCount(project.membersCount)}
           </p>
         </div>
 
@@ -89,7 +91,7 @@ function ProjectCard({ project, onOpen }: ProjectCardProps) {
       >
         {project.members.map((member, index) => (
           <span key={`${member}-${index}`} title={member}>
-            {member}
+            {memberInitials(member)}
           </span>
         ))}
       </div>
