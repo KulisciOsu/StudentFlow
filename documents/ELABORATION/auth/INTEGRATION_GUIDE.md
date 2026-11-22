@@ -125,8 +125,8 @@ toto převzetí. Výsledky jednotlivých běhů a převzetí evidujte v Jiře a 
 | Návaznost | Co ještě vyžaduje práci |
 | --- | --- |
 | KAN-115 / KAN-100 | Převzetí a spuštění jiným vývojářem. |
-| KAN-47 | Projektový dashboard s reálnými daty, navázaný na `useAuth`; aktuálně pracuje jiný vývojář. |
-| KAN-86 | Formulář je zapojený do identity; zbývá napojení na projektové API KAN-87/88 po koordinaci s autorem projektové části. |
+| KAN-47 | Hotovo: dashboard člena načítá projekty a úkoly z `/api/dashboard`. Přehled vyučujícího zatím projekty nevypisuje. |
+| KAN-86 | Hotovo: formulář zakládá projekt přes `POST /api/projects` a přesměruje na jeho nástěnku. |
 | KAN-113 | Ověření workflow na GitHub Actions při prvním PR do `main`. |
 
 Rozsah ověření KAN-112 zahrnuje PC a emulaci mobilních/tabletových viewportů.

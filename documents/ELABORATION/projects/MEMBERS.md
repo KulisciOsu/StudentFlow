@@ -2,9 +2,9 @@
 
 Vedoucí týmu spravuje členy na stránce **Nastavení projektu**
 (`/projects/{projectId}/settings`): vidí seznam členů, přidá registrovaného
-studenta podle e-mailu a po potvrzení v řádku odebere běžného člena. Stránka
-zatím nemá odkaz v navigaci; tým rozhodne, odkud na ni povede (dashboard,
-nástěnka). Do té doby je dostupná zadáním adresy.
+studenta podle e-mailu a po potvrzení v řádku odebere běžného člena. Na stránku
+vede odkaz „Nastavení projektu“ na nástěnce, který vidí jen vedoucí (API projektu
+vrací `isLeader`). Zpět vede drobečková navigace „Moje projekty / Nástěnka“.
 
 Části epiku: wireframe KAN-90, frontend KAN-91, backend KAN-92, databáze KAN-93,
 testy KAN-94. Testovací scénáře jsou v

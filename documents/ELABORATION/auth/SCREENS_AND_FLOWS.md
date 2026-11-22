@@ -15,11 +15,12 @@ Ukázkové identity a obsah rozcestníku nejsou skutečná data ani implementace
 | :--- | :--- | :--- |
 | `/register` | Samostatné jméno a příjmení, e-mail, heslo, heslo znovu, radio tlačítka Člen a Vyučující. Všechna pole povinná, právě jeden typ. | „Vytvořit účet“ → `POST /register` → při `201` login s potvrzením. Odkaz „Přihlaste se“. |
 | `/login` | E-mail, heslo, volitelně „Zůstat přihlášen“. Nápověda „Přihlášení až na 30 dní na tomto zařízení“. | „Přihlásit se“ → `POST /login` → rozcestník podle typu účtu. Odkaz „Zaregistrujte se“. |
-| `/projects` | Hlavička s identitou a logoutem, pohled člena. | Pro typ Člen; bez přepínání typu účtu. Obsah dodá KAN-47. |
-| `/teaching` | Stejná hlavička, pohled vyučujícího. | Pro typ Vyučující; bez přepínání typu účtu. Obsah dodá KAN-47. |
+| `/projects` | Hlavička s identitou a logoutem, pohled člena. | Pro typ Člen; bez přepínání typu účtu. Dashboard projektů a úkolů člena (KAN-47). |
+| `/teaching` | Stejná hlavička, pohled vyučujícího. | Pro typ Vyučující; bez přepínání typu účtu. Zatím prázdný přehled bez seznamu projektů. |
 
 API cesty jsou zkrácené; prefix je `/api/auth`. Hlavička obsahuje jméno z `/me`,
-typ účtu, odkaz na vlastní rozcestník a „Odhlásit se“. Na mobilu se zalomí;
+typ účtu a „Odhlásit se“. Na vlastní rozcestník vede nadpis StudentFlow
+a drobečková navigace stránek projektu. Na mobilu se hlavička zalomí;
 žádná akce nevyžaduje hover. Přepínač mezi členem a vyučujícím se nenabízí.
 Přihlášený uživatel na `/login` či `/register` pokračuje na výchozí rozcestník.
 Přímá chráněná adresa nejdříve čeká na `/me`. Nemá-li přihlášený uživatel typ
@@ -97,7 +98,7 @@ uživatele nesmí znovu naplnit privátní cache.
   ve dvou sloupcích. Volby Člen/Vyučující jsou vedle sebe, odeslání přes celou
   šířku. Pořadí polí při ovládání klávesnicí zůstává stejné.
 - Přihlášení má na tabletu kartu nejvýše 544 px a pole pod sebou. Přihlášený
-  přehled má identitu vlevo a navigaci s odhlášením vpravo; dlouhé jméno se zalamuje.
+  přehled má identitu vlevo a odhlášení vpravo; dlouhé jméno se zalamuje.
   Při otočení zařízení se použije dostupná šířka, bez pevné výšky formuláře.
 - Bez pevné výšky blokující pole při otevřené klávesnici. Při 320 CSS px a 200%
   zvětšení se pole, nápovědy i hlavička zalamují bez překryvů.

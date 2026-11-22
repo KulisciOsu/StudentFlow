@@ -96,21 +96,51 @@ docker compose stop
 Samotné API lze spustit pomocí `node scripts/dev.mjs api`. Pro frontend
 samostatně slouží `npm --prefix src/studentflow.client run dev`.
 
-### Spuštění z Visual Studia
+## Spuštění z Visual Studia
 
-Frontend (`studentflow.client`) lze spustit z Visual Studia bez předchozího
-`node scripts/dev.mjs setup`. Pokud v `.certs/` chybí certifikát, Vite ho při
-startu exportuje pomocí `dotnet dev-certs https` (stejně jako setup). Důvěru
-certifikátu nastavuje Visual Studio při prvním spuštění HTTPS profilu API,
-případně `dotnet dev-certs https --trust`. API spuštěné z Visual Studia
-nenačítá `.env`; connection string a seed nastavte v User Secrets projektu
-`StudentFlow.Api`.
+Visual Studio spouští API a frontend samo, bez `node scripts/dev.mjs`. Databáze
+v Dockeru je potřeba stejně jako výše.
+
+1. **Databáze.** Vytvořte `.env` s heslem databáze (`node scripts/dev.mjs setup`,
+   nebo zkopírujte `.env.example` a vyplňte `POSTGRES_PASSWORD`) a spusťte
+   `docker compose up -d --wait`.
+2. **Konfigurace API.** API spuštěné z Visual Studia **nečte `.env`**. Na projektu
+   `StudentFlow.Api` zvolte *Manage User Secrets* a vložte connection string
+   s heslem z `.env`, případně i vývojový seed (pravidla hodnot uvádí
+   [Testovací účty](#testovací-účty-pro-lokální-vývoj)):
+
+   ```json
+   {
+     "ConnectionStrings": {
+       "DefaultConnection": "Host=127.0.0.1;Port=5433;Database=studentflow;Username=studentflow;Password=HESLO_Z_ENV"
+     },
+     "DevelopmentSeed": {
+       "Enabled": true,
+       "MemberEmail": "clen@studentflow.test",
+       "TeacherEmail": "ucitel@studentflow.test",
+       "LeaderEmail": "vedouci@studentflow.test",
+       "Password": "StudentFlow1!"
+     }
+   }
+   ```
+
+   User Secrets se ukládají mimo repozitář, do profilu uživatele Windows.
+3. **Spuštění.** V nabídce spuštění vyberte sdílený profil **API + frontend**
+   (soubor `StudentFlow.slnLaunch`) a stiskněte F5. API běží v profilu `https`
+   na `https://localhost:7082`, frontend na `https://localhost:60357`, kde
+   aplikaci otevřete.
+4. **Certifikát.** Chybějící certifikát v `.certs/` vytvoří Vite při startu sám
+   (stejně jako setup). Při prvním spuštění HTTPS profilu Visual Studio nabídne
+   důvěru vývojovému certifikátu; potvrďte ji.
+
+Pokud chybí `node_modules` frontendu, spusťte `npm --prefix src/studentflow.client ci`.
+Spuštění testů v Test Exploreru popisuje [TESTING.md](TESTING.md#spuštění-databázových-integračních-testů).
 
 ## Testovací účty pro lokální vývoj
 
 Vývojový seed umí při startu API založit účet člena (`STUDENT`) a vyučujícího
 (`TEACHER`). Přihlašovací údaje nastavte ve vlastním lokálním `.env`, který Git
-ignoruje. Jejich aktuální hodnoty najdete pouze v tomto souboru; projekt
+ignoruje, a při spuštění z Visual Studia v User Secrets (sekce `DevelopmentSeed`). Jejich aktuální hodnoty najdete pouze v tomto souboru; projekt
 neobsahuje výchozí e-maily ani heslo. Názvy proměnných uvádí také `.env.example`:
 
 | Proměnná | Význam |
@@ -121,9 +151,10 @@ neobsahuje výchozí e-maily ani heslo. Názvy proměnných uvádí také `.env.
 | `DevelopmentSeed__Password` | Heslo pro nově vytvářené účty: 8–15 Unicode znaků, alespoň jedno velké písmeno, číslice a speciální znak; bez mezer a dalších bílých znaků. |
 | `DevelopmentSeed__Enabled` | Nastavte `true` až po vyplnění všech přihlašovacích údajů. |
 
-Nejdříve musí běžet databáze s provedenými migracemi včetně `V20261120_1200__registration_privacy_acceptance.sql`. Potom spusťte
-`node scripts/dev.mjs`, který předá `.env` aplikaci. Při samostatném spuštění
-přes `dotnet run` předejte stejné hodnoty jako proměnné prostředí.
+Nejdříve musí běžet databáze se všemi migracemi z `database/migrations/`. Potom spusťte
+`node scripts/dev.mjs`, který předá `.env` aplikaci, nebo API z Visual Studia
+s hodnotami v User Secrets. Při samostatném spuštění přes `dotnet run` předejte
+stejné hodnoty jako proměnné prostředí.
 
 Pokud databáze obsahuje ukázkovou nástěnku (migrace nástěnky a ukázkových dat), seed přidá člena
 a vedoucího do ukázkového projektu „Rezervační systém knihovny“. Člen převezme
@@ -203,6 +234,24 @@ Použití autentizace v další funkci a kontrolní postup pro předání popisu
 
 Podklady: [dotnet dev-certs](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-dev-certs),
 [Vite server options](https://vite.dev/config/server-options).
+
+## Nové migrace na existující databázi
+
+PostgreSQL v Dockeru provádí soubory z `database/migrations/` jen při prvním
+vytvoření datového svazku. Po stažení změn s novou migrací se existující
+databáze sama neaktualizuje a API pak hlásí chyby typu
+`column "…" does not exist`.
+
+Nejjednodušší je svazek založit znovu. **Smaže všechna lokální data**; testovací
+účty po startu API znovu založí vývojový seed:
+
+```bash
+docker compose down -v
+docker compose up -d --wait
+```
+
+Lokální data zachováte ručním provedením chybějících migrací, postup uvádí
+[databázový návod](../database/README.md#doplnění-chybějících-migrací).
 
 ## Aktualizace registrace a zásad ochrany údajů
 

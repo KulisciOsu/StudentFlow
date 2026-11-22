@@ -27,7 +27,7 @@ projekt současně používají testy nástěnky.
 Příprava: vedoucí ukázkového projektu podle
 [Ruční vyzkoušení](../../../ELABORATION/projects/MEMBERS.md#ruční-vyzkoušení),
 druhý registrovaný účet typu Člen a jeden účet typu Vyučující. Stránka:
-`/projects/1/settings`.
+`/projects/1/settings`, na kterou vede odkaz „Nastavení projektu“ na nástěnce.
 
 | ID | Kroky | Očekávaný výsledek |
 | :--- | :--- | :--- |
