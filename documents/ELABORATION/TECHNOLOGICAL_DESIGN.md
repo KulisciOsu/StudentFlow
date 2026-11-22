@@ -1,226 +1,149 @@
 # 6.2 Technologický návrh systému StudentFlow
 
-## 1. Účel dokumentu
+## 1. Přehled technologií
 
-Tento dokument popisuje technologické řešení systému StudentFlow. Uvádí zvolené technologie, jejich využití v jednotlivých částech aplikace a zdůvodnění jejich výběru.
-
-Cílem je vytvořit webovou aplikaci pro správu studentských týmových projektů, která bude přehledná, udržovatelná, bezpečná a rozšiřitelná. Technologický návrh vychází z aktuální struktury repozitáře, požadavků systému a potřeb vývojového týmu.
-
-Dokument rozlišuje mezi zvolenými technologiemi a technologiemi, jejichž využití je zatím navržené nebo volitelné.
-
-## 2. Přehled technologií
-
-| Oblast | Technologie | Stav |
+| Oblast | Technologie | Účel ve StudentFlow |
 | :--- | :--- | :--- |
-| Frontend | React | Zvoleno |
-| Programovací jazyk frontendu | TypeScript | Zvoleno |
-| Vývoj a sestavení frontendu | Vite | Zvoleno |
-| Backend | C# a ASP.NET Core Web API | Zvoleno |
-| Komunikace | REST API, HTTP/HTTPS, JSON | Zvoleno |
-| Databáze | PostgreSQL | Zvoleno |
-| Přístup k databázi | Dapper | Zvoleno |
-| E2E testování | Playwright | Zvoleno |
-| Testování frontendu | Vitest | Zvoleno |
-| Testování backendu | xUnit | Zvoleno |
-| Databázové integrační testy | Testcontainers | Navrženo |
-| Kontejnerové prostředí | Docker a případně Docker Compose | Volitelné |
+| Frontend | React | Uživatelské rozhraní složené z komponent. |
+| Frontend | dnd-kit | Přetahování úkolů na Kanban nástěnce myší a dotykem. |
+| Frontend | Sass (SCSS) | Styly jednotlivých komponent. |
+| Frontend | TypeScript | Typová kontrola kódu a dat z API. |
+| Frontend | Vite | Vývojový server s HTTPS a proxy na API, produkční sestavení. |
+| Backend | C#, ASP.NET Core Web API (.NET 10) | REST API, autentizace a oprávnění. |
+| Backend | REST API, HTTPS, JSON | Komunikace s frontendem. |
+| Databáze | PostgreSQL 17 | Trvalé uložení dat. |
+| Databáze | Dapper, Npgsql | SQL dotazy z backendu a mapování výsledků na objekty v C#. |
+| Testování | xUnit | Jednotkové a integrační testy backendu. |
+| Testování | Vitest, Testing Library | Jednotkové a komponentové testy frontendu. |
+| Testování | Playwright | Uživatelské průchody v prohlížeči (E2E). |
+| Infrastruktura | Docker Compose | Lokální PostgreSQL pro celý tým. |
+| Infrastruktura | GitHub Actions | Sestavení, testy, lint a audit závislostí u pull requestů do `main`. |
 
-## 3. Diagram technologického řešení
+Frontend vyžaduje Node.js 22, backend .NET 10 SDK.
 
-Diagram znázorňuje hlavní technologické komponenty systému StudentFlow a jejich vzájemné vztahy. Plné šipky představují hlavní provozní tok aplikace. Přerušované šipky znázorňují vazby související s automatizovaným testováním.
+## 2. Diagram technologického řešení
+
+Plné šipky představují provozní tok aplikace, přerušované šipky automatizované testování.
 
 ```mermaid
-%%{init: {"theme": "dark", "themeVariables": {
-  "primaryColor": "#303030",
-  "primaryTextColor": "#ffffff",
-  "primaryBorderColor": "#888888",
-  "lineColor": "#888888",
-  "secondaryColor": "#303030",
-  "tertiaryColor": "#303030",
-  "clusterBkg": "#303030",
-  "clusterBorder": "#888888",
-  "background": "#0d1117"
-}}}%%
-
 flowchart TD
     U["Uživatel"]
     FE["Frontend<br/>React + TypeScript + Vite"]
     API["Backend<br/>C# + ASP.NET Core Web API"]
-    DB[("PostgreSQL<br/>Relační databáze")]
-    DAPPER["Dapper<br/>Přístup k databázi"]
+    DAPPER["Dapper + Npgsql<br/>Přístup k databázi"]
+    DB[("PostgreSQL 17")]
 
     U --> FE
-    FE -->|"REST API<br/>HTTP/HTTPS + JSON"| API
+    FE -->|"REST API<br/>HTTPS + JSON"| API
     API --> DAPPER
     DAPPER --> DB
 
     subgraph TESTS["Automatizované testování"]
-        PW["Playwright<br/>E2E testování"]
-        VITEST["Vitest<br/>Testování frontendu"]
-        XUNIT["xUnit<br/>Testování backendu"]
-        TC["Testcontainers<br/>Databázové integrační testy"]
+        PW["Playwright<br/>E2E"]
+        VITEST["Vitest<br/>frontend"]
+        XUNIT["xUnit<br/>backend a databáze"]
     end
 
-    FE -.-> PW
-    API -.-> PW
-    FE -.-> VITEST
-    API -.-> XUNIT
-    TC -.-> DB
-
-    DOCKER["Docker / Docker Compose<br/>Volitelné prostředí pro vývoj a testování"]
-
-    classDef default fill:#303030,color:#ffffff,stroke:#888888,stroke-width:1px;
-    classDef database fill:#303030,color:#ffffff,stroke:#888888,stroke-width:1px;
-    class DB database;
-    style TESTS fill:#202020,stroke:#888888,color:#ffffff
-    linkStyle default stroke:#888888,stroke-width:1px;
+    PW -.-> FE
+    PW -.-> API
+    VITEST -.-> FE
+    XUNIT -.-> API
+    XUNIT -.-> DB
 ```
 
-Frontend zajišťuje uživatelské rozhraní a komunikuje s backendem prostřednictvím REST API. Backend zpracovává požadavky a využívá Dapper pro přístup k databázi PostgreSQL.
+## 3. Frontend
 
-Automatizované testování pokrývá jednotlivé části aplikace i celé uživatelské scénáře. Testcontainers je navržen pro testy vyžadující skutečnou instanci PostgreSQL. Docker a Docker Compose představují volitelné prostředí pro vývoj a testování.
+### 3.1 React
 
-## 4. Frontend
+React řeší celé uživatelské rozhraní: přihlášení a registraci, dashboard, Kanban nástěnku a správu projektu. Rozhraní se skládá z opakovaně použitelných komponent (karta úkolu, sloupec, formuláře) a při změně stavu, například filtru nebo přesunu úkolu, se překreslí bez načtení stránky. React má rozsáhlý ekosystém knihoven, ze kterého projekt využívá dnd-kit a Testing Library. Visual Studio nabízí šablonu, která React frontend a ASP.NET Core backend spojuje v jedné solution.
 
-### 4.1 React
+### 3.2 dnd-kit
 
-React bude použit pro tvorbu uživatelského rozhraní aplikace. Umožňuje rozdělit rozhraní do samostatných a opakovaně použitelných komponent, což usnadňuje vývoj, údržbu a rozšiřování aplikace.
+Knihovna dnd-kit pro React zajišťuje přetahování úkolů mezi sloupci nástěnky myší i dotykem. Na mobilu nástěnka místo přetahování nabízí výběr cílového sloupce.
 
-Ve StudentFlow bude zajišťovat zobrazování projektů, týmů, úkolů a dalších informací. Umožní také vytvářet formuláře a interaktivní prvky, prostřednictvím kterých budou uživatelé se systémem pracovat.
+### 3.3 Sass
 
-React byl zvolen také proto, že frontendová aplikace je již v této technologii vytvořena. Zachování stávajícího řešení umožňuje navázat na dosavadní práci a soustředit se na implementaci požadovaných funkcí.
+Styly komponent jsou psané v SCSS (Sass). Každá komponenta má vlastní soubor stylů vedle svého kódu; oproti čistému CSS umožňuje SCSS vnořování pravidel.
 
-### 4.2 TypeScript
+### 3.4 TypeScript
 
-TypeScript bude použit jako hlavní programovací jazyk frontendové aplikace. Rozšiřuje JavaScript o statickou typovou kontrolu, která pomáhá odhalovat některé chyby již během vývoje.
+TypeScript je jazyk celého frontendu. Statická typová kontrola odhalí chyby už při sestavení, například chybějící pole nebo špatný typ v datech z API. Odpovědi API frontend při načtení ověřuje a dál s nimi pracuje jako s typovanými objekty.
 
-V projektu bude využit pro implementaci komponent, definování datových struktur a zpracování odpovědí REST API. Typování pomůže sjednotit očekávanou podobu dat a usnadní spolupráci více členů týmu.
+### 3.5 Vite
 
-### 4.3 Vite
+Vite slouží jako vývojový server a nástroj pro produkční sestavení. Při vývoji běží přes HTTPS a požadavky na `/api/...` předává backendu, takže prohlížeč pracuje s jedním originem a zabezpečenými cookies. Změny v kódu se v prohlížeči projeví okamžitě bez obnovení stránky.
 
-Vite bude sloužit jako nástroj pro vývoj a sestavení frontendové aplikace. Poskytuje vývojový server a připravuje aplikaci pro nasazení.
+## 4. Backend
 
-Byl zvolen jako součást současného frontendového projektu. Umožňuje rychle ověřovat změny během vývoje a odděluje proces sestavení aplikace od její vlastní implementace.
+### 4.1 C# a ASP.NET Core Web API
 
-## 5. Backend
+Backend je napsaný v C# nad ASP.NET Core Web API (.NET 10). Framework obsahuje vše, co StudentFlow potřebuje k zabezpečení, bez dalších knihoven:
 
-### 5.1 C# a ASP.NET Core Web API
+- vlastní autentizační schéma pro serverovou session v cookie,
+- ochranu proti CSRF (antiforgery),
+- hashování hesel (`PasswordHasher`, PBKDF2),
+- omezení počtu pokusů o registraci a přihlášení (rate limiting).
 
-Backend bude implementován v jazyce C# s využitím ASP.NET Core Web API. Tato technologie umožňuje vytvářet webová API, zpracovávat HTTP požadavky a poskytovat serverové funkce dalším částem aplikace.
+Silné typování C# zachycuje chyby už při překladu a dovoluje sdílet doménové typy mezi projekty `Api`, `Core` a `Data`. Rozdělení backendu na tyto projekty popisuje [návrh architektury](ARCHITECTURAL_DESIGN.md).
 
-Backend bude odpovědný za zpracování operací s projekty, týmy, úkoly a dalšími objekty systému. Bude také zpracovávat požadavky přijaté z frontendu, provádět potřebnou aplikační logiku a připravovat odpovědi pro klientskou aplikaci.
+### 4.2 REST API a JSON
 
-ASP.NET Core bylo zvoleno také proto, že repozitář již obsahuje základ backendu a samostatné projekty pro API, doménovou logiku a datovou vrstvu. Pokračování v této technologii umožní využít existující strukturu a omezí náklady na případný přechod na jiný framework.
+Frontend a backend komunikují přes REST API. API používá metody `GET` (načtení), `POST` (vytvoření, přihlášení), `PUT` (přesun úkolu) a `DELETE` (odebrání člena). Data se přenášejí ve formátu JSON, který se snadno zpracovává v TypeScriptu i v .NET. Komunikace probíhá přes HTTPS i při lokálním vývoji, aby fungovaly zabezpečené cookies.
 
-### 5.2 Rozdělení backendu
+## 5. Databáze a přístup k datům
 
-Backend bude rozdělen do tří projektů podle jejich odpovědností:
+### 5.1 PostgreSQL 17
 
-- **StudentFlow.Api** – zpracování HTTP požadavků, endpointy, controllery a konfigurace aplikace.
-- **StudentFlow.Core** – doménové entity, pravidla a potřebná rozhraní.
-- **StudentFlow.Data** – přístup k databázi a implementace datových operací.
+Data StudentFlow (uživatelé, projekty, členství, sloupce a úkoly) jsou vzájemně provázaná. Relační databáze PostgreSQL je ukládá do tabulek a vazby hlídá cizími klíči, omezeními a transakcemi. PostgreSQL bylo zvoleno, protože:
 
-Toto rozdělení podporuje oddělení webové komunikace, doménové logiky a přístupu k datům. Usnadní také samostatné testování jednotlivých částí systému.
+- je open-source bez licenčních poplatků a běží ve vývoji, v CI i při nasazení,
+- nabízí odložené kontroly omezení, díky kterým lze účet a jeho typ založit v jedné transakci,
+- podporuje české řazení textu (ICU collation `cs-x-icu`), například pro seznam členů,
+- má kvalitní ovladač pro .NET (Npgsql).
 
-Projekt `StudentFlow.Core` nebude přímo záviset na projektech `StudentFlow.Api` ani `StudentFlow.Data`. Datová vrstva bude využívat potřebné typy a rozhraní z projektu `Core`. Implementace potřebných rozhraní budou při konfiguraci aplikace zaregistrovány prostřednictvím dependency injection.
+### 5.2 Dapper a Npgsql
 
-## 6. Komunikace mezi komponentami
+Projekt `StudentFlow.Data` přistupuje k databázi přes Dapper, lehký mapovací nástroj (micro-ORM), nad ovladačem Npgsql. Dotazy jsou psané ručně v SQL a parametrizované. Vývojáři tak mají nad dotazy přímou kontrolu a mohou využít funkce PostgreSQL, které by plnohodnotné ORM skrývalo (zamykání řádků, české řazení). Dapper výsledky dotazů mapuje na objekty v C#.
 
-### 6.1 REST API
+### 5.3 SQL migrace
 
-REST API bude zajišťovat komunikaci mezi frontendem a backendem. Frontend bude odesílat požadavky na jednotlivé endpointy backendu, který je zpracuje a vrátí odpovídající odpověď.
+Schéma databáze vzniká obyčejnými SQL soubory v `database/migrations/`. Provádí je PostgreSQL v Dockeru při prvním startu i testovací sady, takže nepotřebují další nástroj a dají se zkontrolovat v code review.
 
-Jednotlivé operace budou využívat vhodné HTTP metody:
+## 6. Automatizované testování
 
-- `GET` – načtení dat.
-- `POST` – vytvoření nového záznamu.
-- `PUT` nebo `PATCH` – aktualizace existujících dat.
-- `DELETE` – odstranění záznamu.
+### 6.1 xUnit
 
-REST API vytváří jasně definované rozhraní mezi frontendem a backendem. Obě části lze vyvíjet samostatně, pokud dodržují dohodnutou strukturu požadavků a odpovědí.
+Backend testuje xUnit, standardní testovací framework pro .NET s podporou v Test Exploreru Visual Studia.
 
-### 6.2 HTTP/HTTPS a JSON
+| Projekt | Co ověřuje |
+| :--- | :--- |
+| `StudentFlow.Core.Tests` | Doménová pravidla bez infrastruktury. |
+| `StudentFlow.Api.Tests` | Controllery nad repozitářem v paměti. |
+| `StudentFlow.Data.Tests` | Kontroly vstupů datové vrstvy bez databáze. |
+| `StudentFlow.Data.IntegrationTests` | SQL dotazy, omezení a migrace nad PostgreSQL 17. |
+| `StudentFlow.Api.IntegrationTests` | Celé HTTP API přes `WebApplicationFactory` nad PostgreSQL 17. |
 
-Data budou mezi frontendem a backendem přenášena ve formátu JSON. Ten je vhodný pro výměnu strukturovaných dat a lze jej snadno zpracovat v TypeScriptu i v .NET.
+Integrační testy běží proti skutečné PostgreSQL 17, kterou určuje proměnná `STUDENTFLOW_TEST_DATABASE`. Sdílený projekt `StudentFlow.Testing` pro každý test založí izolovanou databázi a po testu ji odstraní.
 
-Při nasazení aplikace bude komunikace chráněna pomocí HTTPS. Šifrované spojení pomůže chránit přenášená data před odposlechem a neoprávněnými zásahy během přenosu.
+### 6.2 Vitest a Testing Library
 
-## 7. Databáze a přístup k datům
+Vitest spouští jednotkové a komponentové testy frontendu: validace formulářů, API klienty, hooky a komponenty. Je postavený na Vite, takže testy překládají kód stejně jako vývojový server. Testing Library vykresluje komponenty v prostředí jsdom a ověřuje je tak, jak je vidí uživatel. Testy jsou rychlé a nepotřebují prohlížeč ani backend.
 
-### 7.1 PostgreSQL
+### 6.3 Playwright
 
-Pro ukládání strukturovaných dat systému StudentFlow byla zvolena relační databáze PostgreSQL.
+Playwright ověřuje celé uživatelské průchody, například registraci, přihlášení, práci s nástěnkou a správu členů, proti běžícímu frontendu, API a databázi. Testy běží v prohlížečích Chromium, Firefox a WebKit a emulují mobilní a tabletové rozměry, což pokrývá požadavky na kompatibilitu a responzivitu (NP07, NP09).
 
-Aplikace bude pracovat s propojenými údaji o uživatelích, rolích, týmech, projektech, úkolech a dalších objektech. Relační databáze umožňuje tyto vztahy zachytit pomocí tabulek, primárních a cizích klíčů a integritních omezení.
+## 7. Infrastruktura a vývojové prostředí
 
-PostgreSQL bylo zvoleno z následujících důvodů:
+### 7.1 Docker Compose
 
-- Podporuje relační datový model vhodný pro vzájemně propojené informace.
-- Podporuje transakce, které pomáhají zachovávat konzistenci dat při změnách.
-- Je dostupné jako open-source řešení bez licenčních poplatků za samotný databázový systém.
-- Lze jej provozovat v běžném vývojovém i nasazeném prostředí.
-- Je možné jej propojit s backendem v .NET.
+`compose.yaml` spouští PostgreSQL 17 se stejnou konfigurací pro všechny členy týmu, bez lokální instalace databáze. Při prvním startu nového datového svazku provede migrace z `database/migrations/`.
 
-Datový model bude navržen s ohledem na vazby mezi entitami a na integritu ukládaných dat.
+### 7.2 GitHub Actions
 
-### 7.2 Dapper
+Workflow `.github/workflows/ci.yml` při každém pull requestu a pushi do `main` sestaví backend a spustí:
 
-Pro přístup k PostgreSQL z backendu ASP.NET Core bude využit Dapper. Jedná se o lehký objektově-relační mapovací nástroj (micro-ORM), který umožňuje spouštět SQL dotazy a mapovat jejich výsledky na objekty v C#.
-
-Dapper bude využit v projektu `StudentFlow.Data` pro načítání, ukládání a aktualizaci dat a pro další databázové operace. Oproti plnohodnotnému ORM ponechává větší část práce s SQL dotazy na vývojáři, což umožňuje mít nad dotazy přímou kontrolu.
-
-Databázové operace budou odděleny od doménové logiky tak, aby bylo možné datovou vrstvu samostatně testovat a udržovat.
-
-## 8. Automatizované testování
-
-Testování bude rozděleno podle účelu na frontendové testy, backendové testy, end-to-end testy a databázové integrační testy.
-
-### 8.1 Playwright – end-to-end testování
-
-Playwright bude využit pro automatizované end-to-end (E2E) testování webové aplikace prostřednictvím prohlížeče.
-
-Umožní ověřovat celé uživatelské scénáře, například přihlášení, vytvoření projektu, přidání člena do týmu nebo práci s úkoly. Tím ověří spolupráci frontendu a backendu z pohledu uživatele.
-
-Playwright doplní jednotkové a integrační testy o testování skutečného průchodu aplikací. Díky tomu bude možné odhalovat problémy, které samotné testování jednotlivých komponent nemusí zachytit.
-
-### 8.2 Vitest – frontendové testy
-
-Vitest bude využit pro jednotkové a případně integrační testování frontendového kódu v TypeScriptu.
-
-Umožní testovat jednotlivé funkce a další části frontendové logiky bez nutnosti provádět celý uživatelský scénář v prohlížeči. Společně s Playwrightem tak pokryje různé úrovně testování frontendové aplikace.
-
-### 8.3 xUnit – backendové testy
-
-Pro automatizované testování backendových projektů bude využit framework xUnit, který je určen pro aplikace v prostředí .NET.
-
-Testovací projekty budou rozděleny podle testované komponenty:
-
-- `StudentFlow.Api.Tests` – testování API, endpointů a jejich chování.
-- `StudentFlow.Core.Tests` – testování doménové logiky a pravidel implementovaných v projektu `StudentFlow.Core`.
-- `StudentFlow.Data.Tests` – testování datové vrstvy a jejích operací.
-
-Rozdělení umožní lépe určit, ve které části aplikace se případný problém nachází.
-
-### 8.4 Testcontainers – databázové integrační testy
-
-Testcontainers umožňuje spouštět závislé služby v izolovaných kontejnerech pro účely testování. Ve StudentFlow se navrhuje využít jej pro integrační testy, které potřebují skutečnou instanci PostgreSQL.
-
-Umožní testovat reálné databázové operace, ukládání a načítání dat a chování datové vrstvy bez nutnosti používat sdílenou vývojovou databázi.
-
-Testcontainers je v aktuálním návrhu navrženou technologií. Jeho nasazení bude potvrzeno podle potřeb testování a dostupného kontejnerového prostředí.
-
-## 9. Docker a Docker Compose
-
-Docker a případně Docker Compose lze využít jako volitelné prostředí pro vývoj a testování. Mohou usnadnit spuštění PostgreSQL a sjednotit konfiguraci prostředí napříč počítači členů týmu.
-
-Docker může být užitečný také při databázových integračních testech s Testcontainers. Rozsah jeho využití pro běžné spouštění aplikace bude upřesněn během implementace.
-
-Kontejnerové prostředí je v aktuálním návrhu možností, nikoli povinnou součástí provozní architektury.
-
-## 10. Shrnutí a otevřená rozhodnutí
-
-Technologický návrh systému StudentFlow je založen na frontendu React, TypeScript a Vite, backendu C# a ASP.NET Core Web API a relační databázi PostgreSQL. Komunikace mezi frontendem a backendem bude probíhat prostřednictvím REST API s daty ve formátu JSON. Přístup k databázi zajistí Dapper.
-
-Pro automatizované testování budou využity Playwright pro E2E scénáře, Vitest pro frontend a xUnit pro backend. Testcontainers je navržen pro databázové integrační testy. Docker a případně Docker Compose mohou sloužit jako volitelné prostředí pro vývoj a testování.
-
-K potvrzení zůstává zejména praktické nasazení Testcontainers a rozsah použití Dockeru. Návrh se soustředí na technologie uvedené v aktuálním diagramu a nezahrnuje další kandidátní služby ani nástroje pro týmovou spolupráci a průběžnou integraci.
+- jednotkové testy backendu,
+- databázové a API integrační testy proti službě `postgres:17`,
+- lint (ESLint), audit závislostí, testy a sestavení frontendu,
+- E2E testy v oficiálním Docker image Playwrightu.
