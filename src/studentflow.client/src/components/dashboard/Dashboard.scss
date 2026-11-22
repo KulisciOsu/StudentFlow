@@ -2,15 +2,9 @@
 .dashboard {
   width: 100%;
   color: #222;
-  font-family: Arial, sans-serif;
 
   button {
     font-family: inherit;
-  }
-
-  &__content {
-    width: min(100%, 960px);
-    margin: 0 auto;
   }
 
   &__notice {

@@ -14,6 +14,11 @@
   box-sizing: border-box;
 }
 
+html {
+  /* Místo pro posuvník je vyhrazené vždy, takže se obsah při jeho objevení horizontálně neposouvá. */
+  scrollbar-gutter: stable;
+}
+
 body {
   margin: 0;
 }

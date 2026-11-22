@@ -1,18 +1,10 @@
 
 .sf-shell {
   width: 100%;
-  background: #f5f5f5;
   color: #292929;
-  border: 1px solid #bdbdbd;
-  font-family: Arial, Helvetica, sans-serif;
   font-size: 14px;
 }
 
-.sf-content {
-  padding: 29px 24px 70px;
-  background: #f5f5f5;
-}
-.sf-content-inner { width: min(100%, 646px); margin: 0 auto; }
 .sf-breadcrumb { margin: 0 0 17px; color: #666; font-size: 12px; line-height: 1.4; }
 .sf-breadcrumb a { color: #666; text-decoration: underline; text-underline-offset: 2px; }
 .sf-breadcrumb span:last-child { color: #666; }
@@ -76,14 +68,6 @@
 
 /* Tablet – pouze úprava rozměrů */
 @media (min-width: 641px) and (max-width: 900px) {
-  .sf-content {
-    padding: 26px 22px 50px;
-  }
-
-  .sf-content-inner {
-    width: min(100%, 600px);
-  }
-
   .sf-form-card {
     padding: 22px;
   }
@@ -91,8 +75,6 @@
 
 /* Mobil */
 @media (max-width: 640px) {
-  .sf-content { padding: 18px 10px 30px; }
-  .sf-content-inner { width: 100%; }
   .sf-page-heading :is(h1, h2) { font-size: 21px; }
   .sf-page-heading p { font-size: 13px; }
   .sf-form-card { padding: 18px 14px; }

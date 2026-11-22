@@ -25,6 +25,8 @@
 
 .app--workspace {
   min-width: 0;
+  /* Pracovní stránky začínají nahoře; vertikálně centrované jsou jen formuláře přihlášení a registrace. */
+  align-self: start;
 }
 
 .app-header {
