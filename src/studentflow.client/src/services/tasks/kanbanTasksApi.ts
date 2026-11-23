@@ -1,4 +1,5 @@
 import type { Task } from '../../models/tasks/TaskTypes'
+import { csrfRequest } from '../http/csrfRequest'
 
 /**
  * Ověří data úkolu.
@@ -56,7 +57,7 @@ export async function getTasks(
 }
 
 /**
- * Uloží nový sloupec a pozici úkolu v konkrétním projektu.
+ * Uloží nový sloupec a pozici úkolu v konkrétním projektu; požadavek nese CSRF token.
  */
 export async function saveTaskMove(
   projectId: number,
@@ -64,14 +65,10 @@ export async function saveTaskMove(
   columnId: number,
   position: number,
 ): Promise<void> {
-  const response = await fetch(
+  const response = await csrfRequest(
+    'PUT',
     `/api/projects/${projectId}/tasks/${taskId}/position`,
-    {
-      method: 'PUT',
-      credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ columnId, position }),
-    },
+    { columnId, position },
   )
 
   if (!response.ok) {

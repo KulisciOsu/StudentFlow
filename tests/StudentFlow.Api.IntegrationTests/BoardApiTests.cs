@@ -111,6 +111,30 @@ public class BoardApiTests
     }
 
     /// <summary>
+    /// Ověří, že přesun bez CSRF tokenu API odmítne a úkol zůstane na místě, i když ho posílá jeho řešitel.
+    /// </summary>
+    [Fact]
+    public async Task Board_MoveWithoutCsrfToken_Returns403CsrfInvalid()
+    {
+        await using var app = await CreateAppAsync();
+        await SignInAsync(app, "clen@example.test", "STUDENT");
+        await app.Database.ExecuteAsync("""
+            INSERT INTO project_member (project_id, user_id, is_leader)
+            SELECT 1, user_id, FALSE FROM app_user WHERE email = 'clen@example.test';
+            UPDATE task SET assignee_id = (SELECT user_id FROM app_user WHERE email = 'clen@example.test') WHERE task_id = 4;
+            """);
+        app.Client.DefaultRequestHeaders.Remove("X-CSRF-TOKEN");
+
+        var move = await app.Client.PutAsJsonAsync("/api/projects/1/tasks/4/position", new { columnId = 3, position = 0 });
+        var problem = await move.Content.ReadFromJsonAsync<JsonElement>();
+        var saved = await GetJsonAsync(app, "/api/projects/1/tasks");
+
+        Assert.Equal(HttpStatusCode.Forbidden, move.StatusCode);
+        Assert.Equal("CSRF_INVALID", problem.GetProperty("code").GetString());
+        Assert.NotEqual(3, FindTask(saved, 4).GetProperty("columnId").GetInt32());
+    }
+
+    /// <summary>
     /// Vytvoří API nad databází s ukázkovým projektem a jeho členy.
     /// </summary>
     private static async Task<RegistrationApp> CreateAppAsync()
@@ -143,6 +167,9 @@ public class BoardApiTests
 
         Assert.Equal(HttpStatusCode.Created, registration.StatusCode);
         Assert.Equal(HttpStatusCode.OK, login.StatusCode);
+
+        // Token je vázaný na identitu, po přihlášení je proto potřeba nový.
+        await app.SetCsrfAsync();
     }
 
     /// <summary>

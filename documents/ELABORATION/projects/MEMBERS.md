@@ -117,8 +117,6 @@ seznam znovu načte.
   `GET /api/projects/{projectId}/members`. Smí ho číst každý člen.
 - Navržené společné pravidlo: `404` = projekt neexistuje **nebo** volající není
   členem, `403` = člen bez oprávnění k akci. Nástěnka zatím vrací nečlenovi `403`.
-- `PUT .../tasks/{id}/position` zatím neposílá CSRF token. Lze použít
-  `csrfRequest` ze `services/http/csrfRequest.ts`.
 
 **Vývojový seed:** vývojový účet vyučujícího nedávejte do domény
 `@studentflow.local`. Migrace `V20261110_1832__seed_kanban_demo_members.sql`

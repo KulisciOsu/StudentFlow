@@ -101,10 +101,12 @@ async function loadBoard(page: Page) {
 }
 
 /// <summary>
-/// Uloží sloupec a pozici úkolu přes API a vrátí stavový kód.
+/// Uloží sloupec a pozici úkolu přes API s CSRF tokenem přihlášeného uživatele a vrátí stavový kód.
 /// </summary>
 async function saveMove(page: Page, taskId: number, columnId: number, position: number) {
-  const response = await page.request.put(`/api/projects/1/tasks/${taskId}/position`, { data: { columnId, position } })
+  const csrf = await (await page.request.get('/api/auth/csrf')).json()
+  const response = await page.request.put(`/api/projects/1/tasks/${taskId}/position`,
+    { headers: { 'X-CSRF-TOKEN': csrf.token }, data: { columnId, position } })
   return response.status()
 }
 

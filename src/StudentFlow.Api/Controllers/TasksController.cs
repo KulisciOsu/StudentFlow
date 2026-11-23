@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using StudentFlow.Api.Authentication;
 using StudentFlow.Api.Models;
 using StudentFlow.Core.Kanban;
 
@@ -62,8 +63,9 @@ public class TasksController : ControllerBase
     /// <param name="projectId">Identifikátor projektu.</param>
     /// <param name="taskId">Identifikátor úkolu.</param>
     /// <param name="request">Cílový sloupec a pozice.</param>
-    /// <returns>204 při úspěchu, 400 při neplatném přesunu, 403 bez oprávnění, 404 pokud úkol nebo sloupec neexistuje.</returns>
+    /// <returns>204 při úspěchu, 400 při neplatném přesunu, 403 bez oprávnění nebo bez platného CSRF tokenu, 404 pokud úkol nebo sloupec neexistuje.</returns>
     [HttpPut("{taskId:int}/position")]
+    [ServiceFilter(typeof(CsrfValidationFilter))]
     public async Task<IActionResult> Move(int projectId, int taskId, MoveTaskRequestDto request)
     {
         var role = await BoardAccess.GetRoleAsync(_repository, User, projectId);

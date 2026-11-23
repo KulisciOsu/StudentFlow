@@ -31,7 +31,7 @@ Stav k 22. 11. 2026.
 
 | Úkol | Kdo | Vazba |
 | --- | --- | --- |
-| Doplnit kontrolu CSRF u založení projektu a přesunu úkolu | Marek Szczepanik, Vladimír Pospíšil | Omezení A02, NP03 |
+| Doplnit kontrolu CSRF u založení projektu (přesun úkolu hotový v KAN-144) | Vladimír Pospíšil | Omezení A02, NP03 |
 | Srozumitelně odmítnout založení projektu vyučujícím, sjednotit pravidla formuláře a serveru | Vladimír Pospíšil | Omezení A03, A04 |
 | Rozhodnout způsob ukládání souborů | vedoucí databáze a backendu | NP05, riziko R4 |
 | Doplnit ER model o milníky, verze výstupů a historii změn | vedoucí databáze | [Mezery v návrhu](#mezery-v-návrhu) |
