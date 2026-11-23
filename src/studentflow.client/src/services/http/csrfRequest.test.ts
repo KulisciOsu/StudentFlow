@@ -50,6 +50,18 @@ describe('csrfRequest', () => {
     expect(fetch.mock.calls[3][1].headers['X-CSRF-TOKEN']).toBe('token-2')
   })
 
+  it('retries once when the server responds with 400 CSRF_INVALID', async () => {
+    const fetch = vi.fn().mockResolvedValueOnce(csrf()).mockResolvedValueOnce(json({ code: 'CSRF_INVALID' }, 400))
+      .mockResolvedValueOnce(csrf('token-2')).mockResolvedValueOnce(new Response(null, { status: 204 }))
+    vi.stubGlobal('fetch', fetch)
+
+    const response = await csrfRequest('POST', '/api/projects', { name: 'Projekt' })
+
+    expect(response.status).toBe(204)
+    expect(fetch).toHaveBeenCalledTimes(4)
+    expect(fetch.mock.calls[3][1].headers['X-CSRF-TOKEN']).toBe('token-2')
+  })
+
   it('returns the second CSRF rejection to the caller without a third attempt', async () => {
     const fetch = vi.fn().mockResolvedValueOnce(csrf()).mockResolvedValueOnce(json({ code: 'CSRF_INVALID' }, 403))
       .mockResolvedValueOnce(csrf('token-2')).mockResolvedValueOnce(json({ code: 'CSRF_INVALID' }, 403))

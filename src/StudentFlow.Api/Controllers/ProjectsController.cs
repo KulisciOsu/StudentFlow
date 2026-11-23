@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using StudentFlow.Api.Authentication;
 using StudentFlow.Core.Kanban;
 using StudentFlow.Core.Projects;
 
@@ -67,6 +68,8 @@ public class ProjectsController : ControllerBase
     /// <returns>Vytvořený projekt, nebo validační či autorizační chybu.</returns>
     [Authorize]
     [HttpPost]
+    [CsrfInvalidResponseStatus(StatusCodes.Status400BadRequest)]
+    [ServiceFilter(typeof(CsrfValidationFilter))]
     public async Task<ActionResult<CreatedProject>> Create(
         [FromBody] CreateProjectCommand command,
         CancellationToken cancellationToken)

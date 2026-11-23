@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Http;
 
 namespace StudentFlow.Api.Authentication;
 
@@ -26,5 +27,14 @@ public sealed class CsrfValidationFilter(IAntiforgery antiforgery) : IAsyncActio
         await next();
     }
     private static Microsoft.AspNetCore.Mvc.ObjectResult InvalidToken(ActionExecutingContext context) =>
-        ApiProblems.Result(context.HttpContext, 403, "CSRF_INVALID", "Ověření požadavku se nezdařilo", "Obnovte ověření a zkuste to znovu.");
+        ApiProblems.Result(context.HttpContext, context.HttpContext.GetEndpoint()?.Metadata.GetMetadata<CsrfInvalidResponseStatusAttribute>()?.StatusCode ?? 403, "CSRF_INVALID", "Ověření požadavku se nezdařilo", "Obnovte ověření a zkuste to znovu.");
+}
+
+/// <summary>
+/// Volitelně nastaví odpověď na chybný CSRF token pro konkrétní endpoint.
+/// </summary>
+[AttributeUsage(AttributeTargets.Method)]
+public sealed class CsrfInvalidResponseStatusAttribute(int statusCode) : Attribute
+{
+    public int StatusCode { get; } = statusCode;
 }
