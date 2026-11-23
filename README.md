@@ -62,17 +62,19 @@ flowchart LR
 
 ## 📚 Dokumentace
 
+Dokumentace postupuje podle zadání předmětu: **problém → vize → uživatelé → požadavky → případy užití → návrh → architektura → prototyp**. Každý dokument uvádí, na který předchozí navazuje.
+
 | FÁZE I - INCEPTION | FÁZE II - ELABORATION |
 | :--- | :--- |
-| [Vize projektu](documents/INCEPTION/VIZE_PROJEKTU.md) | [Návrh architektury](documents/ELABORATION/ARCHITECTURAL_DESIGN.md) |
-| [Popis problému](documents/INCEPTION/PROBLEM_DESCRIPTION.md) | [Technologický návrh](documents/ELABORATION/TECHNOLOGICAL_DESIGN.md) |
-| [Stakeholděři](documents/INCEPTION/STAKEHOLDERS.md) | [Autentizace – API a doplňky původních wireframů](documents/ELABORATION/auth/README.md) |
-| [Risk-list – seznam rizik](documents/INCEPTION/RISK_LIST.md) | [Původní wireframy – zdroj pravdy](documents/ELABORATION/Wireframe.pdf) |
-| [Rozsah projektu – Scope](documents/INCEPTION/SCOPE_OF_PROJECT.md) |  |
-| [Cíle projektu](documents/INCEPTION/PROJECT_OBJECTIVES.md) |  |
-| [Use Case – případy užití](documents/INCEPTION/USE_CASE.md) |  |
-| [Požadavky systému](documents/INCEPTION/REQUIREMENTS.md) |  |
-| [Kandidát architektury](documents/INCEPTION/Kandidat-architektury.png) |  |
+| [Popis problému](documents/INCEPTION/PROBLEM_DESCRIPTION.md) | [Wireframy](documents/ELABORATION/Wireframe.pdf) |
+| [Vize projektu](documents/INCEPTION/VIZE_PROJEKTU.md) | [ER model](documents/ELABORATION/StudentFlow_ER.svg) |
+| [Rozsah projektu – Scope](documents/INCEPTION/SCOPE_OF_PROJECT.md) | [Autentizace – API a doplňky wireframů](documents/ELABORATION/auth/README.md) |
+| [Cíle projektu](documents/INCEPTION/PROJECT_OBJECTIVES.md) | [Členové projektu](documents/ELABORATION/projects/MEMBERS.md) |
+| [Stakeholdeři](documents/INCEPTION/STAKEHOLDERS.md) | [Návrh architektury](documents/ELABORATION/ARCHITECTURAL_DESIGN.md) |
+| [Požadavky systému](documents/INCEPTION/REQUIREMENTS.md) | [Technologický návrh](documents/ELABORATION/TECHNOLOGICAL_DESIGN.md) |
+| [Use Case – případy užití](documents/INCEPTION/USE_CASE.md) | [Prototyp: 20 % implementace a ověření architektury](documents/ELABORATION/PROTOTYP.md) |
+| [Risk-list – seznam rizik](documents/INCEPTION/RISK_LIST.md) | [Aktualizovaný plán projektu](documents/ELABORATION/PLAN_PROJEKTU.md) |
+| [Kandidát architektury](documents/INCEPTION/Kandidat-architektury.png) | [Rozdělení práce v týmu](documents/ELABORATION/ROZDELENI_PRACE.md) |
 
 ## 🧪 Testování
 
