@@ -52,6 +52,24 @@ public class ProjectCreationApiTests
     }
 
     /// <summary>
+    /// Vyučující s platným CSRF tokenem dostane 403 a projekt nevznikne.
+    /// </summary>
+    [Fact]
+    public async Task Create_Teacher_Returns403AndDoesNotWrite()
+    {
+        await using var app = await RegistrationApp.CreateAsync(dashboard: true);
+        await SignInAsync(app, "vyucujici@example.test", "TEACHER");
+
+        var response = await app.Client.PostAsJsonAsync("/api/projects", ValidProject());
+        var problem = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var count = await app.Database.ScalarAsync<long>("SELECT count(*) FROM project");
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        Assert.Equal("PROJECT_CREATION_FORBIDDEN", problem.GetProperty("code").GetString());
+        Assert.Equal("Nový projekt může založit pouze student.", problem.GetProperty("detail").GetString());
+        Assert.Equal(0L, count);
+    }
+    /// <summary>
     /// Zaregistruje a přihlásí účet a vydá CSRF token pro novou session.
     /// </summary>
     private static async Task SignInAsync(RegistrationApp app, string email, string accountType)

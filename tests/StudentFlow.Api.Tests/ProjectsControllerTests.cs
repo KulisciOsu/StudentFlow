@@ -144,6 +144,29 @@ public class ProjectsControllerTests
         Assert.IsType<UnauthorizedResult>(result.Result);
     }
 
+    /// <summary>
+    /// Ověří, že vyučující nedojde k zápisu projektu a dostane srozumitelnou chybu.
+    /// </summary>
+    [Fact]
+    public async Task Create_Teacher_ReturnsForbiddenWithoutWriting()
+    {
+        var repository = new FakeProjectCreationRepository();
+        var controller = CreateController(repository);
+        SetAuthenticatedUser(controller, "42", "TEACHER");
+
+        var result = await controller.Create(new CreateProjectCommand
+        {
+            Name = "Projekt vyučujícího",
+            TeamName = "Testovací tým"
+        }, CancellationToken.None);
+
+        var forbidden = Assert.IsType<ObjectResult>(result.Result);
+        var problem = Assert.IsType<ProblemDetails>(forbidden.Value);
+        Assert.Equal(StatusCodes.Status403Forbidden, forbidden.StatusCode);
+        Assert.Equal("PROJECT_CREATION_FORBIDDEN", problem.Extensions["code"]);
+        Assert.Null(repository.ReceivedCommand);
+    }
+
     [Fact]
     public async Task Create_WithoutProjectName_ReturnsBadRequest()
     {
@@ -188,12 +211,14 @@ public class ProjectsControllerTests
 
     private static void SetAuthenticatedUser(
         ProjectsController controller,
-        string userId)
+        string userId,
+        string accountType = "STUDENT")
     {
         var identity = new ClaimsIdentity(
             new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, userId)
+                new Claim(ClaimTypes.NameIdentifier, userId),
+                new Claim(ClaimTypes.Role, accountType)
             },
             "TestAuthentication");
 

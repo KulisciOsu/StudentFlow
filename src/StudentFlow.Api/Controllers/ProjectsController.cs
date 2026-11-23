@@ -124,6 +124,16 @@ public class ProjectsController : ControllerBase
             return Unauthorized();
         }
 
+        if (!User.IsInRole("STUDENT"))
+        {
+            return ApiProblems.Result(
+                HttpContext,
+                StatusCodes.Status403Forbidden,
+                "PROJECT_CREATION_FORBIDDEN",
+                "Projekt nelze založit",
+                "Nový projekt může založit pouze student.");
+        }
+
         var projectId = await _projectCreationRepository.CreateAsync(
             command,
             creatorUserId,
