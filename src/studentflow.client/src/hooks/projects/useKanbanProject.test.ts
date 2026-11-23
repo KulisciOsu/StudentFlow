@@ -17,6 +17,7 @@ const project: Project = {
   teamName: 'Tým',
   dueDate: null,
   isReadOnly: true,
+  isLeader: false,
 }
 
 beforeEach(() => {

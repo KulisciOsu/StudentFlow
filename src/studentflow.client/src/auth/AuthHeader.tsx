@@ -1,15 +1,16 @@
 
 import { useAuth } from './AuthContext'
-import { homeFor } from './types'
 
-/** Společná hlavička ověřeného účtu s navigací podle typu a serverovým odhlášením. */
-export function AuthHeader({ navigate }: { navigate: (path: string) => void }) {
+/**
+ * Společná hlavička ověřeného účtu se jménem, typem účtu a serverovým odhlášením.
+ * Cestu zpět na přehled nabízí nadpis aplikace a drobečková navigace jednotlivých stránek.
+ */
+export function AuthHeader() {
   const { state, signOut } = useAuth()
 
   if (state.status !== 'authenticated') return null
 
   const { user } = state.identity
-  const home = homeFor(user)
 
   return (
     <header className="session-header">
@@ -18,21 +19,9 @@ export function AuthHeader({ navigate }: { navigate: (path: string) => void }) {
         <span>{user.accountType === 'STUDENT' ? 'Člen' : 'Vyučující'}</span>
       </p>
 
-      <nav aria-label="Účet">
-        <a
-          href={home}
-          onClick={(event) => {
-            event.preventDefault()
-            navigate(home)
-          }}
-        >
-          Můj přehled
-        </a>
-
-        <button type="button" onClick={() => void signOut()}>
-          Odhlásit se
-        </button>
-      </nav>
+      <button type="button" onClick={() => void signOut()}>
+        Odhlásit se
+      </button>
     </header>
   )
 }

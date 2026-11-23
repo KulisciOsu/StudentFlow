@@ -17,5 +17,4 @@ export type FormErrors = Partial<Record<keyof FormValues, string>>
 export type CreateProjectPageProps = {
   onBack: () => void
   onCreated: (projectId: number) => void
-  embedded?: boolean
 }

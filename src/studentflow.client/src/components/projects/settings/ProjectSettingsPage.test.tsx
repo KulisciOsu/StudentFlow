@@ -23,7 +23,7 @@ const reload = vi.fn()
 /// </summary>
 function renderPage(state: ProjectMembersState, currentUserId = '1') {
   vi.mocked(useProjectMembers).mockReturnValue({ state, reload })
-  return render(<ProjectSettingsPage projectId={7} currentUserId={currentUserId} />)
+  return render(<ProjectSettingsPage projectId={7} currentUserId={currentUserId} home={{ path: '/projects', label: 'Moje projekty' }} onNavigate={vi.fn()} />)
 }
 
 beforeEach(() => reload.mockReset())

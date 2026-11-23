@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { TaskCardContent } from '../task/TaskCardContent'
 import { isOverdue } from '../../../utils/tasks/taskDisplay'
-import { MobileBottomNav } from './MobileBottomNav'
 import type { MobileBoardProps } from './MobileBoardTypes'
 import '../task/TaskCard.scss'
 import './MobileBoard.scss'
@@ -9,7 +8,7 @@ import './MobileBoard.scss'
 /// <summary>
 /// Zobrazuje nástěnku na mobilu: sloupce v záložkách a přesun tlačítkem.
 /// </summary>
-export function MobileBoard({ columns, tasks, isReadOnly, onMoveTask }: MobileBoardProps) {
+export function MobileBoard({ columns, tasks, onMoveTask }: MobileBoardProps) {
   const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null)
   const activeColumn = columns.find((column) => column.id === selectedColumnId) ?? columns[0]
   const columnTasks = tasks
@@ -69,7 +68,6 @@ export function MobileBoard({ columns, tasks, isReadOnly, onMoveTask }: MobileBo
         })}
       </ul>
       {columnTasks.length === 0 && <p className="mobile-board-empty">Žádné úkoly</p>}
-      <MobileBottomNav showNewTask={!isReadOnly} />
     </div>
   )
 }

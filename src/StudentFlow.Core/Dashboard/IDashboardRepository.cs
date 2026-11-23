@@ -35,6 +35,7 @@ public sealed class DashboardProjectData
 public sealed class DashboardTaskData
 {
     public int Id { get; set; }
+    public int ProjectId { get; set; }
     public string Name { get; set; } = "";
     public string Project { get; set; } = "";
     public string Deadline { get; set; } = "";

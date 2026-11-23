@@ -1,0 +1,16 @@
+[
+  {
+    "Name": "API + frontend",
+    "Projects": [
+      {
+        "Path": "src\\StudentFlow.Api\\StudentFlow.Api.csproj",
+        "Action": "Start",
+        "DebugTarget": "https"
+      },
+      {
+        "Path": "src\\studentflow.client\\studentflow.client.esproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

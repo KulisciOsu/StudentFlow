@@ -11,10 +11,10 @@ zavedené části od těch, které je potřeba implementovat.
 
 | Úroveň | Co ověřuje | Nástroj | Aktuální stav |
 | --- | --- | --- | --- |
-| Jednotkové backendové | Doménová pravidla, validace a výpočty bez infrastruktury. | C#, xUnit | Tři testovací projekty; dva testy controllerů a dva prázdné testy. Doménová logika zatím chybí. |
-| Jednotkové a komponentové frontendové | Validace a zpracování odpovědí API. | TypeScript, Vitest | 28 testů registrace, loginu, obnovy identity, logoutu a pravidel navigace. Komponentové testy a `moveTask` zatím chybí. |
-| Integrační API | HTTP routování, stavové kódy, serializace, validace a autentizace. | xUnit, WebApplicationFactory, PostgreSQL 17 | 79 testů registrace, loginu, session, hashování, CSRF, limitů, vývojového seedu a chráněného integračního vzoru přes skutečnou pipeline. |
-| Integrační databázové | Dotazy, zápisy, omezení a migrace na stejném databázovém systému jako produkce. | xUnit, Npgsql, skutečná PostgreSQL 17 | 30 testů v `StudentFlow.Data.IntegrationTests`: migrace, účty, normalizace, transakce, souběhy a session včetně rollbacku rehashe. Testcontainers zatím není zaveden. |
+| Jednotkové backendové | Doménová pravidla, validace a výpočty bez infrastruktury. | C#, xUnit | `StudentFlow.Core.Tests` (pravidla účtů, oprávnění nástěnky, přesuny úkolů, členové projektu), `StudentFlow.Api.Tests` (controllery nad repozitářem v paměti) a `StudentFlow.Data.Tests` (kontroly vstupů datové vrstvy bez databáze). |
+| Jednotkové a komponentové frontendové | Validace a zpracování odpovědí API. | TypeScript, Vitest | Registrace, login, obnova identity a logout, HTTP klienti s CSRF, hooky nástěnky a členů projektu, utility úkolů (`moveTask`, filtry, zobrazení) a komponenty správy členů. |
+| Integrační API | HTTP routování, stavové kódy, serializace, validace a autentizace. | xUnit, WebApplicationFactory, PostgreSQL 17 | Registrace, login, session, hashování, CSRF, limitů, vývojového seedu a chráněného integračního vzoru přes skutečnou pipeline. |
+| Integrační databázové | Dotazy, zápisy, omezení a migrace na stejném databázovém systému jako produkce. | xUnit, Npgsql, skutečná PostgreSQL 17 | `StudentFlow.Data.IntegrationTests`: migrace, účty, normalizace, transakce, souběhy a session včetně rollbacku rehashe. Testcontainers zatím není zaveden. |
 | E2E | Kritické uživatelské průchody přes prohlížeč, frontend a API. | TypeScript, Playwright | 28 scénářů v Chromium, Firefox a WebKit (84 testů): HTTPS, registrace obou typů, login, refresh, role, logout a replay cookie, více karet, výpadky, klávesnice, mobil a tablet s dotykovým ovládáním. |
 | Frontendová integrace | Propojení dashboardu a formuláře projektu s routováním a stavem identity. | TypeScript, Playwright, řízené odpovědi API | 8 scénářů v `project-creation-integration.spec.ts`: anonymní přístup, čekání a výpadek ověření, omezení vyučujícího, filtry dashboardu, oba vstupy do založení projektu a průchod člena na mobilu, tabletu a desktopu. |
 
@@ -113,6 +113,10 @@ dotnet test tests/StudentFlow.Core.Tests/StudentFlow.Core.Tests.csproj -c Releas
 dotnet test tests/StudentFlow.Data.Tests/StudentFlow.Data.Tests.csproj -c Release
 ```
 
+`StudentFlow.Data.Tests` ověřuje bez databáze kontroly vstupů datové vrstvy, které
+proběhnou před připojením (prázdné či neplatné údaje účtu, délka hashe tokenu session).
+Chování SQL nad skutečnou PostgreSQL 17 testuje `StudentFlow.Data.IntegrationTests`.
+
 Collector pro coverage je již přidaný. Pro sběr při běhu konkrétního projektu:
 
 ```bash
@@ -208,6 +212,15 @@ dotnet test tests/StudentFlow.Api.IntegrationTests/StudentFlow.Api.IntegrationTe
 V PowerShellu nastavte stejný connection string pomocí
 `$env:STUDENTFLOW_TEST_DATABASE = '...'`. CI vytváří vlastní službu `postgres:17`.
 
+Test Explorer ve Visual Studiu čte proměnné prostředí jen při startu. Nastavte
+proměnnou uživateli a Visual Studio restartujte:
+
+```powershell
+[Environment]::SetEnvironmentVariable('STUDENTFLOW_TEST_DATABASE', 'Host=…;Port=…;Database=postgres;Username=…;Password=…;SSL Mode=Disable', 'User')
+```
+
+Bez této proměnné integrační testy v Test Exploreru selžou s vysvětlující chybou.
+
 Sada pokrývá nový i existující stav databáze, zachování účtů při upgradu,
 odmítnutí kolizí bez částečné migrace, právě jeden typ účtu a jeho souběžné změny
 ve třech úrovních izolace, Unicode normalizaci, souběžnou duplicitu registrace,
@@ -254,11 +267,11 @@ pouze vlastní účty.
 
 ## Nejbližší implementační kroky
 
-1. Rozšířit Vitest o existující `moveTask` a komponenty po předání příslušné funkce.
+1. Rozšířit Vitest o komponenty nástěnky a dashboardu.
 2. Ověřit další projektová API a jejich oprávnění po předání implementace.
-3. Doplnit průzkumné scénáře nad projektovým dashboardem po předání jeho implementace.
+3. Doplnit průzkumné scénáře nad projektovým dashboardem.
 4. Nastavit povinné kontroly před sloučením; ochrana větve zůstává neověřená.
-5. Po předání autentizace, databáze a ukládání jejich autory doplní vedoucí testování testy oprávnění, izolace týmů a trvalého uložení změn. Prázdné backendové testy nahradí skutečnými testy po vzniku příslušné logiky.
+5. Po předání autentizace, databáze a ukládání jejich autory doplní vedoucí testování testy oprávnění, izolace týmů a trvalého uložení změn.
 
 ## Podklady
 

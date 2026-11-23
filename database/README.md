@@ -94,6 +94,21 @@ docker compose exec -T postgres psql -v ON_ERROR_STOP=1 -U studentflow -d studen
 Úspěšně aplikované migrace se neopakují. Při odmítnutí V003 kvůli starým datům
 nejprve vyřešte hlášené konflikty podle diagnostiky, potom V003 opakujte.
 
+### Doplnění chybějících migrací
+
+Po stažení změn s novou migrací ji na existujícím svazku proveďte ručně, každou
+zvlášť v pořadí názvů. V PowerShellu z kořene projektu:
+
+```powershell
+Get-Content .\database\migrations\NAZEV_MIGRACE.sql -Raw -Encoding UTF8 | docker exec -i studentflow-db psql -v ON_ERROR_STOP=1 -U studentflow -d studentflow
+```
+
+Migrace mají vlastní transakci. Pokud skončí chybou `already exists`, byla už
+provedená a databáze se nezmění. Ukázková data `V005__seed_kanban_demo.sql`
+znovu nespouštějte, vytvořila by druhý ukázkový projekt. Pokud lokální data
+nepotřebujete, je jednodušší svazek založit znovu příkazy
+`docker compose down -v` a `docker compose up -d --wait`.
+
 ## 4. Zastavení databáze
 
 ```powershell

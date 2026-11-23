@@ -9,6 +9,9 @@ public sealed class DashboardTaskDto
     /// <summary>Identifikátor úkolu.</summary>
     public int Id { get; set; }
 
+    /// <summary>Identifikátor projektu, do kterého úkol patří; slouží k otevření jeho nástěnky.</summary>
+    public int ProjectId { get; set; }
+
     /// <summary>Název úkolu.</summary>
     public string Name { get; set; } = string.Empty;
 

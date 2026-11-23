@@ -25,8 +25,10 @@ public sealed class PostgresUserAccountStore(NpgsqlDataSource dataSource) : IUse
             throw new ArgumentException(firstNameError, nameof(account));
         if (RegistrationNameRules.Validate(account.LastName, "Příjmení") is { } lastNameError)
             throw new ArgumentException(lastNameError, nameof(account));
+
         ArgumentException.ThrowIfNullOrWhiteSpace(account.Email);
         ArgumentException.ThrowIfNullOrWhiteSpace(account.PasswordHash);
+
         var code = AccountTypeCodes.ToCode(account.AccountType);
         var email = account.Email.Trim();
         if (email.EnumerateRunes().Count() is < 3 or > 320)

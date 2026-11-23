@@ -124,6 +124,7 @@ public sealed class PostgresDashboardRepository(
         const string tasksSql = """
             SELECT
                 t.task_id AS Id,
+                t.project_id AS ProjectId,
                 t.title AS Name,
                 p.name AS Project,
                 COALESCE(to_char(t.due_date, 'DD. MM.'), '') AS Deadline,

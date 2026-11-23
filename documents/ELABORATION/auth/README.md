@@ -91,9 +91,8 @@ popisují [API kontrakt](API_CONTRACT.md) a
 [stavy a přechody](SCREENS_AND_FLOWS.md); nevytvářejí další desktopový wireframe.
 
 Úvodní adresa nyní vyžaduje přihlášení. Člen pokračuje na `/projects`, vyučující
-na `/teaching`; jde o vstupní obrazovky s ověřenou identitou, obsah projektového
-dashboardu dodá KAN-47. Původní komponenty ukázkového Kanbanu zůstávají v kódu,
-ale nejsou veřejnou úvodní stránkou; API controllerů vyžaduje session.
+na `/teaching`. Dashboard člena načítá jeho projekty a úkoly z API (KAN-47);
+přehled vyučujícího zatím projekty nevypisuje. API controllerů vyžaduje session.
 Účty i serverové session používají PostgreSQL. Podrobnosti jsou
 v [databázové dokumentaci](../../../database/AUTHENTICATION.md).
 Autentizace nenahrazuje projektová oprávnění, která budou součástí projektových funkcí.
@@ -104,9 +103,8 @@ Spuštění a rozsah HTTP, databázových, frontendových a browser testů popis
 [testovací dokumentace](../../TESTING.md). Výsledky jednotlivých běhů patří
 do testovacích reportů a evidence Jira.
 
-- Projektový dashboard s reálnými daty dodává KAN-47. Formulář založení
-  projektu je zapojený do identity na `/projects/new`, zatím však neukládá
-  projekt ani tým do API.
+- Přehled vyučujícího zatím nevypisuje projekty; chybí pro něj API se seznamem
+  projektů.
 - Obnova hesla a potvrzení e-mailu nejsou součástí tohoto průchodu.
 - Přijatý rozsah KAN-112 zahrnuje PC a emulaci mobilních/tabletových rozměrů.
   Chování fyzických zařízení a skutečné softwarové klávesnice není ověřené.

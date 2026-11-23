@@ -20,6 +20,7 @@ export type DashboardProject = {
  */
 export type DashboardTask = {
   id: number
+  projectId: number
   name: string
   project: string
   deadline: string
@@ -67,6 +68,8 @@ function isDashboardTask(value: unknown): value is DashboardTask {
   return (
     typeof value.id === 'number' &&
     Number.isInteger(value.id) &&
+    typeof value.projectId === 'number' &&
+    Number.isInteger(value.projectId) &&
     typeof value.name === 'string' &&
     typeof value.project === 'string' &&
     typeof value.deadline === 'string' &&

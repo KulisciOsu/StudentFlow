@@ -1,11 +1,12 @@
-import { spawn, spawnSync } from 'node:child_process'
+import { spawn } from 'node:child_process'
 import { randomBytes } from 'node:crypto'
-import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { get } from 'node:https'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import * as nodeUtil from 'node:util'
 import { setTimeout as delay } from 'node:timers/promises'
+import { ensureDevCertificate } from './dev-certs.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const client = join(root, 'src/studentflow.client')
@@ -30,14 +31,11 @@ if (command === 'setup') {
     writeFileSync(envPath, template.replace('POSTGRES_PASSWORD=', `POSTGRES_PASSWORD=${randomBytes(24).toString('hex')}`), { mode: 0o600, flag: 'wx' })
     console.log('Vytvořen lokální .env s vygenerovaným heslem databáze.')
   }
-  mkdirSync(dirname(certPath), { recursive: true, mode: 0o700 })
-  const result = spawnSync('dotnet', [
-    'dev-certs', 'https', '--export-path', certPath, '--format', 'PEM', '--no-password',
-  ], { cwd: root, stdio: 'inherit' })
-  if (result.error || result.status !== 0) {
-    fail('Export certifikátu selhal. Ověřte instalaci .NET 10 SDK a zkuste setup znovu.')
+  try {
+    ensureDevCertificate(root, { force: true })
+  } catch (error) {
+    fail(error.message)
   }
-  if (process.platform !== 'win32') chmodSync(keyPath, 0o600)
   console.log('HTTPS certifikát připraven v .certs/. Důvěru lze nastavit pomocí dotnet dev-certs https --trust.')
   process.exit(0)
 }
