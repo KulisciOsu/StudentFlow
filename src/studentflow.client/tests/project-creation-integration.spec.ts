@@ -263,6 +263,46 @@ for (const [width, height] of [[390, 844], [820, 1180], [1280, 900]]) {
   })
 }
 
+test('formulář přijme serverové limity a nepovinný termín', async ({ page }) => {
+  await mockSession(page, 'STUDENT')
+  await mockStudentApi(page)
+
+  const projectName = 'P'.repeat(200)
+  const teamName = 'T'.repeat(120)
+
+  await page.route('**/api/projects', async route => {
+    if (route.request().method() !== 'POST') {
+      await route.fallback()
+      return
+    }
+
+    expect(route.request().headers()['x-csrf-token']).toBe('integration-csrf')
+    expect(route.request().postDataJSON()).toEqual({
+      name: projectName,
+      description: '',
+      dueDate: null,
+      teamName,
+    })
+    await route.fulfill({ status: 201, json: { projectId: 42 } })
+  })
+
+  await page.goto('/projects/new')
+
+  const projectField = page.getByLabel('Název projektu')
+  const teamField = page.getByLabel('Název týmu')
+  const deadlineField = page.getByLabel('Plánovaný termín odevzdání')
+
+  await expect(projectField).toHaveAttribute('maxlength', '200')
+  await expect(teamField).toHaveAttribute('maxlength', '120')
+  await expect(deadlineField).not.toHaveAttribute('required', '')
+
+  await projectField.fill(projectName)
+  await teamField.fill(teamName)
+  await page.getByRole('button', { name: 'Založit projekt', exact: true }).click()
+
+  await expect(page).toHaveURL('/board/42')
+})
+
 test('vyučující nemá nabídku založení projektu a přímý přístup je odmítnut', async ({ page }) => {
   await mockSession(page, 'TEACHER')
 

@@ -81,33 +81,20 @@ export function CreateProjectPage({
 
     if (!formValues.projectName.trim()) {
       validationErrors.projectName = 'Zadejte název projektu.'
-    } else if (formValues.projectName.trim().length > 160) {
-      validationErrors.projectName = 'Název projektu může mít maximálně 160 znaků.'
+    } else if (formValues.projectName.trim().length > 200) {
+      validationErrors.projectName = 'Název projektu může mít maximálně 200 znaků.'
     }
 
     if (formValues.description.length > 1000) {
       validationErrors.description = 'Popis může mít maximálně 1 000 znaků.'
     }
 
-    if (!formValues.deadline) {
-      validationErrors.deadline = 'Vyberte termín odevzdání.'
-    } else {
-      const today = new Date()
-      const todayString = [
-        today.getFullYear(),
-        String(today.getMonth() + 1).padStart(2, '0'),
-        String(today.getDate()).padStart(2, '0'),
-      ].join('-')
 
-      if (formValues.deadline < todayString) {
-        validationErrors.deadline = 'Termín odevzdání nemůže být v minulosti.'
-      }
-    }
 
     if (!formValues.teamName.trim()) {
       validationErrors.teamName = 'Zadejte název týmu.'
-    } else if (formValues.teamName.trim().length > 50) {
-      validationErrors.teamName = 'Název týmu může mít maximálně 50 znaků.'
+    } else if (formValues.teamName.trim().length > 120) {
+      validationErrors.teamName = 'Název týmu může mít maximálně 120 znaků.'
     }
 
     return validationErrors
@@ -150,7 +137,7 @@ export function CreateProjectPage({
       const response = await authPost('/api/projects', {
         name: values.projectName.trim(),
         description: values.description.trim(),
-        dueDate: values.deadline,
+        dueDate: values.deadline || null,
         teamName: values.teamName.trim(),
       })
 
@@ -225,7 +212,7 @@ export function CreateProjectPage({
               placeholder="Např. Evidence praxí"
               value={values.projectName}
               onChange={(event) => update('projectName', event.target.value)}
-              maxLength={160}
+              maxLength={200}
               required
               className={errors.projectName ? 'sf-input-invalid' : undefined}
               aria-invalid={Boolean(errors.projectName)}
@@ -263,7 +250,7 @@ export function CreateProjectPage({
 
           <div className="sf-field sf-date-field">
             <label htmlFor="project-deadline">
-              Plánovaný termín odevzdání <span>*</span>
+              Plánovaný termín odevzdání
             </label>
             <div className="sf-date-control">
               <input
@@ -272,23 +259,13 @@ export function CreateProjectPage({
                 type="date"
                 value={values.deadline}
                 onChange={(event) => update('deadline', event.target.value)}
-                required
-                className={errors.deadline ? 'sf-input-invalid' : undefined}
-                aria-invalid={Boolean(errors.deadline)}
-                aria-describedby={
-                  errors.deadline ? 'project-deadline-error' : undefined
-                }
               />
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <rect x="3.5" y="5" width="17" height="16" rx="2" />
                 <path d="M7.5 3v4M16.5 3v4M4 9.5h16" />
               </svg>
             </div>
-            {errors.deadline && (
-              <span id="project-deadline-error" className="sf-error-message" role="alert">
-                {errors.deadline}
-              </span>
-            )}
+
           </div>
         </section>
 
@@ -311,7 +288,7 @@ export function CreateProjectPage({
               placeholder="Např. Tým Sova"
               value={values.teamName}
               onChange={(event) => update('teamName', event.target.value)}
-              maxLength={50}
+              maxLength={120}
               required
               className={errors.teamName ? 'sf-input-invalid' : undefined}
               aria-invalid={Boolean(errors.teamName)}

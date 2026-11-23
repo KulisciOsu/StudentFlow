@@ -70,6 +70,37 @@ public class ProjectCreationApiTests
         Assert.Equal(0L, count);
     }
     /// <summary>
+    /// Student smí založit projekt s maximálními délkami a bez termínu.
+    /// </summary>
+    [Fact]
+    public async Task Create_Student_AcceptsServerLimitsAndOptionalDate()
+    {
+        await using var app = await RegistrationApp.CreateAsync(dashboard: true);
+        await SignInAsync(app, "student@example.test", "STUDENT");
+        var command = new
+        {
+            name = new string('P', 200),
+            description = "",
+            teamName = new string('T', 120),
+            dueDate = (DateOnly?)null
+        };
+
+        var response = await app.Client.PostAsJsonAsync("/api/projects", command);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+        var result = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var projectId = result.GetProperty("projectId").GetInt32();
+        var count = await app.Database.ScalarAsync<long>($"""
+            SELECT count(*) FROM project
+            WHERE project_id = {projectId}
+              AND char_length(name) = 200
+              AND char_length(team_name) = 120
+              AND due_date IS NULL
+            """);
+
+        Assert.Equal(1L, count);
+    }
+    /// <summary>
     /// Zaregistruje a přihlásí účet a vydá CSRF token pro novou session.
     /// </summary>
     private static async Task SignInAsync(RegistrationApp app, string email, string accountType)
