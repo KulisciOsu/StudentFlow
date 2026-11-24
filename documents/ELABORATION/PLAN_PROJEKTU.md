@@ -2,7 +2,7 @@
 
 > Výstup fáze Elaboration. Navazuje na [prototyp](PROTOTYP.md) a [risk-list](../INCEPTION/RISK_LIST.md).
 
-Stav k 22. 11. 2026.
+Původní stav k 22. 11. 2026; opravy A02–A04 doplněny v PR #24 (před sloučením do `main`).
 
 ## Fáze podle OpenUP
 
@@ -31,11 +31,11 @@ Stav k 22. 11. 2026.
 
 | Úkol | Kdo | Vazba |
 | --- | --- | --- |
-| Doplnit kontrolu CSRF u založení projektu (přesun úkolu hotový v KAN-144) | Vladimír Pospíšil | Omezení A02, NP03 |
-| Srozumitelně odmítnout založení projektu vyučujícím, sjednotit pravidla formuláře a serveru | Vladimír Pospíšil | Omezení A03, A04 |
 | Rozhodnout způsob ukládání souborů | vedoucí databáze a backendu | NP05, riziko R4 |
 | Doplnit ER model o milníky, verze výstupů a historii změn | vedoucí databáze | [Mezery v návrhu](#mezery-v-návrhu) |
 | Předávací schůzka: zůstávající člen samostatně spustí aplikaci | všichni | Cíl C10, riziko R2 |
+
+**Vyřešeno v PR #24 (před sloučením do `main`):** KAN-143 odstranil omezení A02 doplněním CSRF ochrany s odpovědí `403 CSRF_INVALID`; KAN-145 odstranil A03 kontrolou typu účtu před validací (`TEACHER` dostává `403`); KAN-146 odstranil A04 sjednocením limitů a povinného termínu, který nesmí být v minulosti. Dokládají to API integrační a frontendové testy. Omezení A01 a ostatní otevřené úkoly zůstávají beze změny.
 
 ## Mezery v návrhu
 
