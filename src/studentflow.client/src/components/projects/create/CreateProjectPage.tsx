@@ -15,6 +15,17 @@ const initialValues: FormValues = {
 }
 
 /**
+ * Vrátí dnešní lokální datum ve formátu YYYY-MM-DD pro formulář projektu.
+ */
+function todayLocalDate(): string {
+  const today = new Date()
+  return [
+    today.getFullYear(),
+    String(today.getMonth() + 1).padStart(2, '0'),
+    String(today.getDate()).padStart(2, '0'),
+  ].join('-')
+}
+/**
  * Ověří, že odpověď API obsahuje identifikátor vytvořeného projektu.
  */
 function readProjectId(value: unknown): number | null {
@@ -89,7 +100,11 @@ export function CreateProjectPage({
       validationErrors.description = 'Popis může mít maximálně 1 000 znaků.'
     }
 
-
+    if (!formValues.deadline) {
+      validationErrors.deadline = 'Vyberte termín odevzdání.'
+    } else if (formValues.deadline < todayLocalDate()) {
+      validationErrors.deadline = 'Termín odevzdání nemůže být v minulosti.'
+    }
 
     if (!formValues.teamName.trim()) {
       validationErrors.teamName = 'Zadejte název týmu.'
@@ -137,7 +152,7 @@ export function CreateProjectPage({
       const response = await authPost('/api/projects', {
         name: values.projectName.trim(),
         description: values.description.trim(),
-        dueDate: values.deadline || null,
+        dueDate: values.deadline,
         teamName: values.teamName.trim(),
       })
 
@@ -250,7 +265,7 @@ export function CreateProjectPage({
 
           <div className="sf-field sf-date-field">
             <label htmlFor="project-deadline">
-              Plánovaný termín odevzdání
+              Plánovaný termín odevzdání <span>*</span>
             </label>
             <div className="sf-date-control">
               <input
@@ -258,14 +273,23 @@ export function CreateProjectPage({
                 name="deadline"
                 type="date"
                 value={values.deadline}
+                min={todayLocalDate()}
                 onChange={(event) => update('deadline', event.target.value)}
+                required
+                className={errors.deadline ? 'sf-input-invalid' : undefined}
+                aria-invalid={Boolean(errors.deadline)}
+                aria-describedby={errors.deadline ? 'project-deadline-error' : undefined}
               />
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <rect x="3.5" y="5" width="17" height="16" rx="2" />
                 <path d="M7.5 3v4M16.5 3v4M4 9.5h16" />
               </svg>
             </div>
-
+            {errors.deadline && (
+              <span id="project-deadline-error" className="sf-error-message" role="alert">
+                {errors.deadline}
+              </span>
+            )}
           </div>
         </section>
 

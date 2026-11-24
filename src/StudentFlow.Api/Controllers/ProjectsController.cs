@@ -129,6 +129,18 @@ public class ProjectsController : ControllerBase
                 "Název týmu je povinný a může mít maximálně 120 znaků.");
         }
 
+        if (!command.DueDate.HasValue)
+        {
+            ModelState.AddModelError(
+                nameof(command.DueDate),
+                "Termín odevzdání je povinný.");
+        }
+        else if (command.DueDate.Value < DateOnly.FromDateTime(DateTime.UtcNow))
+        {
+            ModelState.AddModelError(
+                nameof(command.DueDate),
+                "Termín odevzdání nemůže být v minulosti.");
+        }
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);

@@ -70,19 +70,20 @@ public class ProjectCreationApiTests
         Assert.Equal(0L, count);
     }
     /// <summary>
-    /// Student smí založit projekt s maximálními délkami a bez termínu.
+    /// Student smí založit projekt s maximálními délkami a platným termínem.
     /// </summary>
     [Fact]
-    public async Task Create_Student_AcceptsServerLimitsAndOptionalDate()
+    public async Task Create_Student_AcceptsServerLimitsAndRequiredDate()
     {
         await using var app = await RegistrationApp.CreateAsync(dashboard: true);
         await SignInAsync(app, "student@example.test", "STUDENT");
+        var dueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7));
         var command = new
         {
             name = new string('P', 200),
             description = "",
             teamName = new string('T', 120),
-            dueDate = (DateOnly?)null
+            dueDate
         };
 
         var response = await app.Client.PostAsJsonAsync("/api/projects", command);
@@ -95,10 +96,80 @@ public class ProjectCreationApiTests
             WHERE project_id = {projectId}
               AND char_length(name) = 200
               AND char_length(team_name) = 120
-              AND due_date IS NULL
+              AND due_date = DATE '{dueDate:yyyy-MM-dd}'
             """);
 
         Assert.Equal(1L, count);
+    }
+    /// <summary>
+    /// Pokud není termín v JSON odeslaný, API odmítne založení a databáze se nezmění.
+    /// </summary>
+    [Fact]
+    public async Task Create_WithoutDueDate_Returns400AndDoesNotWrite()
+    {
+        await using var app = await RegistrationApp.CreateAsync(dashboard: true);
+        await SignInAsync(app, "bez-terminu@example.test", "STUDENT");
+
+        var response = await app.Client.PostAsJsonAsync("/api/projects", new
+        {
+            name = "Testovací projekt",
+            description = "",
+            teamName = "Testovací tým"
+        });
+        var problem = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var count = await app.Database.ScalarAsync<long>("SELECT count(*) FROM project");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.True(problem.GetProperty("errors").TryGetProperty("DueDate", out _));
+        Assert.Equal(0L, count);
+    }
+
+    /// <summary>
+    /// Výslovně prázdný termín (null) musí API odmítnout stejně jako chybějící hodnotu.
+    /// </summary>
+    [Fact]
+    public async Task Create_NullDueDate_Returns400AndDoesNotWrite()
+    {
+        await using var app = await RegistrationApp.CreateAsync(dashboard: true);
+        await SignInAsync(app, "null-termin@example.test", "STUDENT");
+
+        var response = await app.Client.PostAsJsonAsync("/api/projects", new
+        {
+            name = "Testovací projekt",
+            description = "",
+            teamName = "Testovací tým",
+            dueDate = (DateOnly?)null
+        });
+        var problem = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var count = await app.Database.ScalarAsync<long>("SELECT count(*) FROM project");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.True(problem.GetProperty("errors").TryGetProperty("DueDate", out _));
+        Assert.Equal(0L, count);
+    }
+
+    /// <summary>
+    /// Termín v minulosti musí API odmítnout ještě před zápisem do databáze.
+    /// </summary>
+    [Fact]
+    public async Task Create_PastDueDate_Returns400AndDoesNotWrite()
+    {
+        await using var app = await RegistrationApp.CreateAsync(dashboard: true);
+        await SignInAsync(app, "minuly-termin@example.test", "STUDENT");
+
+        var response = await app.Client.PostAsJsonAsync("/api/projects", new
+        {
+            name = "Testovací projekt",
+            description = "",
+            teamName = "Testovací tým",
+            dueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1))
+        });
+        var problem = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var count = await app.Database.ScalarAsync<long>("SELECT count(*) FROM project");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.True(problem.GetProperty("errors").TryGetProperty("DueDate", out _));
+        Assert.Equal(0L, count);
     }
     /// <summary>
     /// Zaregistruje a přihlásí účet a vydá CSRF token pro novou session.
@@ -121,6 +192,6 @@ public class ProjectCreationApiTests
         name = "Testovací projekt",
         description = "",
         teamName = "Testovací tým",
-        dueDate = (DateOnly?)null
+        dueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7))
     };
 }

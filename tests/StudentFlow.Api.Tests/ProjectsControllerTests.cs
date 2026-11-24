@@ -114,7 +114,8 @@ public class ProjectsControllerTests
         var command = new CreateProjectCommand
         {
             Name = "Nový projekt",
-            TeamName = "Vývojový tým"
+            TeamName = "Vývojový tým",
+            DueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7))
         };
 
         var result = await controller.Create(command, CancellationToken.None);
@@ -200,7 +201,8 @@ public class ProjectsControllerTests
         var command = new CreateProjectCommand
         {
             Name = "",
-            TeamName = "Vývojový tým"
+            TeamName = "Vývojový tým",
+            DueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7))
         };
 
         var result = await controller.Create(command, CancellationToken.None);
