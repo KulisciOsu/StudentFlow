@@ -17,7 +17,7 @@ export class CsrfTokenError extends Error {
 
 /// <summary>
 /// Odešle požadavek měnící data se session cookie a čerstvým CSRF tokenem.
-/// Pouze po odpovědi 400 nebo 403 s kódem CSRF_INVALID obnoví token a požadavek jednou zopakuje;
+/// Pouze po odpovědi 403 s kódem CSRF_INVALID obnoví token a požadavek jednou zopakuje;
 /// ostatní odpovědi včetně chyb vrátí volajícímu beze změny. Chyba sítě se neopakuje,
 /// protože server mohl požadavek už provést. Nad touto funkcí je postavený i authPost z autentizace.
 /// </summary>
@@ -30,7 +30,7 @@ export async function csrfRequest(method: WriteMethod, path: string, body?: unkn
   })
 
   const response = await send(await fetchCsrfToken(signal))
-  if ((response.status === 400 || response.status === 403) && await isCsrfRejection(response)) return send(await fetchCsrfToken(signal))
+  if (response.status === 403 && await isCsrfRejection(response)) return send(await fetchCsrfToken(signal))
   return response
 }
 

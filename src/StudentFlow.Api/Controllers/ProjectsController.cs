@@ -68,7 +68,6 @@ public class ProjectsController : ControllerBase
     /// <returns>Vytvořený projekt, nebo validační či autorizační chybu.</returns>
     [Authorize]
     [HttpPost]
-    [CsrfInvalidResponseStatus(StatusCodes.Status400BadRequest)]
     [ServiceFilter(typeof(CsrfValidationFilter))]
     public async Task<ActionResult<CreatedProject>> Create(
         [FromBody] CreateProjectCommand command,

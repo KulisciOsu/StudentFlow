@@ -13,10 +13,10 @@ public class ProjectCreationApiTests
     private const string Password = "TestHeslo1!";
 
     /// <summary>
-    /// Požadavek bez CSRF tokenu vrátí 400 a žádný projekt nevytvoří.
+    /// Požadavek bez CSRF tokenu vrátí 403 a žádný projekt nevytvoří.
     /// </summary>
     [Fact]
-    public async Task Create_WithoutCsrfToken_Returns400AndDoesNotWrite()
+    public async Task Create_WithoutCsrfToken_Returns403AndDoesNotWrite()
     {
         await using var app = await RegistrationApp.CreateAsync(dashboard: true);
         await SignInAsync(app, "bez-tokenu@example.test", "STUDENT");
@@ -26,7 +26,7 @@ public class ProjectCreationApiTests
         var problem = await response.Content.ReadFromJsonAsync<JsonElement>();
         var count = await app.Database.ScalarAsync<long>("SELECT count(*) FROM project");
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         Assert.Equal("CSRF_INVALID", problem.GetProperty("code").GetString());
         Assert.Equal(0L, count);
     }
@@ -35,7 +35,7 @@ public class ProjectCreationApiTests
     /// Neplatný CSRF token má stejnou odpověď jako chybějící token.
     /// </summary>
     [Fact]
-    public async Task Create_InvalidCsrfToken_Returns400AndDoesNotWrite()
+    public async Task Create_InvalidCsrfToken_Returns403AndDoesNotWrite()
     {
         await using var app = await RegistrationApp.CreateAsync(dashboard: true);
         await SignInAsync(app, "spatny-token@example.test", "STUDENT");
@@ -46,7 +46,7 @@ public class ProjectCreationApiTests
         var problem = await response.Content.ReadFromJsonAsync<JsonElement>();
         var count = await app.Database.ScalarAsync<long>("SELECT count(*) FROM project");
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         Assert.Equal("CSRF_INVALID", problem.GetProperty("code").GetString());
         Assert.Equal(0L, count);
     }
