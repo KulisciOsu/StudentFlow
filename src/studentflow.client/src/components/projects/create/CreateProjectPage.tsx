@@ -15,7 +15,6 @@ const initialValues: FormValues = {
   teamName: '',
 }
 
-
 /**
  * Ověří, že odpověď API obsahuje identifikátor vytvořeného projektu.
  */
