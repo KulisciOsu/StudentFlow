@@ -167,6 +167,28 @@ public class ProjectsControllerTests
         Assert.Null(repository.ReceivedCommand);
     }
 
+    /// <summary>
+    /// Vyučující dostane 403 před validací, i když obsah projektu není platný.
+    /// </summary>
+    [Fact]
+    public async Task Create_TeacherWithInvalidCommand_ReturnsForbiddenBeforeValidation()
+    {
+        var repository = new FakeProjectCreationRepository();
+        var controller = CreateController(repository);
+        SetAuthenticatedUser(controller, "42", "TEACHER");
+
+        var result = await controller.Create(new CreateProjectCommand
+        {
+            Name = "",
+            TeamName = ""
+        }, CancellationToken.None);
+
+        var forbidden = Assert.IsType<ObjectResult>(result.Result);
+        var problem = Assert.IsType<ProblemDetails>(forbidden.Value);
+        Assert.Equal(StatusCodes.Status403Forbidden, forbidden.StatusCode);
+        Assert.Equal("PROJECT_CREATION_FORBIDDEN", problem.Extensions["code"]);
+        Assert.Null(repository.ReceivedCommand);
+    }
     [Fact]
     public async Task Create_WithoutProjectName_ReturnsBadRequest()
     {
