@@ -135,7 +135,7 @@ public class ProjectsController : ControllerBase
                 nameof(command.DueDate),
                 "Termín odevzdání je povinný.");
         }
-        else if (command.DueDate.Value < DateOnly.FromDateTime(DateTime.UtcNow))
+        else if (command.DueDate.Value < ProjectDeadlineCalendar.Today(DateTimeOffset.UtcNow))
         {
             ModelState.AddModelError(
                 nameof(command.DueDate),

@@ -5,6 +5,7 @@ import type {
   FormErrors,
   FormValues,
 } from './CreateProjectPageTypes'
+import { todayPragueDate } from './projectDate'
 import './CreateProjectPage.scss'
 
 const initialValues: FormValues = {
@@ -14,17 +15,7 @@ const initialValues: FormValues = {
   teamName: '',
 }
 
-/**
- * Vrátí dnešní lokální datum ve formátu YYYY-MM-DD pro formulář projektu.
- */
-function todayLocalDate(): string {
-  const today = new Date()
-  return [
-    today.getFullYear(),
-    String(today.getMonth() + 1).padStart(2, '0'),
-    String(today.getDate()).padStart(2, '0'),
-  ].join('-')
-}
+
 /**
  * Ověří, že odpověď API obsahuje identifikátor vytvořeného projektu.
  */
@@ -102,7 +93,7 @@ export function CreateProjectPage({
 
     if (!formValues.deadline) {
       validationErrors.deadline = 'Vyberte termín odevzdání.'
-    } else if (formValues.deadline < todayLocalDate()) {
+    } else if (formValues.deadline < todayPragueDate()) {
       validationErrors.deadline = 'Termín odevzdání nemůže být v minulosti.'
     }
 
@@ -273,7 +264,7 @@ export function CreateProjectPage({
                 name="deadline"
                 type="date"
                 value={values.deadline}
-                min={todayLocalDate()}
+                min={todayPragueDate()}
                 onChange={(event) => update('deadline', event.target.value)}
                 required
                 className={errors.deadline ? 'sf-input-invalid' : undefined}
