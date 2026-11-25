@@ -3,6 +3,8 @@ using System.Globalization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using StudentFlow.Api.Authentication;
+using StudentFlow.Core.Authentication;
 using StudentFlow.Core.Kanban;
 using StudentFlow.Core.Projects;
 
@@ -67,10 +69,32 @@ public class ProjectsController : ControllerBase
     /// <returns>Vytvořený projekt, nebo validační či autorizační chybu.</returns>
     [Authorize]
     [HttpPost]
+    [ServiceFilter(typeof(CsrfValidationFilter))]
     public async Task<ActionResult<CreatedProject>> Create(
         [FromBody] CreateProjectCommand command,
         CancellationToken cancellationToken)
     {
+        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!long.TryParse(
+                userIdValue,
+                NumberStyles.None,
+                CultureInfo.InvariantCulture,
+                out var creatorUserId))
+        {
+            return Unauthorized();
+        }
+
+        if (!User.IsInRole(AccountTypeCodes.ToCode(AccountType.Member)))
+        {
+            return ApiProblems.Result(
+                HttpContext,
+                StatusCodes.Status403Forbidden,
+                "PROJECT_CREATION_FORBIDDEN",
+                "Projekt nelze založit",
+                "Nový projekt může založit pouze student.");
+        }
+
         if (command is null)
         {
             ModelState.AddModelError(
@@ -105,20 +129,21 @@ public class ProjectsController : ControllerBase
                 "Název týmu je povinný a může mít maximálně 120 znaků.");
         }
 
+        if (!command.DueDate.HasValue)
+        {
+            ModelState.AddModelError(
+                nameof(command.DueDate),
+                "Termín odevzdání je povinný.");
+        }
+        else if (command.DueDate.Value < ProjectDeadlineCalendar.Today(DateTimeOffset.UtcNow))
+        {
+            ModelState.AddModelError(
+                nameof(command.DueDate),
+                "Termín odevzdání nemůže být v minulosti.");
+        }
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);
-        }
-
-        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (!long.TryParse(
-                userIdValue,
-                NumberStyles.None,
-                CultureInfo.InvariantCulture,
-                out var creatorUserId))
-        {
-            return Unauthorized();
         }
 
         var projectId = await _projectCreationRepository.CreateAsync(

@@ -5,6 +5,7 @@ import type {
   FormErrors,
   FormValues,
 } from './CreateProjectPageTypes'
+import { todayPragueDate } from './projectDate'
 import './CreateProjectPage.scss'
 
 const initialValues: FormValues = {
@@ -81,8 +82,8 @@ export function CreateProjectPage({
 
     if (!formValues.projectName.trim()) {
       validationErrors.projectName = 'Zadejte název projektu.'
-    } else if (formValues.projectName.trim().length > 160) {
-      validationErrors.projectName = 'Název projektu může mít maximálně 160 znaků.'
+    } else if (formValues.projectName.trim().length > 200) {
+      validationErrors.projectName = 'Název projektu může mít maximálně 200 znaků.'
     }
 
     if (formValues.description.length > 1000) {
@@ -91,23 +92,14 @@ export function CreateProjectPage({
 
     if (!formValues.deadline) {
       validationErrors.deadline = 'Vyberte termín odevzdání.'
-    } else {
-      const today = new Date()
-      const todayString = [
-        today.getFullYear(),
-        String(today.getMonth() + 1).padStart(2, '0'),
-        String(today.getDate()).padStart(2, '0'),
-      ].join('-')
-
-      if (formValues.deadline < todayString) {
-        validationErrors.deadline = 'Termín odevzdání nemůže být v minulosti.'
-      }
+    } else if (formValues.deadline < todayPragueDate()) {
+      validationErrors.deadline = 'Termín odevzdání nemůže být v minulosti.'
     }
 
     if (!formValues.teamName.trim()) {
       validationErrors.teamName = 'Zadejte název týmu.'
-    } else if (formValues.teamName.trim().length > 50) {
-      validationErrors.teamName = 'Název týmu může mít maximálně 50 znaků.'
+    } else if (formValues.teamName.trim().length > 120) {
+      validationErrors.teamName = 'Název týmu může mít maximálně 120 znaků.'
     }
 
     return validationErrors
@@ -225,7 +217,7 @@ export function CreateProjectPage({
               placeholder="Např. Evidence praxí"
               value={values.projectName}
               onChange={(event) => update('projectName', event.target.value)}
-              maxLength={160}
+              maxLength={200}
               required
               className={errors.projectName ? 'sf-input-invalid' : undefined}
               aria-invalid={Boolean(errors.projectName)}
@@ -271,13 +263,12 @@ export function CreateProjectPage({
                 name="deadline"
                 type="date"
                 value={values.deadline}
+                min={todayPragueDate()}
                 onChange={(event) => update('deadline', event.target.value)}
                 required
                 className={errors.deadline ? 'sf-input-invalid' : undefined}
                 aria-invalid={Boolean(errors.deadline)}
-                aria-describedby={
-                  errors.deadline ? 'project-deadline-error' : undefined
-                }
+                aria-describedby={errors.deadline ? 'project-deadline-error' : undefined}
               />
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <rect x="3.5" y="5" width="17" height="16" rx="2" />
@@ -311,7 +302,7 @@ export function CreateProjectPage({
               placeholder="Např. Tým Sova"
               value={values.teamName}
               onChange={(event) => update('teamName', event.target.value)}
-              maxLength={50}
+              maxLength={120}
               required
               className={errors.teamName ? 'sf-input-invalid' : undefined}
               aria-invalid={Boolean(errors.teamName)}
